@@ -1,0 +1,6 @@
+linters: linters_with_defaults(
+    line_length_linter(120),
+    assignment_linter = assignment_linter(operator = c("<-","=","<<-")),
+    pipe_consistency_linter = pipe_consistency_linter(pipe = c("auto")),
+    commented_coder_linter = NULL
+  )

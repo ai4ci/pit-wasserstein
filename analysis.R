@@ -1,10 +1,20 @@
-# Supplementary material.
-# install.packages("ggtext")
+# Adjusted PIT-Wasserstein: a calibration metric for probabilistic estimators.
+# Reproduces every figure and table used by main/main.tex into main/fig/.
+#   source("analysis.R")   # from the project root
+# Depends on tidyverse, scoringRules, patchwork, huxtable, here.
 
 library(tidyverse)
-library(ggoutbreak)
+
+# # Plot and output helpers, vendored from ggrrr into R/ (no ggoutbreak needed).
+# In .Rprofile
+# source(here::here("R", "import-standalone-ggplot-utils.R"))
+# source(here::here("R", "import-standalone-file-output-utils.R"))
+# source(here::here("R", "import-standalone-huxtable-utils.R"))
 
 .gg_pedantic()
+
+# where main/main.tex looks for its figures
+fig_dir = here::here("main", "fig")
 
 # We are interested in the probability integral transform histogram.
 # suppose we have a set of true values.
@@ -37,7 +47,10 @@ pit_value = pnorm(true_value, est_mean, est_sd)
 # This is because our estimates noise SD (1) is larger than our estimates average SD (0.25)
 # => our predictions are over confident and the true value is outside the ends
 # of our predictions most of the time.
-ggplot(tibble(pit = pit_value), aes(x = pit)) + geom_histogram(binwidth = 0.01)
+# (assigned, not printed: a script run headless would render this to the
+# default pdf device, which cannot embed Roboto)
+pit_hist_overconfident = ggplot(tibble(pit = pit_value), aes(x = pit)) +
+  geom_histogram(binwidth = 0.01)
 
 # We are looking for a metric to quantify the level of inaccuracy numerically.
 # The ideal for a PIT histogram is the uniform. So we think of a wasserstein
@@ -67,7 +80,7 @@ bias = mean(est_mean - true_value)
 unbiased_pit_value = pnorm(true_value, est_mean - bias, est_sd)
 unbiased_was = mean(abs(unif - sort(unbiased_pit_value)))
 
-ggplot(tibble(pit = unbiased_pit_value), aes(x = pit)) +
+pit_hist_unbiased = ggplot(tibble(pit = unbiased_pit_value), aes(x = pit)) +
   geom_histogram(binwidth = 0.01)
 
 
@@ -79,35 +92,95 @@ directed_was = mean(
 )
 
 # calculate a CRPS for one probabilistic estimate
-crps = function(true_value, cdf, min, max) {
-  x = true_value
+crps = function(cdf = stats::pnorm, min = -1000, max = 1000) {
   fn = rlang::as_function(cdf)
-  tryCatch(
-    stats::integrate(
-      f = \(y) fn(y)^2,
-      lower = min,
-      upper = x,
-      stop.on.error = FALSE
-    )$value +
-      +stats::integrate(
-        f = \(y) (fn(y) - 1)^2,
-        lower = x,
-        upper = max,
+  return(function(true_value, est_mean, est_sd) {
+    x = true_value
+    tryCatch(
+      stats::integrate(
+        f = \(y) fn(y, est_mean, est_sd)^2,
+        lower = min,
+        upper = x,
         stop.on.error = FALSE
-      )$value,
-    error = function(e) {
-      NA
-    }
-  )
+      )$value +
+        +stats::integrate(
+          f = \(y) (fn(y, est_mean, est_sd) - 1)^2,
+          lower = x,
+          upper = max,
+          stop.on.error = FALSE
+        )$value,
+      error = function(e) {
+        NA
+      }
+    )
+  })
+}
+
+#'
+pitw = function(cdf = stats::pnorm) {
+  fn = rlang::as_function(cdf)
+  return(function(true_value, est_mean, est_sd) {
+    x = true_value
+
+    # the quantiles of the true value as judged by our estimates:
+    pit_value = fn(true_value, est_mean, est_sd)
+
+    # We are looking for a metric to quantify the level of inaccuracy numerically.
+    # The ideal for a PIT histogram is the uniform. So we think of a wasserstein
+    # distance.
+
+    # if each pit value (sorted ascending) is moved to its correct place in a
+    # uniform line and we take the sum of the absolute values of this movement gives
+    # the wasserstein distance.
+
+    # if we had 10 items the correct place though would be seq(0.05,0.95,length.out=10)
+    n = length(true_value)
+
+    unif = seq(1 / (2 * n), 1 - 1 / (2 * n), length.out = n)
+    was = sum(abs(unif - sort(pit_value)))
+    # we can normalise this by the number of estimates:
+    was = was / n
+
+    # if there is more mass being moved to the left, compared to moved to the right
+    # we have an indicator of degree of bias.
+    was_bias = sum(unif - sort(pit_value))
+    was_bias = was_bias / n
+
+    # However given we have estimate means and true values we have an direct estimate of
+    # the bias
+    bias = mean(est_mean - true_value)
+
+    # If we unbias out estimates we can recalculate pit
+    unbiased_pit_value = fn(true_value, est_mean - bias, est_sd)
+    unbiased_was = mean(abs(unif - sort(unbiased_pit_value)))
+
+    # We really want to also include in our metric distance from the towards or
+    # away from the centre. A positive value here is towards the centre and
+    # represents overconfidence.
+    directed_was = mean(
+      (unif - sort(unbiased_pit_value)) * ifelse(unif < 0.5, 1, -1)
+    )
+
+    return(list(
+      pitw = was_bias,
+      unbiased_pitw = unbiased_was,
+      directed_pitw = directed_was
+    ))
+  })
 }
 
 crps_norm = function(true_value, mean, sd) {
   z = (true_value - mean) / sd
-  sd * (2 * dnorm(z) + z * (2 * pnorm(z) - 1) - 2 / sqrt(pi))
+  sd * (2 * dnorm(z) + z * (2 * pnorm(z) - 1) - 1 / sqrt(pi))
 }
 
-crps_norm(0, 0, 1)
-scoringRules::crps_cnorm(0, 0, 1)
+testthat::expect_all_equal(
+  c(
+    crps(pnorm, -1000, 1000)(0, 0, 1),
+    crps_norm(0, 0, 1)
+  ),
+  scoringRules::crps_norm(0, 0, 1)
+)
 
 # build this into a purrr pipeline
 # each row here represents one estimator with error function and confidence
@@ -155,7 +228,7 @@ run_scenario = function(true_value, param_df, estfn = pnorm) {
       crps = purrr::map2(
         est_mean,
         est_sd,
-        ~ scoringRules::crps_norm(true_values, .x, .y)
+        ~ scoringRules::crps_norm(true_value, .x, .y)
       ),
       mean_crps = purrr::map_dbl(crps, mean),
       # The absolute bias in the estimates
@@ -164,7 +237,7 @@ run_scenario = function(true_value, param_df, estfn = pnorm) {
       # There is rationale to use median. and it happens to be the same for the
       # normal distribution.
       bias = purrr::map_dbl(est_mean, ~ mean(.x - true_value)),
-      unbiased = purrr::map2(est_mean, bias, ~ .x - .y), #est mean is a column of vectors
+      unbiased = purrr::map2(est_mean, bias, ~ .x - .y), # est mean is a column of vectors
       unbiased_pit_value = purrr::map2(
         unbiased,
         est_sd,
@@ -181,7 +254,7 @@ run_scenario = function(true_value, param_df, estfn = pnorm) {
       unbiased_crps = purrr::map2(
         unbiased,
         est_sd,
-        ~ scoringRules::crps_norm(true_values, .x, .y)
+        ~ scoringRules::crps_norm(true_value, .x, .y)
       ),
       unbiased_mean_crps = purrr::map_dbl(unbiased_crps, mean),
       # the wasserstein distance.
@@ -217,7 +290,6 @@ run_scenario = function(true_value, param_df, estfn = pnorm) {
         TRUE ~ "appropriate"
       ) %>%
         factor(levels = c("conservative", "appropriate", "overconfident")),
-
       biased = case_when(
         est_error_mean > 0 ~ "positively",
         est_error_mean < 0 ~ "negatively",
@@ -245,19 +317,20 @@ plot_data = run_scenario(true_values, plot_scenarios)
 hist_data = plot_data %>%
   select(confidence, biased, pit_value) %>%
   unnest(c(pit_value))
-fig1 = ggplot() +
+fig2_pit = ggplot() +
   geom_histogram(
     data = hist_data,
     mapping = aes(x = pit_value),
     binwidth = 0.02
   ) +
-  ggpp::geom_label_npc(
+  ggplot2::geom_label(
     data = plot_data,
     aes(label = label),
-    npcy = 0.95,
-    npcx = 0.05,
-    vjust = "top",
-    hjust = "left",
+    x = 0.02,
+    y = Inf,
+    inherit.aes = FALSE,
+    vjust = 1,
+    hjust = 0,
     size = 4,
     size.unit = "pt",
     alpha = 0.75,
@@ -267,8 +340,8 @@ fig1 = ggplot() +
   xlab("PIT value")
 
 .gg_save_as(
-  fig1,
-  here::here("s2/fig/fig2-pit-histograms"),
+  fig2_pit,
+  file.path(fig_dir, "fig2-pit-histograms"),
   size = std_size$half,
   formats = c("pdf", "eps")
 )
@@ -282,8 +355,14 @@ plot_data %>%
     `calibration (σₑ/σₛ)` = sprintf("%1.2f", conf_sd_median / est_error_sd),
     `kappa (κ)` = 0
   ) %>%
-  .hux_tidy(rowGroupVars = c("biased", "confidence"), colGroupVars = c()) %>%
-  .hux_save_as("s2/fig/tab1-params.pdf", size = std_size$third)
+  .hux_tidy(
+    rowGroupVars = c("biased", "confidence"),
+    colGroupVars = c()
+  ) %>%
+  .hux_save_as(
+    file.path(fig_dir, "tab1-params.pdf"),
+    size = std_size$third
+  )
 
 # Doesn't much matter if you fix the estimate error and vary the confidence
 # plot_scenarios = tidyr::crossing(
@@ -549,33 +628,23 @@ p2b = ggplot(
   coord_cartesian(ylim = c(0, 1)) +
   xlab("estimate SD/error SD")
 
-# p2 = p2a+p2b+patchwork::plot_layout(ncol=1, guides = "collect",axes="collect")+patchwork::plot_annotation(tag_levels = "A")
-
-p2 = p2a +
-  p2b +
-  p3a +
-  p3b +
-  patchwork::plot_layout(ncol = 2, guides = "collect", axes = "collect") +
+fig3_metrics = patchwork::wrap_plots(
+  p2a,
+  p2b,
+  p3a,
+  p3b,
+  ncol = 2,
+  guides = "collect",
+  axes = "collect"
+) +
   patchwork::plot_annotation(tag_levels = "A")
 
 .gg_save_as(
-  p2,
-  here::here("s2/fig/fig3-metric-compare"),
+  fig3_metrics,
+  file.path(fig_dir, "fig3-metric-compare"),
   size = std_size$two_third,
   formats = c("pdf", "eps")
 )
-
-
-# p3 = p3a +
-#   p3b +
-#   patchwork::plot_layout(ncol = 1, guides = "collect", axes = "collect") +
-#   patchwork::plot_annotation(tag_levels = "A")
-# .gg_save_as(
-#   p3,
-#   here::here("s2/fig/fig4-metric-compare"),
-#   size = std_size$two_third,
-#   formats = c("pdf", "eps")
-# )
 
 # $$
 #   \epsilon_i = \overline{x_i} - \int_0^\infty{x f_i(x) dx}
@@ -728,14 +797,18 @@ p4a = ggplot(
   coord_cartesian(ylim = c(0, 1)) +
   xlab("estimate SD/error SD")
 
-p4 = p4b +
-  p4a +
-  patchwork::plot_layout(ncol = 2, guides = "collect", axes = "collect") +
+fig4_no_bias = patchwork::wrap_plots(
+  p4b,
+  p4a,
+  ncol = 2,
+  guides = "collect",
+  axes = "collect"
+) +
   patchwork::plot_annotation(tag_levels = "A")
 
 .gg_save_as(
-  p4,
-  here::here("s2/fig/fig4-metric-no-bias"),
+  fig4_no_bias,
+  file.path(fig_dir, "fig4-metric-no-bias"),
   size = std_size$third,
   formats = c("pdf", "eps")
 )
@@ -759,7 +832,7 @@ pest = tibble(
 ) %>%
   mutate(y = y / max(y))
 
-pBack = ggplot() +
+fig1_intro = ggplot() +
   coord_cartesian(ylim = c(-0.25, NA), xlim = c(0.5, 4.5)) +
   theme_void() +
   # True value
@@ -918,10 +991,9 @@ pBack = ggplot() +
     hjust = 0.5,
     vjust = -1.25
   )
-pBack
 .gg_save_as(
-  pBack,
-  here::here("s2/fig/fig1-introduction"),
+  fig1_intro,
+  file.path(fig_dir, "fig1-introduction"),
   size = std_size$sixth,
   formats = c("pdf", "eps")
 )
