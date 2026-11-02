@@ -1,0 +1,141 @@
+classDiagram
+%% Class roots. @base is this file's directory (design/), so a bare relative
+%% target lands under design/; `repo:` is the reserved repo-root scheme and
+%% never needs declaring. The code root is the repo root, so both
+%% `src:analysis.R#pitw` (today) and `src:R/metric-pit.R` (after P2) address.
+%% Prose documents live in their own design/doc/ root: a markdown file is
+%% attributed to the class whose root contains it, and the FIRST match in
+%% declaration order wins, so `doc` must not own design/ or it swallows every
+%% adr/, task/ and issue/ file below it (instance/class-mismatch). The same
+%% reason keeps the design/ root free of prose: design/VALIDATION.md, which loom
+%% generates, is otherwise a graph/orphan-file.
+%% @prefix doc: <doc/> .
+%% @prefix adr: <adr/> .
+%% @prefix task: <task/> .
+%% @prefix issue: <issue/> .
+%% @prefix metric: <metric/> .
+%% @prefix figure: <figure/> .
+%% @prefix src: <repo:/> .
+%% Value types. An arrow is always an edge; a type named in a member line is
+%% always by value, so enums are attribute types, never edges. Declaration
+%% order IS the sort order projected into DuckDB, so Severity is declared
+%% weakest-first and Priority lowest-first: `ORDER BY severity DESC` puts
+%% `blocker` first, `ORDER BY priority DESC` puts `critical` first.
+class ADRStatus {
+    <<enumeration>>
+    proposed
+    accepted
+    superseded
+}
+class TaskStatus {
+    <<enumeration>>
+    todo
+    doing
+    blocked
+    done
+}
+class Priority {
+    <<enumeration>>
+    low
+    medium
+    high
+    critical
+}
+class IssueStatus {
+    <<enumeration>>
+    open
+    fixed
+    wontfix
+}
+class Severity {
+    <<enumeration>>
+    cosmetic
+    minor
+    major
+    blocker
+}
+class Ownership {
+    <<enumeration>>
+    preExisting
+    introduced
+}
+class FigureKind {
+    <<enumeration>>
+    figure
+    table
+}
+%% Instantiable document classes. No shared abstract base on purpose: repeating
+%% `title` costs one line per class, whereas inheriting it would make the
+%% `model/no-title-attribute` check and root-by-inheritance resolution depend
+%% on engine behaviour this repo does not need to lean on.
+class doc {
+    +string title
+    +List~string~ tags?
+}
+class adr {
+    +string title
+    +ADRStatus status
+    +date decided?
+    +List~string~ tags?
+}
+class task {
+    +string title
+    +TaskStatus status
+    +Priority priority
+    +string phase?
+    +List~string~ tags?
+}
+class issue {
+    +string title
+    +IssueStatus status
+    +Severity severity
+    +Ownership ownership
+    +date raised?
+    +List~string~ tags?
+}
+class metric {
+    +string title
+    +string symbol
+    +string valueRange
+    +string latexLabel?
+    +List~string~ tags?
+}
+class figure {
+    +string title
+    +FigureKind kind
+    +path file?
+    +List~string~ tags?
+}
+%% Code side. `src` is a reserved family: non-instantiable, but addressable, and
+%% relations may target the family itself. Rooted at the repo root so a symbol is
+%% addressed as `src:analysis.R#pitw` or `src:R/metric.R`. No `rcode` subclass:
+%% a subclass would need a `title` to label inbound links, and reserved-family
+%% classes are forbidden attributes (`model/reserved-has-attributes`), so the
+%% warning is unfixable by construction.
+%% Relations. camelCase names throughout: loom normalises frontmatter keys to
+%% the camelCase attribute name, so a hyphenated name would be rewritten. Loose
+%% one-off associations (e.g. "this issue is about fig3") are body links, not
+%% relations, because a relation targets exactly one declared class and a
+%% generic `relates-to` would need one declaration per target class.
+adr "0..*" --> "0..*" adr : supersedes
+adr "0..*" --> "0..*" task : mandates
+task "0..*" --> "0..*" task : blocks
+issue "0..*" --> "0..1" task : followUp
+metric "0..*" --> "0..*" src : implementedIn
+figure "0..*" --> "0..*" src : generatedBy
+figure "0..*" --> "0..*" metric : visualises
+%% Views: SQL over the projected tables, referenced from any markdown file with
+%% `<!-- loom view: NAME -->` and refreshed by `loom render` (--check in CI).
+%% The SQL goes on `%%` continuation lines after `%% @view NAME` -- bare
+%% indented lines are parsed as mermaid and fail. A `uri` column already renders
+%% as a titled markdown link, so `title` is deliberately not selected alongside.
+%% @view openIssues
+%%   SELECT uri FROM issue WHERE status = 'open' ORDER BY severity DESC
+%% @view backlog
+%%   SELECT uri FROM task WHERE status <> 'done' ORDER BY priority DESC
+%% @view decisions
+%%   SELECT uri FROM adr WHERE status = 'accepted' ORDER BY decided DESC
+%% @view metrics
+%%   SELECT uri FROM metric
+%% @view figures
+%%   SELECT uri FROM figure WHERE kind = 'figure'

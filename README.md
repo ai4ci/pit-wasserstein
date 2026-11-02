@@ -18,8 +18,15 @@ is the rework into a standalone short paper.
 | `main/fig/` | Generated figures and the parameter table |
 | `R/` | Standalone plotting/output helpers (vendored from `ggrrr`) |
 | `references/literature-review.md` | Positioning against existing calibration metrics |
-| `design/priorities.md` | What is left to do |
-| `design/active-issues.md` | Open issues that need an author decision |
+| `design/doc/INDEX.md` | Design index — rendered views over the design records |
+| `design/doc/scope.md` | Architecture and the phased roadmap |
+| `design/doc/priorities.md` | What is left to do |
+| `design/doc/active-issues.md` | Open issues that need an author decision |
+| `design/adr/` `design/task/` `design/issue/` | One loom instance per file |
+
+The design records are loom instances, governed by `design/document-model.mmd`:
+one file per decision, task and issue under `design/`. Edit a file, then run
+`loom validate`; `loom render` refreshes the views in `design/doc/INDEX.md`.
 
 ## Reproducing the figures
 
@@ -31,7 +38,7 @@ source("analysis.R")
 
 Rendering needs a device that can draw the requested fonts, and
 `tab1-params.pdf` additionally needs Chromium (see
-`design/active-issues.md`). Then compile `main/main.tex` with any LaTeX engine.
+`design/doc/active-issues.md`). Then compile `main/main.tex` with any LaTeX engine.
 
 ---
 
