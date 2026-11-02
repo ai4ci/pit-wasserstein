@@ -17,6 +17,7 @@ distinguishes the two.
 - [Sample size of the validation simulation disagrees between paper and code](../issue/sample-size-discrepancy.md)
 - [Figures are not reproducible](../issue/figures-not-reproducible.md)
 - [Sorting is implicit in the definition of D*_pit](../issue/implicit-sorting-notation.md)
+- [The vendored dist_fns class is incomplete and cannot carry the metrics](../issue/dist-fns-vendoring-incomplete.md)
 - [No usable LaTeX inside the scoder sandbox](../issue/no-latex-in-sandbox.md)
 - [tab1-params.pdf cannot be faithfully re-rendered outside the author's machine](../issue/tab1-needs-chromium.md)
 - [patchwork 1.3.2 is incompatible with ggplot2 4.x](../issue/patchwork-ggplot2-incompatibility.md)

@@ -1,10 +1,9 @@
 ---
 class: adr
 title: "The repository is a hybrid R package and paper"
-status: accepted
+status: superseded
 decided: 2026-11-02
 tags: [structure, packaging]
-mandates: [task:p1-package-skeleton.md, task:p2-extract-metric-api.md]
 ---
 
 # Context

@@ -13,10 +13,12 @@ is the rework into a standalone short paper.
 | Path | Description |
 |------|-------------|
 | `analysis.R` | Simulations; writes every figure and table into `main/fig/` |
+| `R/metrics.R` | Reference implementation of the paper's metrics — `pit_w()`, `coverage_prob()`, `threshold_misclass()`, `rlnorm4()` |
+| `tests/` | Tests asserting the paper's stated properties; `Rscript --no-init-file tests/testthat.R` |
 | `main/main.tex` | Paper source (compile from `main/`) |
 | `main/refs.bib` | Bibliography, shared with the parent paper |
 | `main/fig/` | Generated figures and the parameter table |
-| `R/` | Standalone plotting/output helpers (vendored from `ggrrr`) |
+| `R/` | `metrics.R` plus standalone plotting/output helpers (vendored from `ggrrr`), loaded by `.Rprofile` |
 | `references/literature-review.md` | Positioning against existing calibration metrics |
 | `design/doc/INDEX.md` | Design index — rendered views over the design records |
 | `design/doc/scope.md` | Architecture and the phased roadmap |

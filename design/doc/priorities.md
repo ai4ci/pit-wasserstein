@@ -14,12 +14,29 @@ not lost — promote one to a `task` instance when it is picked up.
 
 <!-- loom view: backlog -->
 
-- [P0 loom scaffold](../task/p0-loom-scaffold.md)
-- [P1 package skeleton](../task/p1-package-skeleton.md)
-- [P2 extract the metric API from analysis.R](../task/p2-extract-metric-api.md)
+- [P2 reference implementation of the paper's metrics](../task/p2-extract-metric-api.md)
 - [P3 make the paper standalone](../task/p3-paper-standalone.md)
 - [P4 reproducibility and CI](../task/p4-reproducibility-ci.md)
 <!-- loom view: backlog end -->
+
+## In progress (worktree at `8454e0a`, uncommitted as of 2026-11-02)
+
+`task:p2-extract-metric-api.md` is partly done and **unverified end to end**:
+
+- `R/metrics.R` + `tests/testthat/test-metrics.R` (26 passing) exist and
+  `run_scenario()` now calls them. Old vs new `run_scenario()` agree to 2.8e-17
+  on every metric column over the 9-row figure grid.
+- Next: run the whole script once (`Rscript analysis.R`) to regenerate
+  `main/fig/` and confirm the figures are unchanged — the equivalence proof
+  covers the metric columns, not the plotting code.
+- Then the open decisions on that task: whether `threshold_misclass()` gets a
+  column (it is a paper change), the empty `design/metric/` and `design/figure/`
+  instances, and deleting the unused vendored files
+  (`issue:dist-fns-vendoring-incomplete.md`).
+- Not started: `issue:figures-not-reproducible.md` — `analysis.R` still has no
+  `set.seed()`, so `true_value` at `analysis.R:28` is an unseeded draw and any
+  figure regeneration replaces the published figures with a different draw. Do
+  not regenerate without deciding that first.
 
 ## Research directions (not yet tasks)
 

@@ -6,10 +6,12 @@ tags: [meta]
 
 # Scope
 
-This repository is a **hybrid**: an R package that implements the calibration
-metrics, and the academic paper that defines them. Neither half is subordinate
-to the other — the paper is the citable artefact, the package is what makes the
-figures reproducible by someone other than the author.
+This repository is a **paper with sourced R alongside it**. `main/` is the
+citable artefact, `analysis.R` is the script that regenerates the figures, and
+`R/metrics.R` is a single readable reference implementation of every metric the
+paper defines. It is deliberately **not** an R package — see
+`adr:paper-is-primary-and-metrics-are-a-reference-implementation.md`, which
+supersedes the earlier hybrid-package decision.
 
 The design records are loom instances: `design/adr/` holds architecture
 decisions, `design/task/` the roadmap, `design/issue/` open issues,
@@ -22,29 +24,30 @@ populated at **repository** level, not branch level.
 `doc:INDEX.md` carries the live rendered lists; the sections below are the
 intent, and the ADRs are the record.
 
-Three things define the shape of the hybrid:
+Three things define the shape:
 
-1. **`R/` is the future package namespace**, addressed as `src:R/...`. The metric
-   functions currently live in `analysis.R` (`pitw` at `analysis.R:120`, `crps`
-   at `analysis.R:95`, `run_scenario` at `analysis.R:194`) and must move into
-   `R/` to be exported; the vendored `ggrrr` helpers stay internal.
-2. **`main/` stays LaTeX**, not Quarto. `main/fig/` keeps its committed
-   artefacts so the paper compiles without running R, and build junk
-   (`main/*.aux`, `.bbl`, `.log`, `.out`) stops being tracked.
-3. **A package must not write into its own tree at runtime**, so
-   `analysis.R`'s `here::here("main", "fig")` output path cannot survive into
-   the package unchanged — it becomes a script under `data-raw/` or `inst/`,
-   driven explicitly.
+1. **One definition per metric, in `R/metrics.R`.** `R/` is a `source()`
+   drop-box loaded by `.Rprofile`, not a namespace. `pit_w()` ($D^*_{pit}$,
+   $U^*_{pit}$), `coverage_prob()`, `threshold_misclass()` and `rlnorm4()` live
+   there and `run_scenario()` calls them; the vendored `ggrrr` plotting and
+   table helpers stay internal and dot-prefixed. `crps()` / `crps_norm()` stay
+   in `analysis.R` — CRPS is cited to `scoringRules`, not defined by this paper.
+2. **Tests assert the paper's properties**, not the old code's behaviour.
+   `Rscript --no-init-file tests/testthat.R` (there is no package, so
+   `devtools::test()` does not apply).
+3. **`main/` stays LaTeX**, not Quarto. `main/fig/` keeps its committed
+   artefacts so the paper compiles without running R, and tracked build junk
+   (`main/*.aux`, `.bbl`, `.blg`, `.log`, `.out`) should stop being tracked.
 
 ## Phased roadmap
 
 - [ ] **P0 loom scaffold** — model, index pages, ADRs, this roadmap.
       `task:p0-loom-scaffold.md`
-- [ ] **P1 package skeleton** — `DESCRIPTION`, `NAMESPACE`, `LICENSE`,
-      `.Rbuildignore`, `tests/testthat/`, untrack LaTeX build artefacts.
-      `task:p1-package-skeleton.md`
-- [ ] **P2 move the metrics out of `analysis.R`** with roxygen docs and
-      failing-first tests, then rewrite `.Rprofile`'s `source()` hack.
+- [x] ~~**P1 package skeleton**~~ — dropped; packaging costs the figure
+      machinery for no gain to the reader. Untracking LaTeX build artefacts
+      moved to P3. `task:p1-package-skeleton.md`
+- [ ] **P2 reference implementation of the metrics** in `R/metrics.R`, tested
+      against the paper and called by `run_scenario()`. Largely done.
       `task:p2-extract-metric-api.md`
 - [ ] **P3 make the paper standalone** — abstract, cite the companion paper
       rather than saying "the main paper" in four places, ship or vendor

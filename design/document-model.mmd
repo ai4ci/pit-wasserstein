@@ -33,6 +33,7 @@ class TaskStatus {
     doing
     blocked
     done
+    dropped
 }
 class Priority {
     <<enumeration>>
@@ -132,7 +133,7 @@ figure "0..*" --> "0..*" metric : visualises
 %% @view openIssues
 %%   SELECT uri FROM issue WHERE status = 'open' ORDER BY severity DESC
 %% @view backlog
-%%   SELECT uri FROM task WHERE status <> 'done' ORDER BY priority DESC
+%%   SELECT uri FROM task WHERE status NOT IN ('done', 'dropped') ORDER BY priority DESC
 %% @view decisions
 %%   SELECT uri FROM adr WHERE status = 'accepted' ORDER BY decided DESC
 %% @view metrics

@@ -1,7 +1,7 @@
 ---
 class: task
 title: "P0 loom scaffold"
-status: doing
+status: done
 priority: high
 phase: P0
 tags: [meta, loom]

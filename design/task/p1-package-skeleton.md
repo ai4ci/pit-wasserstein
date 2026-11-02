@@ -1,27 +1,32 @@
 ---
 class: task
 title: "P1 package skeleton"
-status: todo
+status: dropped
 priority: high
 phase: P1
 tags: [packaging]
-blocks: [task:p2-extract-metric-api.md]
 ---
 
-# Goal
+# Dropped
 
-Make the repository buildable and checkable as a package without touching the
-paper or the science.
+Superseded by `adr:paper-is-primary-and-metrics-are-a-reference-implementation.md`:
+packaging the repo costs the whole figure/table machinery (vendored `ggrrr`
+helpers, `here::here` output paths, Roboto, Chromium for
+`issue:tab1-needs-chromium.md`) for no gain to the paper's reader.
 
-- `DESCRIPTION` (name, version 0.0.1, authors, license, `Imports`),
-  `NAMESPACE`, `LICENSE`, `NEWS.md`, `.Rbuildignore` excluding `main/`,
-  `design/`, `references/`, `analysis.R`, `.sandbox/`, `.Rproj.user`.
-- `tests/testthat/` + `tests/testthat.R`, written **before** the code moves, so
-  the tests are proven to fail first (`AGENTS.md`).
-- Untrack LaTeX build artefacts: `main/main.{aux,bbl,blg,log,out}`. Keeping
-  `main/main.pdf` committed is fine — the paper must compile without R.
-- `lintr` already configured (`.lintr`); confirm it passes on the new files.
+The metric API this task existed to enable was built without packaging — see
+`task:p2-extract-metric-api.md`.
 
-Blocked by `task:p2-extract-metric-api.md` only for the export list; the
-scaffolding itself can land first, and it blocks P2 because there is nowhere to
-put exported code until `DESCRIPTION` and `NAMESPACE` exist.
+## Carried over
+
+The one item here that was worth doing moves to `task:p3-paper-standalone.md`:
+
+- Untrack the LaTeX build artefacts already in git: `main/main.aux`,
+  `main/main.bbl`, `main/main.blg`, `main/main.log`, `main/main.out`.
+
+## Explicitly not coming back
+
+- `DESCRIPTION`, `NAMESPACE`, `LICENSE`, `.Rbuildignore`, `man/`.
+- Roxygen docs on the metric functions (plain `#'` comments in `R/metrics.R`
+  are enough; nothing is built from them).
+- Moving `analysis.R` to `data-raw/`.

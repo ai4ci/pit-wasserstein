@@ -54,42 +54,28 @@ pit_hist_overconfident = ggplot(tibble(pit = pit_value), aes(x = pit)) +
 
 # We are looking for a metric to quantify the level of inaccuracy numerically.
 # The ideal for a PIT histogram is the uniform. So we think of a wasserstein
-# distance.
+# distance: if each PIT value (sorted ascending) is moved to its correct place
+# in a uniform line, the mean absolute movement is the Wasserstein distance. If
+# we had 10 items the correct place would be seq(0.05, 0.95, length.out = 10).
+#
+# The metric is the adjusted PIT-Wasserstein D*_pit (eq:pit2) and the directed
+# U*_pit (eq:pit3), both in R/metrics.R and tested against the paper.
+metrics_example = pit_w(true_value, est_mean, est_sd)
+cat(
+  sprintf(
+    "D*_pit (adj PIT-W) = %.4f\nU*_pit (dir PIT-W) = %.4f\nestimator bias    = %.4f\n",
+    metrics_example$d_pit,
+    metrics_example$u_pit,
+    metrics_example$bias
+  )
+)
 
-# if each pit value (sorted ascending) is moved to its correct place in a
-# uniform line and we take the sum of the absolute values of this movement gives
-# the wasserstein distance.
-
-# if we had 10 items the correct place though would be seq(0.05,0.95,length.out=10)
-
-unif = seq(1 / (2 * n), 1 - 1 / (2 * n), length.out = n)
-was = sum(abs(unif - sort(pit_value)))
-# we can normalise this by the number of estimates:
-was = was / n
-
-# if there is more mass being moved to the left, compared to moved to the right
-# we have an indicator of degree of bias.
-was_bias = sum(unif - sort(pit_value))
-was_bias = was_bias / n
-
-# However given we have estimate means and true values we have an direct estimate of
-# the bias
-bias = mean(est_mean - true_value)
-
-# If we unbias out estimates we can recalculate pit
-unbiased_pit_value = pnorm(true_value, est_mean - bias, est_sd)
-unbiased_was = mean(abs(unif - sort(unbiased_pit_value)))
+# The bias itself is a direct estimate from the estimate means and true values;
+# D*_pit removes it internally, and doing it by hand gives the same PIT values:
+unbiased_pit_value = pnorm(true_value, est_mean - metrics_example$bias, est_sd)
 
 pit_hist_unbiased = ggplot(tibble(pit = unbiased_pit_value), aes(x = pit)) +
   geom_histogram(binwidth = 0.01)
-
-
-# We really want to also include in our metric distance from the towards or
-# away from the centre. A positive value here is towards the centre and
-# represents overconfidence.
-directed_was = mean(
-  (unif - sort(unbiased_pit_value)) * ifelse(unif < 0.5, 1, -1)
-)
 
 # calculate a CRPS for one probabilistic estimate
 crps = function(cdf = stats::pnorm, min = -1000, max = 1000) {
@@ -117,57 +103,10 @@ crps = function(cdf = stats::pnorm, min = -1000, max = 1000) {
 }
 
 #'
-pitw = function(cdf = stats::pnorm) {
-  fn = rlang::as_function(cdf)
-  return(function(true_value, est_mean, est_sd) {
-    x = true_value
-
-    # the quantiles of the true value as judged by our estimates:
-    pit_value = fn(true_value, est_mean, est_sd)
-
-    # We are looking for a metric to quantify the level of inaccuracy numerically.
-    # The ideal for a PIT histogram is the uniform. So we think of a wasserstein
-    # distance.
-
-    # if each pit value (sorted ascending) is moved to its correct place in a
-    # uniform line and we take the sum of the absolute values of this movement gives
-    # the wasserstein distance.
-
-    # if we had 10 items the correct place though would be seq(0.05,0.95,length.out=10)
-    n = length(true_value)
-
-    unif = seq(1 / (2 * n), 1 - 1 / (2 * n), length.out = n)
-    was = sum(abs(unif - sort(pit_value)))
-    # we can normalise this by the number of estimates:
-    was = was / n
-
-    # if there is more mass being moved to the left, compared to moved to the right
-    # we have an indicator of degree of bias.
-    was_bias = sum(unif - sort(pit_value))
-    was_bias = was_bias / n
-
-    # However given we have estimate means and true values we have an direct estimate of
-    # the bias
-    bias = mean(est_mean - true_value)
-
-    # If we unbias out estimates we can recalculate pit
-    unbiased_pit_value = fn(true_value, est_mean - bias, est_sd)
-    unbiased_was = mean(abs(unif - sort(unbiased_pit_value)))
-
-    # We really want to also include in our metric distance from the towards or
-    # away from the centre. A positive value here is towards the centre and
-    # represents overconfidence.
-    directed_was = mean(
-      (unif - sort(unbiased_pit_value)) * ifelse(unif < 0.5, 1, -1)
-    )
-
-    return(list(
-      pitw = was_bias,
-      unbiased_pitw = unbiased_was,
-      directed_pitw = directed_was
-    ))
-  })
-}
+# NOTE: the adjusted PIT-Wasserstein metrics are implemented once, in
+# R/metrics.R as pit_w(), which is what run_scenario() and the worked example
+# above both call. The closure that used to live here was an unused second copy
+# of the same formulas and has been removed.
 
 crps_norm = function(true_value, mean, sd) {
   z = (true_value - mean) / sd
@@ -194,7 +133,6 @@ testthat::expect_all_equal(
 run_scenario = function(true_value, param_df, estfn = pnorm) {
   # param_df has columns est_error_mean, est_error_sd, conf_sd_median, conf_sd_cv = 0,
   n = length(true_value)
-  unif = seq(1 / (2 * n), 1 - 1 / (2 * n), length.out = n)
 
   if (!"conf_sd_cv" %in% colnames(param_df)) {
     param_df = param_df %>% mutate(conf_sd_cv = 0)
@@ -216,19 +154,33 @@ run_scenario = function(true_value, param_df, estfn = pnorm) {
       ),
     )
 
+  # One row per estimator, so the metric functions can be called once instead of
+  # once per metric per row. true_value must be broadcast with .recyc_rows():
+  # elementwise recycling against an S x n matrix walks the vector down the
+  # columns, which would silently pair each prediction with the wrong estimate.
+  est_mean_mat = do.call(rbind, param_df$est_mean)
+  est_sd_mat = do.call(rbind, param_df$est_sd)
+  tv_mat = .recyc_rows(true_value, nrow(est_mean_mat))
+  metrics = pit_w(true_value, est_mean_mat, est_sd_mat, cdf = estfn)
+  pit_value_mat = matrix(estfn(tv_mat, est_mean_mat, est_sd_mat),
+                         nrow = nrow(est_mean_mat), ncol = n)
+  unbiased_pit_value_mat = matrix(
+    estfn(tv_mat, est_mean_mat - .recyc_cols(metrics$bias, n), est_sd_mat),
+    nrow = nrow(est_mean_mat), ncol = n
+  )
+
   param_df = param_df %>%
     mutate(
       # the quantiles of the true value as judged by our estimates:
-      pit_value = purrr::map2(est_mean, est_sd, ~ estfn(true_value, .x, .y)),
-      percent_95_ci = purrr::map_dbl(
-        pit_value,
-        ~ mean(.x > 0.025 & .x < 0.975)
+      pit_value = purrr::map(
+        seq_len(nrow(pit_value_mat)),
+        ~ pit_value_mat[.x, ]
       ),
-      percent_50_ci = purrr::map_dbl(pit_value, ~ mean(.x > 0.25 & .x < 0.75)),
-      crps = purrr::map2(
-        est_mean,
-        est_sd,
-        ~ scoringRules::crps_norm(true_value, .x, .y)
+      percent_95_ci = coverage_prob(pit_value_mat, level = 0.95),
+      percent_50_ci = coverage_prob(pit_value_mat, level = 0.5),
+      crps = purrr::map(
+        seq_len(nrow(est_mean_mat)),
+        ~ scoringRules::crps_norm(true_value, est_mean_mat[.x, ], est_sd_mat[.x, ])
       ),
       mean_crps = purrr::map_dbl(crps, mean),
       # The absolute bias in the estimates
@@ -236,41 +188,31 @@ run_scenario = function(true_value, param_df, estfn = pnorm) {
       # available (could solve CDF for 0.5) rather than integrate PDF (which we don;t have) for mean.
       # There is rationale to use median. and it happens to be the same for the
       # normal distribution.
-      bias = purrr::map_dbl(est_mean, ~ mean(.x - true_value)),
-      unbiased = purrr::map2(est_mean, bias, ~ .x - .y), # est mean is a column of vectors
-      unbiased_pit_value = purrr::map2(
-        unbiased,
-        est_sd,
-        ~ estfn(true_value, .x, .y)
+      bias = metrics$bias,
+      unbiased = purrr::map(
+        seq_len(nrow(est_mean_mat)),
+        ~ est_mean_mat[.x, ] - metrics$bias[.x]
+      ), # est mean is a column of vectors
+      unbiased_pit_value = purrr::map(
+        seq_len(nrow(unbiased_pit_value_mat)),
+        ~ unbiased_pit_value_mat[.x, ]
       ),
-      unbiased_percent_95_ci = purrr::map_dbl(
-        unbiased_pit_value,
-        ~ mean(.x > 0.025 & .x < 0.975)
-      ),
-      unbiased_percent_50_ci = purrr::map_dbl(
-        unbiased_pit_value,
-        ~ mean(.x > 0.25 & .x < 0.75)
-      ),
-      unbiased_crps = purrr::map2(
-        unbiased,
-        est_sd,
-        ~ scoringRules::crps_norm(true_value, .x, .y)
+      unbiased_percent_95_ci = coverage_prob(unbiased_pit_value_mat, level = 0.95),
+      unbiased_percent_50_ci = coverage_prob(unbiased_pit_value_mat, level = 0.5),
+      unbiased_crps = purrr::map(
+        seq_len(nrow(est_mean_mat)),
+        ~ scoringRules::crps_norm(
+          true_value,
+          est_mean_mat[.x, ] - metrics$bias[.x],
+          est_sd_mat[.x, ]
+        )
       ),
       unbiased_mean_crps = purrr::map_dbl(unbiased_crps, mean),
-      # the wasserstein distance.
-      was = purrr::map_dbl(pit_value, ~ mean(abs(unif - sort(.x)))),
-      # the bias.
-      was_bias = purrr::map_dbl(pit_value, ~ mean(unif - sort(.x))),
-      # the bias corrected wasserstein distance.
-      unbiased_was = purrr::map_dbl(
-        unbiased_pit_value,
-        ~ mean(abs(unif - sort(.x)))
-      ),
-      # the bias corrected wasserstein distance with direction from centre.
-      directed_was = purrr::map_dbl(
-        unbiased_pit_value,
-        ~ mean((unif - sort(.x)) * ifelse(unif < 0.5, 1, -1))
-      ),
+      # D*_pit and U*_pit (eq:pit2, eq:pit3) plus the unadjusted distance, all
+      # from the reference implementation in R/metrics.R
+      was = metrics$raw_wasserstein,
+      unbiased_was = metrics$d_pit,
+      directed_was = metrics$u_pit,
       label = sprintf(
         "PIT-W: %1.3f\nadj PIT-W: %1.3f\ndir PIT-W: %1.3f\nmean CRPS: %1.3f",
         was,
