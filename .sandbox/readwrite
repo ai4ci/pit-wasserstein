@@ -1,2 +1,5 @@
-# The cache
+# $HOME directories bound read-write (created if missing), one per line.
+# All paths under the project directory are already read-write.
+
+# Scratch/cache for analysis.R output outside the repo.
 $HOME/.cache/pit-w

@@ -1,10 +1,10 @@
-.github/
-.claude/
-opencode.json
-.gitignore
-package-lock.json
-poetry.lock
-Cargo.lock
-pnpm-lock.yaml
-yarn.lock
-mise.toml
+# Project-specific read-only binds, on top of ~/.config/scoder/sandbox/readonly
+# (which already covers .github/, .claude/, .gitignore and the usual lockfiles).
+
+# The user R library, so installed packages (tidyverse, scoringRules,
+# huxtable, btw, ...) load inside the sandbox.
+$HOME/R
+
+# The user-level R profile. It may not exist yet; the grant is still needed
+# so it is bound if it is created later.
+$HOME/.Rprofile

@@ -1,4 +1,9 @@
-# .agentports — ports forwarded from host loopback into the sandbox, one per line
-11434
-4777
+# Host loopback ports forwarded into the sandbox, one per line.
+
+# Zotero's local API on the host, for the agent's built-in Zotero tools
+# (reference lookup for main/refs.bib).
+23119
+
+# 11434 / 11435 are auto-detected by scoder when a local model server is
+# running, so they need no entry here.
 11435

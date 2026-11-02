@@ -1,0 +1,11 @@
+# Which agent skills this project's sessions get: one regular expression per
+# line, matched against the whole skill name. scoder's own skills are always
+# included.
+
+# R analysis (the r recipe's pattern, plus the R skill-authoring helper).
+create-r-analysis-skill
+r-.*|tidyverse.*|shiny.*|quarto.*
+
+# Research: reading reference PDFs and producing/consuming documents.
+pdf|parse-document
+docx|docx-cli
