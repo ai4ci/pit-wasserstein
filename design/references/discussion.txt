@@ -1,0 +1,216 @@
+
+What metrics are there for assessing the calibration of probabilistic predictions
+
+Metrics for assessing the calibration of probabilistic predictions fall into three main groups: binned error metrics, proper scoring rules, and regression- or cumulative-based measures. Each measures how closely predicted probabilities match actual observed event frequencies.
+
+Binned Calibration Metrics
+
+These metrics group predictions into probability intervals (bins) and compare the average predicted confidence to the actual observed accuracy in each bin.
+• Expected Calibration Error (ECE). Computes the weighted average of the absolute differences between predicted probabilities and observed frequencies across all bins. Lower values indicate better calibration, with zero representing perfect alignment.
+• Maximum Calibration Error (MCE). Measures the single worst-case absolute difference between predicted confidence and observed accuracy across all bins. This is useful in high-stakes applications where severe miscalibration in any probability range is unacceptable.
+• Adaptive Calibration Error (ACE). Adjusts bin widths dynamically so that each bin contains an equal number of predictions. This prevents sparse bins from distorting the error score when predictions are heavily skewed toward 0 or 1.
+• Static Calibration Error (SCE). Extends ECE to multi-class classification by computing calibration error across all class probabilities rather than just the top predicted class.
+• Integrated Calibration Index (ICI). Replaces fixed bins with a smoothed curve (typically via LOESS regression) and calculates the weighted average absolute difference between predicted and smoothed observed probabilities.
+
+Proper Scoring Rules
+
+Strictly proper scoring rules evaluate the overall quality of probabilistic predictions. They combine calibration (reliability) with discrimination (resolution) and data uncertainty into a single score.
+• Brier Score. Measures the mean squared difference between predicted probabilities and actual binary outcomes. Using Murphy's decomposition, the Brier score can be mathematically split into separate reliability, resolution, and uncertainty terms to isolate calibration performance.
+• Log Loss (Cross-Entropy). Calculates the negative average log-likelihood of the true outcomes given the predicted probabilities. It heavily penalizes confident predictions that turn out to be wrong.
+
+Regression & Cumulative Metrics
+
+These methods assess calibration across the full risk spectrum without requiring arbitrary bin widths.
+• Calibration Slope and Intercept. Fits a logistic regression model using the log-odds of the predicted probabilities to predict the actual outcomes. A well-calibrated model has an intercept near 0 (calibration-in-the-large) and a slope near 1, where slopes below 1 indicate overconfidence.
+• Cumulative Calibration Metrics (Kuiper and Kolmogorov-Smirnov). Tracks the cumulative differences between observed outcomes and expected probabilities sorted by predicted score, as outlined in the Journal of Machine Learning Research. Measuring the maximum vertical deviation (Kolmogorov-Smirnov) or the range of deviations (Kuiper) avoids binning bias entirely.
+• Hosmer-Lemeshow Test. Applies a Pearson chi-square goodness-of-fit test across deciles of predicted risk to check for statistically significant deviations between expected and observed event counts.
+
+Visual Diagnostics
+
+• Reliability Diagrams (Calibration Curves). Plots mean predicted probabilities on the x-axis against observed event frequencies on the y-axis. Perfect calibration follows the 45-degree diagonal line, while curves below the diagonal show overconfidence and curves above show underconfidence.
+If you are evaluating a specific model, let me know:
+• Whether your task is binary, multi-class, or continuous regression
+• Your dataset size and programming language (such as Python or R)
+I can recommend the best metric for your setup and provide code examples to compute it.
+AI responses may include mistakes. Learn more
+•
+Journal of Machine Learning Research
+Metrics of Calibration for Probabilistic Predictions
+“reliability diagrams” (also known as “calibration plots”) help detect and diag- nose statistically significant discrepancies—so-c...
+•
+Journal of Clinical Epidemiology
+How to evaluate probabilistic prediction models: key metrics
+March 23, 2026 — Calibration—assesses whether predicted probabilities agree with observed event rates, both on average and across the risk spectrum...
+•
+Scikit-learn
+1.16. Probability calibration - Scikit-learn
+Brier score decomposition of Murphy [1]. the score is of limited use for assessing calibration alone
+Show all
+
+What about if the variable being predicted is continuous not binary
+
+For continuous target variables, probabilistic predictions output a probability distribution (a mean and variance, quantiles, or a full cumulative distribution function) rather than a single probability. Evaluating calibration in this setting relies on Probability Integral Transform (PIT) metrics, quantile/interval coverage errors, and proper scoring rules for distributions.
+
+PIT-Based Calibration Metrics
+
+The Probability Integral Transform (PIT) evaluates each true outcome through the predicted Cumulative Distribution Function (CDF). For a well-calibrated model, the resulting PIT values follow a standard Uniform(0, 1) distribution.
+• PIT Histogram & Rank Histogram (Talagrand Diagram). Bins the PIT values (or ensemble ranks) across the interval from 0 to 1. A flat histogram indicates good calibration, whereas a U-shape shows underdispersion (overconfidence) and a hump shape shows overdispersion (underconfidence).
+• Wasserstein Distance (Earth Mover's Distance) to Uniform. Measures the minimum cost required to transform the empirical distribution of PIT values into a Uniform(0, 1) distribution. Smaller values represent closer alignment with ideal calibration.
+• Cramér–von Mises & Kolmogorov-Smirnov Statistics. Quantifies the integrated squared distance or maximum vertical distance between the empirical CDF of the PIT values and the 45-degree uniform diagonal.
+• Expected Normalized Calibration Error (ENCE). Groups predictions by predicted standard deviation and compares the root mean squared error (RMSE) against the root mean predicted variance in each bin. This directly checks whether predicted uncertainty matches actual error magnitudes.
+
+Quantile & Interval Coverage Metrics
+
+These metrics evaluate calibration at specific confidence levels or across a grid of predicted quantiles, making them ideal for quantile regression and prediction intervals.
+• Prediction Interval Coverage Probability (PICP). Calculates the empirical proportion of true observations that fall inside a stated prediction interval (such as a 90% interval). A calibrated model achieves a PICP that closely matches the nominal target coverage.
+• Pinball Loss (Quantile Loss). Scores the accuracy of a specific predicted quantile by asymmetrically penalizing over-predictions and under-predictions. Averaging pinball loss across many quantiles evaluates both calibration and sharpness.
+• Calibration Error across Quantiles (e.g., Kuleshov et al. Metric). Computes the mean squared or absolute difference between expected quantile levels (from 0.01 to 0.99) and the actual fraction of observed outcomes falling below each predicted quantile.
+• Mean Prediction Interval Width (MPIW). Measures the average width of the prediction intervals. While technically a measure of sharpness rather than calibration, it is always paired with PICP to ensure a model does not achieve high coverage simply by producing overly wide, uninformative intervals.
+
+Proper Scoring Rules for Continuous Distributions
+
+Strictly proper scoring rules evaluate the entire predicted probability density or distribution simultaneously, rewarding models that are both well-calibrated and sharp.
+• Continuous Ranked Probability Score (CRPS). Generalizes the Brier score to continuous outcomes by measuring the integrated squared difference between the predicted CDF and the empirical step-function CDF of the true observation. Lower values indicate better overall probabilistic accuracy, and CRPS reduces to Mean Absolute Error (MAE) when predictions are deterministic.
+• Negative Log-Likelihood (NLL) / Logarithmic Score. Evaluates the negative log of the predicted probability density function (PDF) at the exact observed outcome. NLL strongly penalizes models that assign near-zero probability density to events that actually occur.
+• Energy Score. Extends CRPS to multivariate continuous predictions, evaluating calibration and sharpness jointly when predicting multiple correlated continuous variables at once.
+
+Summary Comparison
+
+
+Metric	What It Evaluates	Best Used When
+CRPS	Full predicted CDF vs. actual outcome	Comparing overall probabilistic accuracy across models
+PIT / Rank Histogram	Uniformity of CDF quantiles	Visually diagnosing over- or under-dispersion
+PICP & MPIW	Interval coverage and width	Evaluating specific confidence bounds (e.g., 95% intervals)
+ENCE	Predicted variance vs. actual squared error	Checking Gaussian or mean-variance regression models
+NLL	Probability density at the true value	Training and evaluating parametric density models
+
+If you are working on a specific continuous forecasting or regression task, let me know:
+• How your model outputs uncertainty (Gaussian parameters, quantiles, or Monte Carlo/ensemble samples)
+• Which programming language or library you are using (such as Python, R, properscoring, or uncertainty-toolbox)
+I can share exact formulas or code snippets to compute these metrics for your outputs.
+AI responses may include mistakes. Learn more
+
+What is your reference for Wasserstein Distance (Earth Mover's Distance) to Uniform. Measures the minimum cost required to transform the empirical distribution of PIT values into a Uniform(0, 1) distribution. Smaller values represent closer alignment with ideal calibration.
+
+The use of the 1-Wasserstein distance (Earth Mover's Distance) between the empirical distribution of Probability Integral Transform (PIT) values and \(\text{Uniform}(0, 1)\) is established across both modern machine learning calibration literature and classical statistical forecasting theory.
+In one dimension, the 1-Wasserstein distance between a distribution \(P\) and \(\text{Uniform}(0, 1)\) reduces to the integrated absolute difference between their cumulative distribution functions (CDFs):
+\(W_{1}(\^{F}_{Z},U)=\int _{0}^{1}\left|{}\^{F}_{Z}(\alpha )-\alpha \right|{}d\alpha \)
+where \(\hat{F}_Z(\alpha)\) is the empirical CDF of the PIT values \(Z_i = F_i(y_i)\) and \(F_U(\alpha) = \alpha\) is the CDF of \(\text{Uniform}(0, 1)\).
+
+Primary Machine Learning Calibration References
+
+• Dheur & Ben Taieb (2023) — A Large-Scale Study of Probabilistic Calibration in Neural Network Regression (ICML). Explicitly formalizes Probabilistic Calibration Error (PCE) via the \(L_{p}\)-distance between the empirical PIT CDF and the \(\text{Uniform}(0, 1)\) CDF, noting directly in Section 2 that \(p = 1\) corresponds to the 1-Wasserstein distance (and \(p = 2\) corresponds to the Cramér–von Mises distance). Read the paper in the Proceedings of Machine Learning Research (PMLR).
+• Zhao, Ma, & Ermon (2020) — Individual Calibration with Randomized Forecasting (ICML). Defines \(\epsilon \)-approximate average calibration directly using the 1-Wasserstein distance between the empirical PIT distribution and \(\text{Uniform}[0, 1]\), and extends this formulation to measure worst-case group calibration. View the paper in PMLR Volume 119.
+• Kuleshov, Fenner, & Ermon (2018) — Accurate Uncertainties for Deep Learning Using Calibrated Regression (ICML). Introduces continuous regression calibration error by comparing empirical quantile frequencies against nominal levels \(p \in [0, 1]\). In the continuous limit, the \(L_{1}\) version of this metric is mathematically equivalent to the 1-Wasserstein distance to \(\text{Uniform}(0, 1)\).
+
+Foundational Statistical & Optimal Transport References
+
+• Dawid (1984) & Gneiting, Balabdaoui, and Raftery (2007). Establish the theoretical foundation that a continuous probabilistic forecaster is probabilistically calibrated if and only if its PIT values are distributed as \(\text{Uniform}(0, 1)\).
+• Rubner, Tomasi, & Guibas (2000) — The Earth Mover's Distance as a Metric for Image Retrieval (IJCV). Introduced the term Earth Mover's Distance (EMD) as the discrete optimal transport formulation of the 1-Wasserstein metric, which is widely used when comparing binned PIT histograms against a flat uniform histogram.
+• Villani (2008) — Optimal Transport: Old and New. Provides the standard mathematical proof that for one-dimensional probability measures on \(\mathbb{R}\), the 1-Wasserstein distance equals the \(L_{1}\) area between their CDFs.
+Would you like the closed-form formula to compute the exact 1-Wasserstein distance to \(\text{Uniform}(0, 1)\) from sorted PIT values without binning, or a Python snippet showing how to calculate it?
+AI responses may include mistakes. Learn more
+•
+Proceedings of Machine Learning Research
+A Large
+This shows that the uniformity of the PIT is equivalent to probabilistic calibration (Dawid, 1984).
+•
+National Institutes of Health (NIH) | (.gov)
+Calibrated Probabilistic Forecasts for Arbitrary Sequences
+Wasserstein convergence is equivalent to weak* convergence on a Polish space (Villani, 2008, Theorem 6.9), so our assumption that ...
+•
+arXiv
+A Large-Scale Study of Probabilistic Calibration in Neural ...
+We explore various calibration methods, The particular cases of p = 1 p=1 and p = 2 p=2 are known as the 1-Wasserstein distance an...
+Show all
+
+In this measurement of calibration there is no adjustment for bias, a biased estimator will always be miscarbirated by this definition is there a concept of calibration that is independent of bias (i.e. even if the estimator is biased it can still be appropriately "calibrated")
+
+Strictly speaking, standard probabilistic calibration cannot be separated from bias because unconditional unbiasedness is a mathematical requirement for a forecast to be calibrated. If a predictive distribution consistently over- or under-predicts the target, its Probability Integral Transform (PIT) values will systematically skew toward 0 or 1 rather than following a \(\text{Uniform}(0, 1)\) distribution.
+However, in statistical forecasting and machine learning, researchers isolate dispersion (spread) calibration from location bias using specific diagnostics and alternative definitions of uncertainty quality:
+
+1. Dispersion Calibration vs. Location Bias
+
+Instead of testing whether the entire predicted distribution matches the true outcome distribution, you can evaluate whether the width or variance of your uncertainty estimates accurately reflects the variability of your errors around the biased mean.
+• Centered PIT (Residual PIT). Subtract the systematic mean bias \(\bar{e} = \frac{1}{N}\sum (y_i - \hat{\mu}_i)\) from your predictive distribution before computing PIT values: \(Z_i^{\text{centered}} = F_i(y_i - \bar{e})\). If the centered PIT values follow \(\text{Uniform}(0, 1)\), your model is dispersion-calibrated (its spread is accurate) even though its point predictions have a constant location bias.
+• Spread-Skill Ratio (SSR). Compares the average predicted standard deviation (spread) against the centered Root Mean Squared Error (or standard deviation of the residuals) rather than the uncentered RMSE. An SSR near 1.0 indicates that the predicted uncertainty matches the true error dispersion, independent of mean bias.
+• PIT Histogram Shape Diagnostics. Visually or quantitatively separating the skewness of the PIT histogram (which measures location bias) from its kurtosis/U-shape vs. hump-shape (which measures under- or over-dispersion).
+
+2. Alternative Concepts Independent of Mean Bias
+
+When a point estimator \(\hat{\mu}(x)\) is intentionally or unavoidably biased (such as in regularized regression, ridge/lasso models, or biased physical simulations), different concepts are used to evaluate whether the accompanying uncertainty quantification is valid:
+• Error-Based Calibration (Variance Calibration / ENCE on Centered Residuals). Defined by Levi et al. (2022), this requires the predicted variance \(\hat{\sigma}^2(x)\) to match the true conditional variance of the residuals \(\mathbb{E}[(y - \hat{\mu}(x))^2 \mid \hat{\sigma}^2(x)]\). While standard ENCE includes bias inside the Mean Squared Error (\(\text{MSE} = \text{Bias}^2 + \text{Variance}\)), evaluating variance calibration against the residual variance \(\text{Var}(y - \hat{\mu}(x))\) tests whether the uncertainty tracks error spread independently of systematic bias.
+• Conformal Prediction (Marginal Coverage). Conformal methods construct prediction intervals around any point estimator—no matter how biased—by calibrating intervals using the empirical quantiles of nonconformity scores (e.g., absolute residuals \(\vert{}y_i - \hat{\mu}(x_i)\vert{}\)) on a held-out calibration set. The resulting intervals guarantee exact marginal coverage \(1 - \alpha\) even when \(\hat{\mu}(x)\) is heavily biased, simply by widening the intervals to absorb the bias.
+• Sharpness / Dispersion-Only Scoring. In Gneiting, Balabdaoui, and Raftery's (2007) framework, sharpness is a property of the predictive distribution alone (such as average interval width or predictive variance) that is completely independent of the observations and any bias between forecasts and outcomes.
+
+Summary Comparison
+
+
+Concept	Sensitive to Mean Bias?	What It Actually Measures
+Probabilistic Calibration (PIT)	Yes	Joint accuracy of location (bias) and spread (dispersion)
+Centered PIT / Spread-Skill	No	Whether predicted spread matches residual dispersion around the biased mean
+Conformal Coverage	No	Whether prediction intervals achieve target coverage around a biased point estimate
+Sharpness	No	Tightness/concentration of the predicted distribution itself
+
+Are you trying to diagnose whether your model's miscalibration comes from systematic bias versus poor variance estimation, or are you looking to recalibrate intervals around a fixed biased model? Let me know and I can share the exact diagnostic formulas or recalibration steps.
+AI responses may include mistakes. Learn more
+
+Have you references for centred PIT?
+
+The exact phrase "centred PIT" (or "centered PIT") is a descriptive label rather than a formal, universally standardized term in the literature. In statistical forecasting and machine learning, evaluating dispersion independently of location bias via the Probability Integral Transform is formalized under bias-corrected PIT diagnostics, PIT moment decomposition, and debiased ensemble verification.
+If you are looking for peer-reviewed literature that separates location bias from spread calibration within the PIT framework, use the following primary references:
+
+1. PIT Moment Decomposition (Separating Bias from Dispersion)
+
+Instead of shifting the observations before computing the PIT, the standard statistical approach computes the standard PIT values \(Z_i = F_i(y_i)\) and separates location bias from dispersion using the moments of the PIT distribution itself.
+• Gneiting & Raftery (2007) — Strictly Proper Scoring Rules, Prediction, and Estimation (JASA) & Gneiting, Balabdaoui, & Raftery (2007) — Probabilistic Forecasts, Calibration and Sharpness (JRSS-B). These foundational papers establish how departures from Uniform(0,1) are diagnosed. A uniform distribution has a theoretical mean of \(\frac{1}{2}\) and a variance of \(\frac{1}{12}\).
+• Rumack, Tibshirani, & Rosenfeld (2022) — Recalibrating Probabilistic Forecasts of Epidemics (PLOS Computational Biology). As detailed in their PIT distribution supplement, researchers explicitly isolate dispersion calibration from location bias by inspecting the PIT variance Var(Z) against the theoretical uniform benchmark of \(\frac{1}{12}\). A forecaster with \(\text{Var}(Z) = \frac{1}{12}\) is termed neutrally dispersed regardless of whether its mean PIT deviates from 0.5 due to bias.
+• Marzban, Sandgathe, & Kalnay (2011) — On the Use of the Probability Integral Transform in Forecast Verification (Monthly Weather Review). Formalizes how the first four moments (mean, variance, skewness, and kurtosis) of the PIT histogram map directly to bias, dispersion error, and tail misspecification.
+
+2. Debiased / Mean-Adjusted Rank & PIT Diagnostics
+
+In numerical weather prediction and ensemble forecasting, subtracting the systematic mean bias before checking rank uniformity or PIT uniformity is a standard diagnostic step to test whether ensemble spread is accurate after removing model drift.
+• Hamill (2001) — Interpretation of Rank Histograms for Verifying Ensemble Forecasts (Monthly Weather Review). Demonstrates how systematic bias tilts rank/PIT histograms linearly, masking whether the underlying ensemble spread is over- or under-dispersed. Hamill discusses removing constant bias (re-centering the ensemble mean on the observed mean) prior to plotting rank histograms to isolate spread errors.
+• Siegert, Bellprat, Ménégoz, Stephenson, & Doblas-Reyes (2016) — Detecting Improvements in Forecast Skill with Rare Events & Wilks (2019) — Statistical Methods in the Atmospheric Sciences. Standard meteorological verification texts describe bias-corrected (re-centered) ensemble verification, where the mean forecast error ē is subtracted from forecast members before evaluating spread-skill ratios or rank/PIT uniformity.
+
+3. Automated Decomposition of PIT Histogram Shapes
+
+• Tichy et al. (2024) — Interpreting Probability Integral Transform (PIT) Histograms (ESANN). Provides a mathematical framework in the ESANN 2024 proceedings that decomposes non-uniform PIT histograms into distinct location bias (translation) and dispersion (scale) components so users can identify whether miscalibration stems from a shifted mean or an incorrect variance.
+
+Summary of Terminology for Citations
+
+If you are writing a paper or technical report and want to cite established terminology rather than "centred PIT," use one of these standard terms:
+• PIT Variance / Neutral Dispersion (citing Gneiting et al., 2007; Rumack et al., 2022) when evaluating \(\text{Var}(F_i(y_i)) \approx \frac{1}{12}\).
+• Bias-Corrected (or Re-centered) PIT (citing Hamill, 2001; Wilks, 2019) when explicitly subtracting the empirical mean residual ē prior to applying the CDF.
+• Translation- and Scale-Decomposed PIT (citing Tichy et al., 2024) when fitting parametric bias and dispersion parameters to the PIT values.
+Would you like the exact BibTeX citations for these papers, or would you like to see how to compute PIT variance and moment diagnostics directly without shifting the data?
+AI responses may include mistakes. Learn more
+•
+ESANN 2027
+Interpreting Probability Integral Transform (PIT) Histograms
+October 9, 2024 — The PIT is translation- and scale-invariant. We diagnose miscalibration by visualising the histogram of PIT values (hereafter the ...
+•
+Berkeley Statistics Department
+S1 Appendix 1 Examples of PIT Distributions
+December 6, 2022 — The variance of the uniform distribution is 1 12 , and a forecaster whose PIT values have a variance of 1 12 are referred to as ne...
+
+Is there a reference for centred PIT wasserstein distance?
+
+No, there is no established peer-reviewed reference that specifically defines or names a "centred PIT Wasserstein distance" as a standalone metric.
+While the two underlying pieces exist independently in the literature, combining them into a single named metric is a custom diagnostic rather than a standard published formula:
+• 1-Wasserstein Distance on PIT Values. Formalized in neural network regression and probabilistic forecasting papers such as Dheur & Ben Taieb (2023) and Zhao, Ma, & Ermon (2020) to measure the overall distance between empirical PIT values and Uniform(0, 1).
+• Mean-Adjusted / Debiased PIT Diagnostics. Discussed in weather and ensemble forecasting literature (such as Hamill, 2001 and Wilks, 2019), where systematic location bias is subtracted from forecasts before checking rank or PIT uniformity.
+
+How to Cite or Formulate It in Academic Writing
+
+If you are using this metric in a paper or technical report, you should define it explicitly as a two-step procedure rather than citing it by a single name:
+• Step 1 (Bias Removal / Re-centering). Cite Hamill (2001) or Wilks (2019) for computing bias-corrected (re-centered) PIT values \(Z_i^{\text{centered}} = F_i(y_i - \bar{e})\) by subtracting the mean forecast error ē to isolate dispersion from location bias.
+• Step 2 (Wasserstein Calibration Error). Cite Dheur & Ben Taieb (2023) for evaluating the 1-Wasserstein distance \(W_1(\hat{F}_{Z^{\text{centered}}}, U)\) between the resulting empirical PIT distribution and Uniform(0, 1).
+
+Alternative: Using 2-Wasserstein Decomposition Directly
+
+If you want a purely mathematical, single-citation metric that separates mean bias from distributional spread without pre-shifting your PIT values, look at the 2-Wasserstein distance (W₂) decomposition (documented in optimal transport texts such as Villani, 2008). For any two 1D distributions, the squared 2-Wasserstein distance splits additively into a location bias term and a shape/dispersion term:
+\(W_{2}^{2}(P,Q)=(\mu _{P}-\mu _{Q})^{2}+W_{2}^{2}(\~{P},\~{Q})\)
+where P̃ and Q̃ are the zero-mean (centered) versions of the distributions. Applying W₂² to your PIT values against Uniform(0, 1) naturally separates the squared mean PIT bias (Z̄ - 0.5)² from the centered dispersion error W₂²(Z̃, Ũ).
+If you are writing up this methodology, would you like the exact mathematical notation for the W₂² PIT decomposition or the BibTeX entries for Dheur & Ben Taieb (2023) and Hamill (2001)?
+AI responses may include mistakes. Learn more

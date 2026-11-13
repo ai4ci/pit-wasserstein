@@ -9,7 +9,12 @@
 * Assume any scripts in the `design` folder are instructional examples and must
   be completely rewritten for production.
 * Document architecture decisions and a phased roadmap (as a checklist) before
-  implementation (`design/adr.md`, `design/scope.md`).
+  implementation (`design/adr/` - one file per decision, `design/doc/scope.md`).
+  Design records are loom instances; run `loom validate` after editing them and
+  `loom render` when a rendered view section needs refreshing. See
+  `design/adr/design-records-are-loom-instances.md`. Never write a literal loom
+  view marker in prose outside `design/` — `loom render` rewrites every markdown
+  file in the repository, including this one.
 * **MAKE SURE YOU HAVE A CLEAN REVERT POINT BEFORE MAKING EVEN SEEMING MINOR
   CHANGES**
 * All tests must be implemented and proven to fail before starting development

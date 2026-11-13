@@ -3,7 +3,9 @@
 # Zotero's local API on the host, for the agent's built-in Zotero tools
 # (reference lookup for main/refs.bib).
 23119
+8089
 
 # 11434 / 11435 are auto-detected by scoder when a local model server is
 # running, so they need no entry here.
 11435
+11434

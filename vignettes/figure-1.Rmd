@@ -1,0 +1,135 @@
+---
+title: "figure-1"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{figure-1}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+# library(pitw)
+devtools::load_all()
+library(tidyverse)
+.gg_pedantic()
+fig_dir = here::here("vignettes", "main", "fig")
+```
+
+
+```{r}
+
+true_value = 0
+estimator_bias_mean = 0.1
+estimator_bias_sd = 1
+estimator_bias_IQR = diff(qnorm(c(0.25,0.75), estimator_bias_mean, estimator_bias_sd))
+calibration = 1.5
+estimator_spread_mean = estimator_bias_sd*calibration 
+estimator_spread_sd = 0.2
+samples = 100
+
+predictions = tibble(
+  prediction_mean = true_value + rnorm(samples, estimator_bias_mean, estimator_bias_sd),
+  sample = rank(prediction_mean,ties.method = "first"),
+  prediction_sd = rlnorm2(samples, estimator_spread_mean, estimator_spread_sd),
+  prediction.0.025 = qnorm(0.025, prediction_mean, prediction_sd),
+  prediction.0.25 = qnorm(0.25, prediction_mean, prediction_sd),
+  prediction.0.5 = qnorm(0.5, prediction_mean, prediction_sd),
+  prediction.0.75 = qnorm(0.75, prediction_mean, prediction_sd),
+  prediction.0.975 = qnorm(0.975, prediction_mean, prediction_sd),
+  prediction_IQR = prediction.0.75-prediction.0.25,
+)
+
+fig1a = ggplot(data=predictions)+
+  geom_segment(aes(y=sample, x=prediction.0.025, xend=prediction.0.975, yend = sample), linewidth = 0.5, colour="grey60")+
+  geom_segment(aes(y=sample, x=prediction.0.25, xend=prediction.0.75, yend = sample), linewidth = 2, colour="grey40")+
+  geom_point(aes(y=sample, x=prediction.0.5), size = 2)+
+  geom_vline(xintercept = true_value, colour = "blue", linewidth = 1)+
+  ggplot2::theme(
+      axis.line.y = ggplot2::element_blank(),
+      axis.ticks.y = ggplot2::element_blank(),
+      axis.text.y = ggplot2::element_blank(),
+      axis.title.y = ggplot2::element_blank()
+  )+
+  xlab(NULL)
+
+fig1b = ggplot(data=predictions)+
+  geom_histogram(aes(x=prediction.0.5), bins=10,fill="red", colour="black", alpha=0.2)+
+  geom_vline(xintercept = true_value+estimator_bias_mean, colour = "red", linewidth = 1)+
+  geom_vline(xintercept = true_value, colour = "blue",linewidth = 1)+
+  xlab("median")
+
+fig1c = ggplot(data=predictions)+
+  geom_histogram(aes(x=prediction_IQR), bins=10,fill="orange", colour="black", alpha=0.2)+
+  geom_vline(xintercept = estimator_bias_IQR*calibration, colour = "orange", linewidth = 1)+
+  geom_vline(xintercept = estimator_bias_IQR, colour = "red",linewidth = 1)+
+  coord_cartesian(xlim=c(0,NA))+
+  xlab("IQR")
+
+fig1 = fig1a + fig1b + fig1c + patchwork::plot_layout(design = "AAB\nAAC") + patchwork::plot_annotation(tag_levels = "A")
+
+fig1
+
+```
+```{r}
+.gg_save_as(
+  fig1,
+  file.path(fig_dir, "fig1-introduction"),
+  size = std_size$third,
+  formats = c("pdf", "eps")
+)
+
+
+```
+
+```{r}
+# config = tibble(
+#   panel = forcats::as_factor(c("unbiased\ncalibrated","unbiased\nconservative","biased\noverconfident")),
+#   true_value = 1,
+#   bias_location = c(0,0,1),
+#   bias_scale = c(1,1,1),
+#   sharpness_location = c(1,2,0.5),
+#   sharpness_scale = 0.4,
+#   bias_quantile = c(0.5,0.5,0.5), 
+#   sharpness_quantile = c(0.5,0.5,0.5)
+# ) %>% group_by(panel)
+
+config = tibble(
+  panel = forcats::as_factor(c("unbiased\nconservative","biased\noverconfident")),
+  true_value = 1,
+  bias_location = c(0,1),
+  bias_scale = c(1,1),
+  sharpness_location = c(2,0.5),
+  sharpness_scale = 0.4,
+  bias_quantile = c(0.4,0.7), 
+  sharpness_quantile = c(0.5,0.5)
+) %>% group_by(panel)
+
+configuration_plot(config, xlim=c(-4,6))
+
+```
+
+
+```{r}
+config = tibble(
+  panel = forcats::as_factor(c("unbiased\ncalibrated\nprediction 1","unbiased\ncalibrated\nprediction 2","unbiased\ncalibrated\nprediction 3")),
+  true_value = 1,
+  bias_location = 0,
+  sharpness_scale = 0.4,
+  bias_quantile = c(0.9,0.65,0.1), 
+  sharpness_quantile = c(0.1,0.5,0.95)
+) %>% group_by(panel)
+
+configuration_plot(config, labels=FALSE, xlim=c(-4,6))
+
+```
+  
+
+
+

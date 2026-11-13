@@ -1,0 +1,46 @@
+Package: pitw
+Title: Analysis package to demonstrate pit wasserstein methods for 
+Version: 0.0.0.9000
+Authors@R: 
+    person("Rob", "Challen", , "rob.challen@bristol.ac.uk", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-5504-7768"))
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Config/roxygen2/version: 8.1.1
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE, packages = "pkgtools", roclets = c("collate", "namespace", "pkgtools::pkgtools_rd"))
+Imports: 
+    base64enc,
+    dplyr,
+    flextable,
+    fs,
+    ggplot2,
+    grDevices,
+    htmltools,
+    huxtable,
+    interfacer (>= 0.4.2),
+    knitr,
+    magrittr,
+    officer,
+    pdftools,
+    purrr,
+    ragg,
+    readr,
+    rlang,
+    rmarkdown,
+    rstudioapi,
+    rsvg,
+    scales,
+    stats,
+    stringr,
+    svglite,
+    systemfonts,
+    targets,
+    testthat,
+    tibble,
+    tidyr,
+    tidyselect,
+    utils
+Remotes: ai4ci/interfacer
+Config/Needs/build: terminological/pkgtools
+VignetteBuilder: knitr

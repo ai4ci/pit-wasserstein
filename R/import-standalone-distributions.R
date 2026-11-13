@@ -38,13 +38,13 @@
 #' @concept distributions
 #' @examples
 #'
-#' pwedge(seq(0,1,0.1), a=1)
-#' dwedge(seq(0,1,0.1), a=1)
-#' qwedge(c(0.25,0.5,0.75), a=-1)
+#' pwedge(seq(0, 1, 0.1), a = 1)
+#' dwedge(seq(0, 1, 0.1), a = 1)
+#' qwedge(c(0.25, 0.5, 0.75), a = -1)
 #'
 #' stats::cor(
-#'   stats::qnorm(rwedge(1000, a=2)),
-#'   stats::qnorm(rwedge(1000, a=-2))
+#'   stats::qnorm(rwedge(1000, a = 2)),
+#'   stats::qnorm(rwedge(1000, a = -2))
 #' )
 NULL
 
@@ -118,209 +118,6 @@ rwedge = function(n, a) {
   return(qwedge(stats::runif(n), a))
 }
 
-# Logit normal distribution ----
-
-#' Logit-normal distribution
-#'
-#' The logit-normal distribution has a support of 0 to 1.
-#'
-#' @param n number of observations
-#' @param x vector of quantiles `(0<x<1)`
-#' @param q vector of quantiles `(0<q<1)`
-#' @param p vector of probabilities
-#' @param log logical; if TRUE, probabilities p are given as log(p).
-#' @param log.p logical; if TRUE, probabilities p are given as log(p).
-#' @param lower.tail logical; if TRUE (default), probabilities are `P[X<=x]`
-#'   otherwise `P[X>x]`.
-#' @param meanlogit the mean on the logit scale
-#' @param sdlogit the sd on the logit scale
-#' @param prob.0.5 the median on the true scale
-#' @param kappa a dispersion parameter from 0 (none) to 1 maximum dispersion
-#' @return a vector of probabilities, quantiles, densities or samples.
-#' @name logit-norm
-#' @keywords internal
-#' @concept distributions
-NULL
-
-
-# fast
-.logit = stats::qlogis
-
-# slow (but faster that plogis)
-.expit = function(x) {
-  return(1 / (1 + exp(-x)))
-}
-
-#' @inherit logit-norm
-#'
-#' @export
-#' @concept distributions
-#'
-#' @examples
-#' dlogitnorm(seq(0.1,0.9,0.1), 0, 1)
-dlogitnorm = function(x, meanlogit = 0, sdlogit = 1, log = FALSE) {
-  ifelse(
-    x < 0 | x > 1,
-    NaN,
-    stats::dnorm(.logit(x), mean = meanlogit, sd = sdlogit) * 1 / (x * (1 - x))
-  )
-}
-
-#' @inherit logit-norm
-#'
-#' @export
-#' @concept distributions
-#'
-#' @examples
-#' plogitnorm(seq(0.1,0.9,0.1), 0, 1)
-plogitnorm = function(
-  q,
-  meanlogit = 0,
-  sdlogit = 1,
-  lower.tail = TRUE,
-  log.p = FALSE
-) {
-  ifelse(
-    q < 0 | q > 1,
-    NaN,
-    stats::pnorm(
-      .logit(q),
-      mean = meanlogit,
-      sd = sdlogit,
-      lower.tail = lower.tail,
-      log.p = log.p
-    )
-  )
-}
-
-#' @inherit logit-norm
-#'
-#' @export
-#' @concept distributions
-#'
-#' @examples
-#' qlogitnorm(c(0.25,0.5,0.75), 0, 1)
-qlogitnorm = function(
-  p,
-  meanlogit = 0,
-  sdlogit = 1,
-  lower.tail = TRUE,
-  log.p = FALSE
-) {
-  .expit(stats::qnorm(
-    p,
-    mean = meanlogit,
-    sd = sdlogit,
-    lower.tail = lower.tail,
-    log.p = log.p
-  ))
-}
-
-#' @inherit logit-norm
-#'
-#' @export
-#' @concept distributions
-#'
-#' @examples
-#' rlogitnorm(10, 0, 1)
-rlogitnorm = function(n, meanlogit = 0, sdlogit = 1) {
-  qlogitnorm(stats::runif(n), meanlogit, sdlogit)
-}
-
-.reparam_logitnorm = function(prob.0.5, kappa) {
-  if (any(prob.0.5 < 0 | prob.0.5 > 1, na.rm = TRUE)) {
-    stop("prob.0.5 must be greater than zero and smaller than 1")
-  }
-  if (any(kappa < 0 | kappa > 1, na.rm = TRUE)) {
-    stop("kappa must be greater than zero and smaller than 1")
-  }
-  mu = .logit(prob.0.5)
-  sigma = -log(1 - kappa) # maps 0-1 to 0-Inf
-  return(list(
-    mu = mu,
-    sigma = sigma
-  ))
-}
-
-#' @inherit logit-norm
-#'
-#' @export
-#' @concept distributions
-#'
-#' @examples
-#'
-#' q = seq(0.1,0.9,0.1)
-#' eps = sqrt(.Machine$double.eps)
-#' dlogitnorm2(q, 0.75, 0.2)
-#'
-#' (plogitnorm2(q+eps, 0.75, 0.2) -
-#'   plogitnorm2(q-eps, 0.75, 0.2)) / (2*eps)
-dlogitnorm2 = function(x, prob.0.5 = 0.5, kappa = 1 - exp(-1), log = FALSE) {
-  params = .reparam_logitnorm(prob.0.5, kappa)
-  dlogitnorm(x, meanlogit = params$mu, sdlogit = params$sigma, log = log)
-}
-
-#' @inherit logit-norm
-#'
-#' @export
-#' @concept distributions
-#'
-#' @examples
-#' plogitnorm2(seq(0.1,0.9,0.1), 0.75, 0.2)
-#' plogitnorm2(qlogitnorm2(seq(0.1,0.9,0.1), 0.75, 0.2), 0.75, 0.2)
-plogitnorm2 = function(
-  q,
-  prob.0.5 = 0.5,
-  kappa = 1 - exp(-1),
-  lower.tail = TRUE,
-  log.p = FALSE
-) {
-  params = .reparam_logitnorm(prob.0.5, kappa)
-  plogitnorm(
-    q,
-    meanlogit = params$mu,
-    sdlogit = params$sigma,
-    lower.tail = lower.tail,
-    log.p = log.p
-  )
-}
-
-#' @inherit logit-norm
-#'
-#' @export
-#' @concept distributions
-#'
-#' @examples
-#' qlnorm2(c(0.25,0.5,0.72), 2, 1)
-qlogitnorm2 = function(
-  p,
-  prob.0.5 = 0.5,
-  kappa = 1 - exp(-1),
-  lower.tail = TRUE,
-  log.p = FALSE
-) {
-  params = .reparam_logitnorm(prob.0.5, kappa)
-  qlogitnorm(
-    p,
-    meanlogit = params$mu,
-    sdlogit = params$sigma,
-    lower.tail = lower.tail,
-    log.p = log.p
-  )
-}
-
-#' @inherit logit-norm
-#'
-#' @export
-#' @concept distributions
-#'
-#' @examples
-#' mean(rlogitnorm2(10000,0.75,0.2))
-rlogitnorm2 = function(n, prob.0.5 = 0.5, kappa = 1 - exp(-1)) {
-  params = .reparam_logitnorm(prob.0.5, kappa)
-  rlogitnorm(n, meanlogit = params$mu, sdlogit = params$sigma)
-}
-
 
 ## Bernoulli / Categorical ----
 
@@ -352,10 +149,10 @@ rbern = function(n, prob) {
 #' @concept distributions
 #' @examples
 #'
-#' prob = c("one"=0.1,"two"=0.2,"seven"=0.7)
-#' table(rcategorical(1000,prob))
-#' rcategorical(10,prob,factor=TRUE)
-#' rcategorical(10,rep(1,26),factor=letters)
+#' prob = c("one" = 0.1, "two" = 0.2, "seven" = 0.7)
+#' table(rcategorical(1000, prob))
+#' rcategorical(10, prob, factor = TRUE)
+#' rcategorical(10, rep(1, 26), factor = letters)
 #'
 rcategorical = function(n, prob, factor = FALSE) {
   if (length(n) > 0) {
@@ -416,8 +213,8 @@ rcategorical = function(n, prob, factor = FALSE) {
 #' @concept distributions
 #'
 #' @examples
-#' graphics::hist(rexpgrowth(1000,0.1,40), breaks=40)
-#' graphics::hist(rexpgrowth(1000,-0.1,40), breaks=40)
+#' graphics::hist(rexpgrowth(1000, 0.1, 40), breaks = 40)
+#' graphics::hist(rexpgrowth(1000, -0.1, 40), breaks = 40)
 rexpgrowth = function(n, r, t_end, t_start = 0) {
   # Primary case infection time
   # exponentially distributed in time. Need to make sure we have enough samples
@@ -450,8 +247,8 @@ rexpgrowth = function(n, r, t_end, t_start = 0) {
 #' @concept distributions
 #'
 #' @examples
-#' graphics::hist(rexpgrowthI0(10,0.1,20), breaks=40)
-#' graphics::hist(rexpgrowthI0(1000,-0.1,40), breaks=40)
+#' graphics::hist(rexpgrowthI0(10, 0.1, 20), breaks = 40)
+#' graphics::hist(rexpgrowthI0(1000, -0.1, 40), breaks = 40)
 rexpgrowthI0 = function(I0, r, t_end, t_start = 0) {
   if (r == 0) {
     n = I0 * (t_end - t_start)
@@ -475,17 +272,17 @@ rexpgrowthI0 = function(I0, r, t_end, t_start = 0) {
 #' @param x vector of quantiles
 #' @param q vector of quantiles
 #' @param p vector of probabilities
+#' @param dist the distribution name e.g.`lnorm`
 #' @param log logical; if TRUE, probabilities p are given as log(p).
 #' @param log.p logical; if TRUE, probabilities p are given as log(p).
 #' @param lower.tail logical; if TRUE (default), probabilities are `P[X<=x]`
 #'   otherwise `P[X>x]`.
 #' @param prob the mean probability (vectorised)
 #' @param prob.0.5 the median probability (vectorised)
-#' @param kappa a coefficient of variation. where 0 is no variability and 1 is
-#'   maximally variability (vectorised)
+#' @param kappa a coefficient of variation (sd/mean). where 0 is no variability.
 #' @param mean the mean value on the true scale (vectorised)
 #' @param sd the standard deviation on the true scale (vectorised)
-#' @param ... not used
+#' @param ... passed onto named functions
 #'
 #' @keywords internal
 #' @concept distributions
@@ -493,104 +290,45 @@ rexpgrowthI0 = function(I0, r, t_end, t_start = 0) {
 #' @name reparam-dist
 NULL
 
-## Beta parametrisations ----
 
-#' @inherit stats::rbeta return title description
-#' @seealso [stats::rbeta()]
-#' @inheritParams reparam-dist
+#' Get a converter that maps an unusual parametrisation to a canonical one.
 #'
+#' @param dist_name the distribution family as a string, e.g. `lnorm4`
+#'
+#' @returns a function that takes 2 parameters of the original distrbition and
+#' returns a list with the parameters and name of the canonical distribution.
 #' @export
-#' @concept distributions
 #'
 #' @examples
-#' rbeta2(3, c(0.1,0.5,0.9),0.1)
-rbeta2 = function(n, prob, kappa) {
-  params = .reparam_beta(prob, kappa)
-  return(
-    dplyr::case_when(
-      prob == 1 | prob == 0 ~ prob,
-      kappa == 0 ~ prob,
-      TRUE ~ stats::rbeta(n, params$alpha, params$beta)
-    )
+#' tmp_fn = reparam_fn("lnorm2")
+#' tmp_fn(mean = 1, sd = 2)
+#' rlang::exec()
+reparam_fn = function(dist_name) {
+  tmp = try(
+    rlang::as_function(sprintf(".reparam.%s", dist_name)),
+    silent = TRUE
   )
+  if (inherits(tmp, "try-error")) stop("reparametrisation not supported: ", dist_name)
+  return(tmp)
 }
 
-#' @inherit stats::dbeta return title description
-#' @seealso [stats::dbeta()]
-#' @inheritParams reparam-dist
-#'
-#' @export
-#' @concept distributions
-#'
-#' @examples
-#' dbeta2(c(0.25,0.5,0.75), 0.5, 0.25)
-dbeta2 = function(x, prob, kappa, log = FALSE) {
-  params = .reparam_beta(prob, kappa)
-  return(
-    dplyr::case_when(
-      prob == 1 | prob == 0 ~ ifelse(x < prob, 0, 1),
-      kappa == 0 ~ ifelse(x < prob, 0, 1),
-      TRUE ~ stats::dbeta(x, params$alpha, params$beta, log = log)
-    )
-  )
+.reparam.logitnorm2 = function(prob.0.5, kappa, ...) {
+  if (any(prob.0.5 < 0 | prob.0.5 > 1, na.rm = TRUE)) {
+    stop("prob.0.5 must be greater than zero and smaller than 1")
+  }
+  if (any(kappa < 0 | kappa > 1, na.rm = TRUE)) {
+    stop("kappa must be greater than zero and smaller than 1")
+  }
+  mu = .logit(prob.0.5)
+  sigma = -log(1 - kappa) # maps 0-1 to 0-Inf
+  return(list(
+    dist = "logitnorm",
+    meanlogit = mu,
+    sdlogit = sigma
+  ))
 }
 
-#' @inherit stats::pbeta return title description
-#' @seealso [stats::pbeta()]
-#' @inheritParams reparam-dist
-#'
-#' @export
-#' @concept distributions
-#'
-#' @examples
-#' pbeta2(c(0.25,0.5,0.75), 0.5, 0.25)
-pbeta2 = function(q, prob, kappa, lower.tail = TRUE, log.p = FALSE) {
-  params = .reparam_beta(prob, kappa)
-  return(
-    dplyr::case_when(
-      prob == 1 | prob == 0 ~ ifelse(q == prob, Inf, 0),
-      kappa == 0 ~ ifelse(q == prob, Inf, 0),
-      TRUE ~
-        stats::pbeta(
-          q,
-          params$alpha,
-          params$beta,
-          lower.tail = lower.tail,
-          log.p = log.p
-        )
-    )
-  )
-}
-
-#' @inherit stats::qbeta return title description
-#' @seealso [stats::qbeta()]
-#' @inheritParams reparam-dist
-#'
-#' @export
-#' @concept distributions
-#'
-#' @examples
-#' qbeta2(c(0.25,0.5,0.75), 0.5, 0.25)
-qbeta2 = function(p, prob, kappa, lower.tail = TRUE, log.p = FALSE) {
-  params = .reparam_beta(prob, kappa)
-  return(
-    dplyr::case_when(
-      prob == 1 | prob == 0 ~ prob,
-      kappa == 0 ~ prob,
-      TRUE ~
-        stats::qbeta(
-          p,
-          params$alpha,
-          params$beta,
-          lower.tail = lower.tail,
-          log.p = log.p
-        )
-    )
-  )
-}
-
-
-.reparam_beta = function(p, kappa) {
+.reparam.beta2 = function(p, kappa, ...) {
   if (any(p < 0 | p > 1, na.rm = TRUE)) {
     stop("p is a probability and must be between 0 and 1")
   }
@@ -616,14 +354,24 @@ qbeta2 = function(p, prob, kappa, lower.tail = TRUE, log.p = FALSE) {
   kappa2 = kmax * kappa
 
   return(list(
+    dist = "beta",
     alpha = ((1 - p) / (kappa2^2 * p) - 1) * p,
     beta = ((1 - p) / (kappa2^2 * p) - 1) * (1 - p)
   ))
 }
 
-## Log normal ----
+.reparam.norm4 = function(median, kappa, ...) {
+  if (any(kappa < 0, na.rm = TRUE)) {
+    stop("kappas must be greater than zero")
+  }
+  return(list(
+    dist = "norm",
+    mean = median,
+    sd = median * kappa
+  ))
+}
 
-.reparam_lnorm = function(mean, sd) {
+.reparam.lnorm2 = function(mean, sd, ...) {
   if (any(mean < 0, na.rm = TRUE)) {
     stop("means must be greater than zero")
   }
@@ -632,10 +380,590 @@ qbeta2 = function(p, prob, kappa, lower.tail = TRUE, log.p = FALSE) {
   }
   var = sd^2
   return(list(
-    mu = log(mean / sqrt(var / (mean^2) + 1)),
-    sigma = sqrt(log(var / (mean^2) + 1))
+    dist = "lnorm",
+    meanlog = log(mean / sqrt(var / (mean^2) + 1)),
+    sdlog = sqrt(log(var / (mean^2) + 1))
   ))
 }
+
+.reparam.lnorm4 = function(median, kappa, ...) {
+  if (any(median < 0, na.rm = TRUE)) {
+    stop("medians must be greater than zero")
+  }
+  if (any(kappa < 0, na.rm = TRUE)) {
+    stop("coefficient of variation must be greater than zero")
+  }
+  return(list(
+    dist = "lnorm",
+    meanlog = log(median),
+    sdlog = sqrt(log(kappa^2 + 1))
+  ))
+}
+
+.reparam.gamma2 = function(mean, sd, ...) {
+  if (any(mean < 0, na.rm = TRUE)) {
+    stop("means must be greater than zero")
+  }
+  if (any(sd < 0, na.rm = TRUE)) {
+    stop("sds must be greater than zero")
+  }
+  var = sd^2
+  return(list(
+    dist = "gamma",
+    shape = mean^2 / var, # if shape < 1 then is concave
+    rate = mean / var
+  ))
+}
+
+
+.reparam.gamma4 = function(median, kappa, ...) {
+  if (any(median < 0, na.rm = TRUE)) {
+    stop("medians must be greater than zero")
+  }
+  if (any(kappa < 0, na.rm = TRUE)) {
+    stop("kappa (coef of variation) must be greater than zero")
+  }
+
+  # Calculate shape directly from the coefficient of variation
+  shape = 1 / kappa^2
+
+  # Calculate the exact mean analytically without any numerical optimization
+  true_mean = median * (shape / stats::qgamma(0.5, shape = shape, rate = 1))
+
+  return(list(
+    dist = "gamma",
+    shape = shape,
+    rate = 1 / (true_mean * kappa^2)
+  ))
+}
+
+.reparam.cgamma = function(median, kappa, ...) {
+  if (any(median < 0, na.rm = TRUE)) {
+    stop("medians must be greater than zero")
+  }
+  if (any(kappa < 0 | kappa > 1, na.rm = TRUE)) {
+    stop("kappa (coef of variation) must be between zero and one")
+  }
+
+  # Calculate shape directly from the coefficient of variation
+  shape = 1 / kappa^2
+
+  # Calculate the exact mean analytically without any numerical optimization
+  true_mean = median * (shape / stats::qgamma(0.5, shape = shape, rate = 1))
+
+  return(list(
+    dist = "gamma",
+    shape = shape,
+    rate = 1 / (true_mean * kappa^2)
+  ))
+}
+
+.reparam.nbinom2 = function(mean, sd, ...) {
+  if (any(mean < 0, na.rm = TRUE)) {
+    stop("means must be greater than zero")
+  }
+  if (any(sd < 0, na.rm = TRUE)) {
+    stop("sds must be greater than zero")
+  }
+  if (any(sd < sqrt(mean), na.rm = TRUE)) {
+    stop("sds must be greater than the sqrt of the mean")
+  }
+  var = sd^2
+  return(list(
+    dist = "nbinom",
+    size = mean^2 / (var - mean), # if shape < 1 then is concave
+    prob = mean / var
+  ))
+}
+
+
+#' Random sample from a named distribution
+#'
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+rdist = function(dist, n, ...) {
+  reparam_fn = try(rlang::as_function(sprintf(".reparam.%s", dist)), silent = TRUE)
+  if (inherits(reparam_fn, "try-error")) {
+    dist_fn = try(rlang::as_function(sprintf("r%s", dist)), silent = TRUE)
+    if (inherits(dist_fn, "try-error")) {
+      stop(
+        "can't resolve function: ",
+        sprintf("r%s", dist),
+        " or reparameterise it."
+      )
+    }
+    return(dist_fn(n, ...))
+  } else {
+    param = head(rlang::list2(...), 2)
+    dots = tail(rlang::list2(...), -2)
+    tmp = rlang::exec(reparam_fn, !!!param)
+    dist_fn = try(rlang::as_function(sprintf("r%s", tmp$dist)), silent = TRUE)
+    args = c(list(n = n), tmp[2:3], dots)
+    return(rlang::exec(dist_fn, !!!args))
+  }
+}
+
+#' Density function a named distribution
+#'
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+ddist = function(dist, x, ...) {
+  reparam_fn = try(rlang::as_function(sprintf(".reparam.%s", dist)), silent = TRUE)
+  if (inherits(reparam_fn, "try-error")) {
+    dist_fn = try(rlang::as_function(sprintf("d%s", dist)), silent = TRUE)
+    if (inherits(dist_fn, "try-error")) {
+      stop(
+        "can't resolve function: ",
+        sprintf("d%s", dist),
+        " or reparameterise it."
+      )
+    }
+    return(dist_fn(x, ...))
+  } else {
+    param = head(rlang::list2(...), 2)
+    dots = tail(rlang::list2(...), -2)
+    tmp = rlang::exec(reparam_fn, !!!param)
+    dist_fn = try(rlang::as_function(sprintf("d%s", tmp$dist)), silent = TRUE)
+    args = c(list(x = x), tmp[2:3], dots)
+    return(rlang::exec(dist_fn, !!!args))
+  }
+}
+
+#' Cumulative probability from a named distribution
+#'
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+pdist = function(dist, q, ...) {
+  reparam_fn = try(rlang::as_function(sprintf(".reparam.%s", dist)), silent = TRUE)
+  if (inherits(reparam_fn, "try-error")) {
+    dist_fn = try(rlang::as_function(sprintf("p%s", dist)), silent = TRUE)
+    if (inherits(dist_fn, "try-error")) {
+      stop(
+        "can't resolve function: ",
+        sprintf("p%s", dist),
+        " or reparameterise it."
+      )
+    }
+    return(dist_fn(q, ...))
+  } else {
+    param = head(rlang::list2(...), 2)
+    dots = tail(rlang::list2(...), -2)
+    tmp = rlang::exec(reparam_fn, !!!param)
+    dist_fn = try(rlang::as_function(sprintf("p%s", tmp$dist)), silent = TRUE)
+    args = c(list(q = q), tmp[2:3], dots)
+    return(rlang::exec(dist_fn, !!!args))
+  }
+}
+
+#' Quantile function of a named distribution
+#'
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+qdist = function(dist, p, ...) {
+  reparam_fn = try(rlang::as_function(sprintf(".reparam.%s", dist)), silent = TRUE)
+  if (inherits(reparam_fn, "try-error")) {
+    dist_fn = try(rlang::as_function(sprintf("q%s", dist)), silent = TRUE)
+    if (inherits(dist_fn, "try-error")) {
+      stop(
+        "can't resolve function: ",
+        sprintf("q%s", dist),
+        " or reparameterise it."
+      )
+    }
+    return(dist_fn(p, ...))
+  } else {
+    param = head(rlang::list2(...), 2)
+    dots = tail(rlang::list2(...), -2)
+    tmp = rlang::exec(reparam_fn, !!!param)
+    dist_fn = try(rlang::as_function(sprintf("q%s", tmp$dist)), silent = TRUE)
+    args = c(list(p = p), tmp[2:3], dots)
+    return(rlang::exec(dist_fn, !!!args))
+  }
+}
+
+# Logit normal distribution ----
+
+#' Logit-normal distribution
+#'
+#' The logit-normal distribution has a support of 0 to 1.
+#'
+#' @param n number of observations
+#' @param x vector of quantiles `(0<x<1)`
+#' @param q vector of quantiles `(0<q<1)`
+#' @param p vector of probabilities
+#' @param log logical; if TRUE, probabilities p are given as log(p).
+#' @param log.p logical; if TRUE, probabilities p are given as log(p).
+#' @param lower.tail logical; if TRUE (default), probabilities are `P[X<=x]`
+#'   otherwise `P[X>x]`.
+#' @param meanlogit the mean on the logit scale
+#' @param sdlogit the sd on the logit scale
+#' @param prob.0.5 the median on the true scale
+#' @param kappa a dispersion parameter from 0 (none) to 1 maximum dispersion
+#' @return a vector of probabilities, quantiles, densities or samples.
+#' @name logit-norm
+#' @keywords internal
+#' @concept distributions
+NULL
+
+
+# fast
+.logit = stats::qlogis
+
+# slow (but faster that plogis)
+.expit = function(x) {
+  return(1 / (1 + exp(-x)))
+}
+
+## Logit normal ----
+
+#' @inherit logit-norm
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' dlogitnorm(seq(0.1, 0.9, 0.1), 0, 1)
+dlogitnorm = function(x, meanlogit = 0, sdlogit = 1, log = FALSE) {
+  ifelse(
+    x < 0 | x > 1,
+    NaN,
+    stats::dnorm(.logit(x), mean = meanlogit, sd = sdlogit) * 1 / (x * (1 - x))
+  )
+}
+
+#' @inherit logit-norm
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' plogitnorm(seq(0.1, 0.9, 0.1), 0, 1)
+plogitnorm = function(
+  q,
+  meanlogit = 0,
+  sdlogit = 1,
+  lower.tail = TRUE,
+  log.p = FALSE
+) {
+  ifelse(
+    q < 0 | q > 1,
+    NaN,
+    stats::pnorm(
+      .logit(q),
+      mean = meanlogit,
+      sd = sdlogit,
+      lower.tail = lower.tail,
+      log.p = log.p
+    )
+  )
+}
+
+#' @inherit logit-norm
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' qlogitnorm(c(0.25, 0.5, 0.75), 0, 1)
+qlogitnorm = function(
+  p,
+  meanlogit = 0,
+  sdlogit = 1,
+  lower.tail = TRUE,
+  log.p = FALSE
+) {
+  .expit(stats::qnorm(
+    p,
+    mean = meanlogit,
+    sd = sdlogit,
+    lower.tail = lower.tail,
+    log.p = log.p
+  ))
+}
+
+#' @inherit logit-norm
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' rlogitnorm(10, 0, 1)
+rlogitnorm = function(n, meanlogit = 0, sdlogit = 1) {
+  qlogitnorm(stats::runif(n), meanlogit, sdlogit)
+}
+
+## Logit normal 2 ----
+
+#' @inherit logit-norm
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#'
+#' q = seq(0.1, 0.9, 0.1)
+#' eps = sqrt(.Machine$double.eps)
+#' dlogitnorm2(q, 0.75, 0.2)
+#'
+#' (plogitnorm2(q + eps, 0.75, 0.2) -
+#'   plogitnorm2(q - eps, 0.75, 0.2)) / (2 * eps)
+dlogitnorm2 = function(x, prob.0.5 = 0.5, kappa = 1 - exp(-1), log = FALSE) {
+  params = .reparam.logitnorm2(prob.0.5, kappa)
+  dlogitnorm(
+    x,
+    meanlogit = params$meanlogit,
+    sdlogit = params$sdlogit,
+    log = log
+  )
+}
+
+#' @inherit logit-norm
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' plogitnorm2(seq(0.1, 0.9, 0.1), 0.75, 0.2)
+#' plogitnorm2(qlogitnorm2(seq(0.1, 0.9, 0.1), 0.75, 0.2), 0.75, 0.2)
+plogitnorm2 = function(
+  q,
+  prob.0.5 = 0.5,
+  kappa = 1 - exp(-1),
+  lower.tail = TRUE,
+  log.p = FALSE
+) {
+  params = .reparam.logitnorm2(prob.0.5, kappa)
+  plogitnorm(
+    q,
+    meanlogit = params$meanlogit,
+    sdlogit = params$sdlogit,
+    lower.tail = lower.tail,
+    log.p = log.p
+  )
+}
+
+#' @inherit logit-norm
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' qlnorm2(c(0.25, 0.5, 0.72), 2, 1)
+qlogitnorm2 = function(
+  p,
+  prob.0.5 = 0.5,
+  kappa = 1 - exp(-1),
+  lower.tail = TRUE,
+  log.p = FALSE
+) {
+  params = .reparam.logitnorm2(prob.0.5, kappa)
+  qlogitnorm(
+    p,
+    meanlogit = params$meanlogit,
+    sdlogit = params$sdlogit,
+    lower.tail = lower.tail,
+    log.p = log.p
+  )
+}
+
+#' @inherit logit-norm
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' mean(rlogitnorm2(10000, 0.75, 0.2))
+rlogitnorm2 = function(n, prob.0.5 = 0.5, kappa = 1 - exp(-1)) {
+  params = .reparam.logitnorm2(prob.0.5, kappa)
+  rlogitnorm(
+    n,
+    meanlogit = params$meanlogit,
+    sdlogit = params$sdlogit
+  )
+}
+
+
+# Beta ----
+
+## Beta 2 ----
+
+#' @inherit stats::rbeta return title description
+#' @seealso [stats::rbeta()]
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' rbeta2(3, c(0.1, 0.5, 0.9), 0.1)
+rbeta2 = function(n, prob, kappa) {
+  params = .reparam.beta2(prob, kappa)
+  return(
+    dplyr::case_when(
+      prob == 1 | prob == 0 ~ prob,
+      kappa == 0 ~ prob,
+      TRUE ~ stats::rbeta(n, params$alpha, params$beta)
+    )
+  )
+}
+
+#' @inherit stats::dbeta return title description
+#' @seealso [stats::dbeta()]
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' dbeta2(c(0.25, 0.5, 0.75), 0.5, 0.25)
+dbeta2 = function(x, prob, kappa, log = FALSE) {
+  params = .reparam.beta2(prob, kappa)
+  return(
+    dplyr::case_when(
+      prob == 1 | prob == 0 ~ ifelse(x < prob, 0, 1),
+      kappa == 0 ~ ifelse(x < prob, 0, 1),
+      TRUE ~ stats::dbeta(x, params$alpha, params$beta, log = log)
+    )
+  )
+}
+
+#' @inherit stats::pbeta return title description
+#' @seealso [stats::pbeta()]
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' pbeta2(c(0.25, 0.5, 0.75), 0.5, 0.25)
+pbeta2 = function(q, prob, kappa, lower.tail = TRUE, log.p = FALSE) {
+  params = .reparam.beta2(prob, kappa)
+  return(
+    dplyr::case_when(
+      prob == 1 | prob == 0 ~ ifelse(q == prob, Inf, 0),
+      kappa == 0 ~ ifelse(q == prob, Inf, 0),
+      TRUE ~
+        stats::pbeta(
+          q,
+          params$alpha,
+          params$beta,
+          lower.tail = lower.tail,
+          log.p = log.p
+        )
+    )
+  )
+}
+
+#' @inherit stats::qbeta return title description
+#' @seealso [stats::qbeta()]
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' qbeta2(c(0.25, 0.5, 0.75), 0.5, 0.25)
+qbeta2 = function(p, prob, kappa, lower.tail = TRUE, log.p = FALSE) {
+  params = .reparam.beta2(prob, kappa)
+  return(
+    dplyr::case_when(
+      prob == 1 | prob == 0 ~ prob,
+      kappa == 0 ~ prob,
+      TRUE ~
+        stats::qbeta(
+          p,
+          params$alpha,
+          params$beta,
+          lower.tail = lower.tail,
+          log.p = log.p
+        )
+    )
+  )
+}
+
+# Normal ----
+
+## Normal 4 ----
+
+#' @inherit stats::dnorm
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+dnorm4 = function(x, median = 0, kappa = 1, log = FALSE) {
+  params = .reparam.norm4(median, kappa)
+  stats::dnorm(x, mean = params$mean, sd = params$sd, log = log)
+}
+
+#' @inherit stats::pnorm
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+pnorm4 = function(
+  q,
+  median = 0,
+  kappa = 1,
+  lower.tail = TRUE,
+  log.p = FALSE
+) {
+  params = .reparam.norm4(median, kappa)
+  stats::pnorm(
+    q,
+    mean = params$mean,
+    sd = params$sd,
+    lower.tail = lower.tail,
+    log.p = log.p
+  )
+}
+
+#' @inherit stats::qnorm
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+qnorm4 = function(
+  p,
+  median = 0,
+  kappa = 1,
+  lower.tail = TRUE,
+  log.p = FALSE
+) {
+  params = .reparam.norm4(median, kappa)
+  stats::qnorm(
+    p,
+    mean = params$mean,
+    sd = params$sd,
+    lower.tail = lower.tail,
+    log.p = log.p
+  )
+}
+
+#' @inherit stats::rnorm
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+rnorm4 = function(n, median = 0, kappa = 1) {
+  params = .reparam.norm4(median, kappa)
+  stats::rnorm(n, mean = params$mean, sd = params$sd)
+}
+
+# Log normal ----
+
+## Log normal 2 ----
 
 #' @inherit stats::dlnorm
 #' @inheritParams reparam-dist
@@ -644,9 +972,9 @@ qbeta2 = function(p, prob, kappa, lower.tail = TRUE, log.p = FALSE) {
 #' @concept distributions
 #'
 #' @examples
-#' dlnorm2(seq(0,4,0.25), 2, 1)
+#' dlnorm2(seq(0, 4, 0.25), 2, 1)
 dlnorm2 = function(x, mean = 1, sd = sqrt(exp(1) - 1), log = FALSE) {
-  params = .reparam_lnorm(mean, sd)
+  params = .reparam.lnorm2(mean, sd)
   stats::dlnorm(x, meanlog = params$mu, sdlog = params$sigma, log = log)
 }
 
@@ -657,7 +985,7 @@ dlnorm2 = function(x, mean = 1, sd = sqrt(exp(1) - 1), log = FALSE) {
 #' @concept distributions
 #'
 #' @examples
-#' plnorm2(seq(0,4,0.25), 2, 1)
+#' plnorm2(seq(0, 4, 0.25), 2, 1)
 plnorm2 = function(
   q,
   mean = 1,
@@ -665,7 +993,7 @@ plnorm2 = function(
   lower.tail = TRUE,
   log.p = FALSE
 ) {
-  params = .reparam_lnorm(mean, sd)
+  params = .reparam.lnorm2(mean, sd)
   stats::plnorm(
     q,
     meanlog = params$mu,
@@ -682,7 +1010,7 @@ plnorm2 = function(
 #' @concept distributions
 #'
 #' @examples
-#' qlnorm2(c(0.25,0.5,0.72), 2, 1)
+#' qlnorm2(c(0.25, 0.5, 0.72), 2, 1)
 qlnorm2 = function(
   p,
   mean = 1,
@@ -690,11 +1018,11 @@ qlnorm2 = function(
   lower.tail = TRUE,
   log.p = FALSE
 ) {
-  params = .reparam_lnorm(mean, sd)
+  params = .reparam.lnorm2(mean, sd)
   stats::qlnorm(
     p,
-    meanlog = params$mu,
-    sdlog = params$sigma,
+    meanlog = params$meanlog,
+    sdlog = params$sdlog,
     lower.tail = lower.tail,
     log.p = log.p
   )
@@ -709,27 +1037,98 @@ qlnorm2 = function(
 #' @examples
 #' rlnorm2(10, 2, 1)
 rlnorm2 = function(n, mean = 1, sd = sqrt(exp(1) - 1)) {
-  params = .reparam_lnorm(mean, sd)
-  stats::rlnorm(n, meanlog = params$mu, sdlog = params$sigma)
+  params = .reparam.lnorm2(mean, sd)
+  stats::rlnorm(n, meanlog = params$meanlog, sdlog = params$sdlog)
 }
+
+## Log normal 4 ----
+
+#' @inherit stats::dlnorm
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' dlnorm4(seq(0, 4, 0.25), 2, 1)
+dlnorm4 = function(x, median = 1, kappa = 1, log = FALSE) {
+  params = .reparam.lnorm4(median, kappa)
+  stats::dlnorm(
+    x,
+    meanlog = params$meanlog,
+    sdlog = params$sdlog,
+    log = log
+  )
+}
+
+#' @inherit stats::plnorm
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' plnorm4(seq(0, 4, 0.25), 2, 1)
+plnorm4 = function(
+  q,
+  median = 1,
+  kappa = 1,
+  lower.tail = TRUE,
+  log.p = FALSE
+) {
+  params = .reparam.lnorm4(median, kappa)
+  stats::plnorm(
+    q,
+    meanlog = params$meanlog,
+    sdlog = params$sdlog,
+    lower.tail = lower.tail,
+    log.p = log.p
+  )
+}
+
+#' @inherit stats::qlnorm
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' qlnorm4(c(0.25, 0.5, 0.72), 2, 1)
+qlnorm4 = function(
+  p,
+  median = 1,
+  kappa = 1,
+  lower.tail = TRUE,
+  log.p = FALSE
+) {
+  params = .reparam.lnorm4(median, kappa)
+  stats::qlnorm(
+    p,
+    meanlog = params$meanlog,
+    sdlog = params$sdlog,
+    lower.tail = lower.tail,
+    log.p = log.p
+  )
+}
+
+#' @inherit stats::rlnorm
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' rlnorm4(10, 2, 1)
+rlnorm4 = function(n, median = 1, kappa = 1) {
+  params = .reparam.lnorm4(median, kappa)
+  stats::rlnorm(n, meanlog = params$meanlog, sdlog = params$sdlog)
+}
+
 
 # Gamma ----
 
-## Standard gamma by mean and SD ----
+## Gamma 2 ----
 
-.reparam_gamma = function(mean, sd) {
-  if (any(mean < 0, na.rm = TRUE)) {
-    stop("means must be greater than zero")
-  }
-  if (any(sd < 0, na.rm = TRUE)) {
-    stop("sds must be greater than zero")
-  }
-  var = sd^2
-  return(list(
-    shape = mean^2 / var, # if shape < 1 then is concave
-    rate = mean / var
-  ))
-}
 
 #' @inherit stats::rgamma return title description
 #' @seealso [stats::rgamma()]
@@ -741,7 +1140,7 @@ rlnorm2 = function(n, mean = 1, sd = sqrt(exp(1) - 1)) {
 #' @examples
 #' rgamma2(10, 2, 1)
 rgamma2 = function(n, mean, sd = sqrt(mean)) {
-  params = .reparam_gamma(mean, sd)
+  params = .reparam.gamma2(mean, sd)
   return(
     stats::rgamma(n, params$shape, params$rate)
   )
@@ -755,7 +1154,7 @@ rgamma2 = function(n, mean, sd = sqrt(mean)) {
 #' @concept distributions
 #'
 #' @examples
-#' qgamma2(c(0.25,0.5,0.75), 2, 1)
+#' qgamma2(c(0.25, 0.5, 0.75), 2, 1)
 qgamma2 = function(
   p,
   mean,
@@ -763,7 +1162,7 @@ qgamma2 = function(
   lower.tail = TRUE,
   log.p = FALSE
 ) {
-  params = .reparam_gamma(mean, sd)
+  params = .reparam.gamma2(mean, sd)
   return(
     stats::qgamma(
       p,
@@ -783,9 +1182,9 @@ qgamma2 = function(
 #' @concept distributions
 #'
 #' @examples
-#' dgamma2(seq(0,4,0.25), 2, 1)
+#' dgamma2(seq(0, 4, 0.25), 2, 1)
 dgamma2 = function(x, mean, sd = sqrt(mean), log = FALSE) {
-  params = .reparam_gamma(mean, sd)
+  params = .reparam.gamma2(mean, sd)
   return(
     stats::dgamma(x, params$shape, params$rate, log = log)
   )
@@ -799,7 +1198,7 @@ dgamma2 = function(x, mean, sd = sqrt(mean), log = FALSE) {
 #' @concept distributions
 #'
 #' @examples
-#' pgamma2(seq(0,4,0.25), 2, 1)
+#' pgamma2(seq(0, 4, 0.25), 2, 1)
 pgamma2 = function(
   q,
   mean,
@@ -807,7 +1206,7 @@ pgamma2 = function(
   lower.tail = TRUE,
   log.p = FALSE
 ) {
-  params = .reparam_gamma(mean, sd)
+  params = .reparam.gamma2(mean, sd)
   return(
     stats::pgamma(
       q,
@@ -819,31 +1218,10 @@ pgamma2 = function(
   )
 }
 
-## Convex gamma by mean and dispersion ----
+## Convex gamma 4 ----
 
-.convex_gamma = function(mean, kappa) {
-  if (any(mean < 0, na.rm = TRUE)) {
-    stop("means must be greater than zero")
-  }
-  if (any(kappa < 0 | kappa > 1, na.rm = TRUE)) {
-    stop("kappa (coef of variation) must be between zero and one")
-  }
 
-  return(list(
-    shape = 1 / kappa, # if shape < 1 then is concave
-    rate = 1 / (mean * kappa)
-  ))
-}
-
-#' Sampling: gamma distribution constrained to have mean > sd
-#'
-#' The following conversion describes the parameters mean and kappa
-#'
-#' \deqn{
-#' \text{shape:} \alpha = \frac{1}{\kappa} \\
-#' \text{rate:} \beta = \frac{1}{\mu \times \kappa} \\
-#' \text{scale:} \sigma = \mu \times \kappa \\
-#' }
+#' Sampling: gamma distribution constrained to have median > sd
 #'
 #' @inherit stats::rgamma return description
 #' @seealso [stats::rgamma()]
@@ -854,8 +1232,8 @@ pgamma2 = function(
 #'
 #' @examples
 #' rcgamma(10, 2, 0.5)
-rcgamma = function(n, mean, kappa = 1 / mean) {
-  params = .convex_gamma(mean, kappa)
+rcgamma = function(n, median, kappa = 1 / median) {
+  params = .reparam.cgamma(median, kappa)
   return(
     stats::rgamma(n, params$shape, params$rate)
   )
@@ -879,15 +1257,15 @@ rcgamma = function(n, mean, kappa = 1 / mean) {
 #' @concept distributions
 #'
 #' @examples
-#' qcgamma(c(0.25,0.5,0.75), 2, 0.5)
+#' qcgamma(c(0.25, 0.5, 0.75), 2, 0.5)
 qcgamma = function(
   p,
-  mean,
-  kappa = 1 / mean,
+  median,
+  kappa = 1 / median,
   lower.tail = TRUE,
   log.p = FALSE
 ) {
-  params = .convex_gamma(mean, kappa)
+  params = .reparam.cgamma(median, kappa)
   return(
     stats::qgamma(
       p,
@@ -901,14 +1279,6 @@ qcgamma = function(
 
 #' Density: gamma distribution constrained to have mean > sd
 #'
-#' The following conversion describes the parameters mean and kappa
-#'
-#' \deqn{
-#' \text{shape: } \alpha = \frac{1}{\kappa} \\
-#' \text{rate: } \beta = \frac{1}{\mu \times \kappa} \\
-#' \text{scale: } \sigma = \mu \times \kappa \\
-#' }
-#'
 #' @inherit stats::rgamma return description
 #' @seealso [stats::dgamma()]
 #' @inheritParams reparam-dist
@@ -917,9 +1287,9 @@ qcgamma = function(
 #' @concept distributions
 #'
 #' @examples
-#' dcgamma(seq(0,4,0.25), 2, 0.5)
-dcgamma = function(x, mean, kappa = 1 / mean, log = FALSE) {
-  params = .convex_gamma(mean, kappa)
+#' dcgamma(seq(0, 4, 0.25), 2, 0.5)
+dcgamma = function(x, median, kappa = 1 / median, log = FALSE) {
+  params = .reparam.cgamma(median, kappa)
   return(
     stats::dgamma(x, params$shape, params$rate, log = log)
   )
@@ -943,15 +1313,15 @@ dcgamma = function(x, mean, kappa = 1 / mean, log = FALSE) {
 #' @concept distributions
 #'
 #' @examples
-#' pcgamma(seq(0,4,0.25), 2, 0.5)
+#' pcgamma(seq(0, 4, 0.25), 2, 0.5)
 pcgamma = function(
   q,
-  mean,
-  kappa = 1 / mean,
+  median,
+  kappa = 1 / median,
   lower.tail = TRUE,
   log.p = FALSE
 ) {
-  params = .convex_gamma(mean, kappa)
+  params = .reparam.cgamma(median, kappa)
   return(
     stats::pgamma(
       q,
@@ -964,24 +1334,99 @@ pcgamma = function(
 }
 
 
+## Gamma 4 ----
+
+
+#' @inherit stats::rgamma return title description
+#' @seealso [stats::rgamma()]
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' rgamma4(10, 2, 1)
+rgamma4 = function(n, median, kappa = 1 / median) {
+  params = .reparam.gamma4(median, kappa)
+  return(
+    stats::rgamma(n, params$shape, params$rate)
+  )
+}
+
+#' @inherit stats::qgamma return title description
+#' @seealso [stats::qgamma()]
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' qgamma2(c(0.25, 0.5, 0.75), 2, 1)
+qgamma4 = function(
+  p,
+  median,
+  kappa = 1,
+  lower.tail = TRUE,
+  log.p = FALSE
+) {
+  params = .reparam.gamma4(median, kappa / median)
+  return(
+    stats::qgamma(
+      p,
+      params$shape,
+      params$rate,
+      lower.tail = lower.tail,
+      log.p = log.p
+    )
+  )
+}
+
+#' @inherit stats::dgamma return title description
+#' @seealso [stats::dgamma()]
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' dgamma2(seq(0, 4, 0.25), 2, 1)
+dgamma4 = function(x, median, kappa = 1 / median, log = FALSE) {
+  params = .reparam.gamma4(median, kappa)
+  return(
+    stats::dgamma(x, params$shape, params$rate, log = log)
+  )
+}
+
+#' @inherit stats::pgamma return title description
+#' @seealso [stats::pgamma()]
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' pgamma2(seq(0, 4, 0.25), 2, 1)
+pgamma4 = function(
+  q,
+  median,
+  kappa = 1 / median,
+  lower.tail = TRUE,
+  log.p = FALSE
+) {
+  params = .reparam.gamma4(median, kappa)
+  return(
+    stats::pgamma(
+      q,
+      params$shape,
+      params$rate,
+      lower.tail = lower.tail,
+      log.p = log.p
+    )
+  )
+}
+
 # Negative binomial; ----
 
-.reparam_nbinom = function(mean, sd) {
-  if (any(mean < 0, na.rm = TRUE)) {
-    stop("means must be greater than zero")
-  }
-  if (any(sd < 0, na.rm = TRUE)) {
-    stop("sds must be greater than zero")
-  }
-  if (any(sd < sqrt(mean), na.rm = TRUE)) {
-    stop("sds must be greater than the sqrt of the mean")
-  }
-  var = sd^2
-  return(list(
-    size = mean^2 / (var - mean), # if shape < 1 then is concave
-    prob = mean / var
-  ))
-}
 
 #' @inherit stats::rnbinom
 #' @inheritParams reparam-dist
@@ -992,7 +1437,7 @@ pcgamma = function(
 #' @examples
 #' rnbinom2(10, 5, sqrt(5))
 rnbinom2 = function(n, mean, sd = sqrt(mean)) {
-  params = .reparam_nbinom(mean, sd)
+  params = .reparam.nbinom2(mean, sd)
   return(
     stats::rnbinom(n, params$size, params$prob)
   )
@@ -1005,7 +1450,7 @@ rnbinom2 = function(n, mean, sd = sqrt(mean)) {
 #' @concept distributions
 #'
 #' @examples
-#' qnbinom2(c(0.25,0.5,0.75), 5, sqrt(5))
+#' qnbinom2(c(0.25, 0.5, 0.75), 5, sqrt(5))
 qnbinom2 = function(
   p,
   mean,
@@ -1013,7 +1458,7 @@ qnbinom2 = function(
   lower.tail = TRUE,
   log.p = FALSE
 ) {
-  params = .reparam_nbinom(mean, sd)
+  params = .reparam.nbinom2(mean, sd)
   return(
     stats::qnbinom(
       p,
@@ -1034,7 +1479,7 @@ qnbinom2 = function(
 #' @examples
 #' dnbinom2(0:5, 2, sqrt(2))
 dnbinom2 = function(x, mean, sd = sqrt(mean), log = FALSE) {
-  params = .reparam_nbinom(mean, sd)
+  params = .reparam.nbinom2(mean, sd)
   return(
     stats::dnbinom(x, params$size, params$prob, log = log)
   )
@@ -1055,7 +1500,7 @@ pnbinom2 = function(
   lower.tail = TRUE,
   log.p = FALSE
 ) {
-  params = .reparam_nbinom(mean, sd)
+  params = .reparam.nbinom2(mean, sd)
   return(
     stats::pnbinom(
       q,
@@ -1076,7 +1521,7 @@ pnbinom2 = function(
 #' @concept distributions
 #'
 #' @examples
-#' rnull(3, c(0.1,0.5,0.9),0.1)
+#' rnull(3, c(0.1, 0.5, 0.9), 0.1)
 rnull = function(n, ...) {
   return(rep(NA, if (length(n) == 1) n else length(n)))
 }
@@ -1086,7 +1531,7 @@ rnull = function(n, ...) {
 #' @export
 #' @concept distributions
 #' @examples
-#' dnull(c(0.25,0.5,0.75), 0.5, 0.25)
+#' dnull(c(0.25, 0.5, 0.75), 0.5, 0.25)
 dnull = function(x, ...) {
   return(rep(NA, length(x)))
 }
@@ -1098,7 +1543,7 @@ dnull = function(x, ...) {
 #' @concept distributions
 #'
 #' @examples
-#' pnull(c(0.25,0.5,0.75), 0.5, 0.25)
+#' pnull(c(0.25, 0.5, 0.75), 0.5, 0.25)
 pnull = function(q, ...) {
   return(rep(NA, length(q)))
 }
@@ -1110,7 +1555,7 @@ pnull = function(q, ...) {
 #' @concept distributions
 #'
 #' @examples
-#' qnull(c(0.25,0.5,0.75), 0.5, 0.25)
+#' qnull(c(0.25, 0.5, 0.75), 0.5, 0.25)
 qnull = function(p, ...) {
   return(rep(NA, length(p)))
 }
