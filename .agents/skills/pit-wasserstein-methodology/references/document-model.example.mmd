@@ -1,0 +1,128 @@
+classDiagram
+%% Class roots. @base is this file's directory (design/), so a bare relative
+%% target lands under design/. Prose lives in its own design/doc/ root: a
+%% markdown file is attributed to the FIRST class root containing it, so `doc`
+%% must not own design/ itself or it swallows plan/, task/, reference/ and
+%% release/ (instance/class-mismatch), and design/VALIDATION.md would become a
+%% graph/orphan-file.
+%% @prefix doc: <doc/> .
+%% @prefix plan: <plan/> .
+%% @prefix task: <task/> .
+%% @prefix reference: <reference/> .
+%% @prefix release: <release/> .
+%% Code and artefacts. The src family is NOT rooted at the repo root: with
+%% `src: <repo:/>` every anchor canonicalises to the reserved `repo:` scheme
+%% and links fail with graph/non-canonical-uri. Each subclass is rooted
+%% explicitly instead; longest-match canonicalisation means paper: wins over
+%% vignette: for files under vignettes/main/, and resource: over paper: for
+%% files under vignettes/main/fig/. One class per path: two classes resolving
+%% to the same directory is path/collision.
+%% @prefix src: <repo:R/> .
+%% @prefix vignette: <repo:vignettes/> .
+%% @prefix paper: <repo:vignettes/main/> .
+%% @prefix resource: <repo:vignettes/main/fig/> .
+%% Value types. Declaration order IS the sort order projected into DuckDB, so
+%% Priority is lowest-first: `ORDER BY priority DESC` puts `critical` first.
+class PlanStatus {
+    <<enumeration>>
+    draft
+    active
+    done
+    dropped
+}
+class TaskStatus {
+    <<enumeration>>
+    todo
+    doing
+    blocked
+    done
+    dropped
+}
+class TaskKind {
+    <<enumeration>>
+    chore
+    paperFix
+    feature
+    issue
+}
+class Priority {
+    <<enumeration>>
+    low
+    medium
+    high
+    critical
+}
+class ReleaseKind {
+    <<enumeration>>
+    software
+    paper
+}
+%% Document classes. `title` is repeated rather than inherited: one line per
+%% class, and no reliance on root-by-inheritance resolution.
+class doc {
+    +string title
+    +List~string~ tags?
+}
+class plan {
+    +string title
+    +PlanStatus status
+    +string rationale?
+    +List~string~ tags?
+}
+class task {
+    +string title
+    +TaskStatus status
+    +TaskKind kind
+    +Priority priority
+    +List~string~ tags?
+}
+class reference {
+    +string title
+    +string citeKey
+    +int year?
+    +string doi?
+    +string zoteroKey?
+    +List~string~ tags?
+}
+class release {
+    +string title
+    +string version
+    +ReleaseKind kind
+    +date released?
+    +List~string~ tags?
+}
+%% Code side. Reserved families (`src`, `resource`) are non-instantiable and
+%% forbid attributes, so they cannot carry a title -- the resulting
+%% model/no-title-attribute warnings on paper and resource are unfixable by
+%% construction and expected.
+%% `paper:main.tex` and `paper:refs.bib` address at file level only: loom has no
+%% latex or bibtex grammar, so there are no per-entry anchors. .Rmd is likewise
+%% unsupported (source/unsupported-language) and addresses whole-file. R files
+%% do yield function anchors, e.g. `src:scoring.R#pit_w`.
+class src
+class vignette
+class paper
+class resource
+src <|-- vignette
+src <|-- paper
+%% Relations. camelCase throughout: loom normalises frontmatter keys to the
+%% camelCase attribute name. A relation targets exactly one declared class, so
+%% anything looser is a body link, not a relation.
+plan "0..*" --> "0..*" task : spawns
+plan "0..*" --> "0..*" reference : informedBy
+task "0..*" --> "0..*" task : blocks
+task "0..*" --> "0..*" src : touches
+task "0..*" --> "0..*" resource : produces
+reference "0..*" --> "0..*" paper : citedIn
+release "0..*" --> "0..*" task : includes
+%% Views: SQL on `%%` continuation lines after `%% @view NAME` -- bare indented
+%% lines are parsed as mermaid and fail. A `uri` column renders as a titled
+%% link, so `title` is deliberately not selected alongside it.
+%% @view openTasks
+%%   SELECT uri, status, priority FROM task WHERE status NOT IN ('done', 'dropped') ORDER BY priority DESC, status
+%% @view activePlans
+%%   SELECT uri, status FROM plan WHERE status NOT IN ('done', 'dropped')
+%% @view references
+%%   SELECT uri, citeKey, year FROM reference ORDER BY year DESC
+%% @view releases
+%%   SELECT uri, version, kind, released FROM release ORDER BY released DESC

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.10.13)  13 NOV 2026 16:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.10.13)  16 NOV 2026 14:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -557,37 +557,37 @@ ine 112.
 [3]
 
 Package natbib Warning: Citation `hamill2001' on page 4 undefined on input line
- 140.
+ 142.
 
 
 Package natbib Warning: Citation `anderson1996' on page 4 undefined on input li
-ne 140.
+ne 142.
 
 
 Package natbib Warning: Citation `panaretos2019' on page 4 undefined on input l
-ine 142.
+ine 144.
 
 [4] [5]
 <fig/tab1-params.pdf, id=83, 320.1561pt x 103.3461pt>
 File: fig/tab1-params.pdf Graphic file (type pdf)
 <use fig/tab1-params.pdf>
-Package pdftex.def Info: fig/tab1-params.pdf  used on input line 208.
+Package pdftex.def Info: fig/tab1-params.pdf  used on input line 210.
 (pdftex.def)             Requested size: 320.1553pt x 103.34584pt.
 <fig/fig2-pit-histograms.pdf, id=84, 425.59pt x 289.08pt>
 File: fig/fig2-pit-histograms.pdf Graphic file (type pdf)
 <use fig/fig2-pit-histograms.pdf>
-Package pdftex.def Info: fig/fig2-pit-histograms.pdf  used on input line 214.
+Package pdftex.def Info: fig/fig2-pit-histograms.pdf  used on input line 216.
 (pdftex.def)             Requested size: 425.58894pt x 289.07928pt.
  [6 <./fig/tab1-params.pdf> <./fig/fig2-pit-histograms.pdf>]
 <fig/fig3-metric-compare.pdf, id=117, 425.59pt x 433.62pt>
 File: fig/fig3-metric-compare.pdf Graphic file (type pdf)
 <use fig/fig3-metric-compare.pdf>
-Package pdftex.def Info: fig/fig3-metric-compare.pdf  used on input line 223.
+Package pdftex.def Info: fig/fig3-metric-compare.pdf  used on input line 225.
 (pdftex.def)             Requested size: 425.58894pt x 433.61894pt.
 <fig/fig4-sample-size.pdf, id=119, 425.59pt x 433.62pt>
 File: fig/fig4-sample-size.pdf Graphic file (type pdf)
 <use fig/fig4-sample-size.pdf>
-Package pdftex.def Info: fig/fig4-sample-size.pdf  used on input line 232.
+Package pdftex.def Info: fig/fig4-sample-size.pdf  used on input line 234.
 (pdftex.def)             Requested size: 425.58894pt x 433.61894pt.
 
 
@@ -628,7 +628,7 @@ ts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
 cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.p
 fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></u
 sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on main.pdf (9 pages, 560270 bytes).
+Output written on main.pdf (9 pages, 559528 bytes).
 PDF statistics:
  239 PDF objects out of 1000 (max. 8388607)
  174 compressed objects within 2 object streams

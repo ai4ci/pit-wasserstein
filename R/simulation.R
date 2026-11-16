@@ -46,3 +46,48 @@ generate_simulation = function(config = i_sim_config, true_value_fn = NULL) {
 
   interfacer::ireturn(tmp, i_comparison)
 }
+
+
+
+#' Uniform predictions for testing
+#'
+#' Predictions whose PIT values are exactly uniform, for a scale family
+#' (gamma4, lnorm4, ...) where `location` is the median.
+#'
+#' @param n the number of samples
+#' @param median the median
+#' @param kappa a spread parameter, typically dispersion (sigma/mu)
+#' @param qfn a quantile function parametrised by median and something else
+#'
+#' @returns a set of locations for a distribution family that map directly
+#' to uniform PIT values.
+#'
+#' @export
+#'
+#' @examples
+#' qs = seq(1, 199, 2) / 200
+#' loc = calibrated_locations(, x0 = 1, kappa = 0.5, qfn = qgamma4)
+#' pit_w(1, loc, 0.5, dist = "gamma4", link = "log")$U_pit_unadj # ~1e-17
+calibrated_locations = function(qfn, median, kappa, n = 100) {
+  median / qfn(1 - qs, 1, kappa)
+}
+
+#' Uniform predictions for testing (general)
+#'
+#' For a general (non-scale) family, solve it numerically instead:
+#'
+#' @param n the number of samples
+#' @param median the median
+#' @param kappa a spread parameter, typically dispersion (sigma/mu)
+#' @param pfn a CDF parametrised by mean and the spread parameter
+#' @param interval uniroot limits
+#'
+#' @returns a set of locations for a distribution family that map directly
+#' to uniform PIT values.
+#' @export
+calibrated_locations_general = function(pfn, median, kappa, n = 100, interval = c(1e-8, 1e8)) {
+  qs = seq(1, 2 * n - 1, 2) / (2 * n)
+  vapply(qs, function(q) {
+    uniroot(function(mu) pfn(median, mu, kappa) - (1 - q), interval)$root
+  }, numeric(1))
+}

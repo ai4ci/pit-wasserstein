@@ -15,9 +15,10 @@ prediction_scores(df = i_comparison, summarise = TRUE, threshold = NA_real_)
 \item scale (numeric) - the scale parameter is the stated estimator uncertainty (i.e. the sharpness)
 \item dist (character + default("norm")) - the estimator distribution name (e.g. norm) parameterised by location and scale
 \item calibration (numeric) - the calibration as determined by the SD of the probabilistic prediction (sharpness) / the SD of the true values distribution, overconfident is <1, and conservative is >1 
+\item adjust (character + default("link")) - method for adjusting for bias. Either link function adjustment of true values, or probit adjustment of PIT values
 }
 
-Minimally grouped by: dist + link + calibration (and other groupings allowed).
+Minimally grouped by: dist + link + calibration + adjust (and other groupings allowed).
 }
 
 \item{summarise}{produce the results as a groupwise summary or a prediction by prediction metric (default \code{`TRUE`} [logical])}

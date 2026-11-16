@@ -16,6 +16,7 @@
     \usepackage{authblk}
     \title{Metrics for evaluating the quality of probabilistic estimators}
     \author[1,2]{Robert Challen}
+    \author[1,2]{Amber Palmer}
     \author[1,2]{Leon Danon}
     \affil[1]{AI4CI, University of Bristol, Bristol, UK.}
     \affil[2]{Department of Engineering Mathematics, University of Bristol, Bristol, UK.}
@@ -97,12 +98,12 @@ CRPS_i &= \int_\mathbb{R}{(F_i(x) - H(x < X_i))^2}dx \\
 
 The average value of every prediction's CRPS is a measure of the estimator itself and this is a proper scoring rule, in that it is minimised by a sharp, well calibrated unbiased estimator, and combines aspects of all three aspects into a single number. When developing estimators it is important to be able to characterise bias, sharpness and calibration individually, for which the CRPS is less useful.
 
-For a linear variable the bias of an estimator is simply the average difference between a set of true values and the central quantile of the predictions. For logarithmic variables a better representation is the average proportional bias. If we specify a link function ($g$) that relates the variable of interest to a linear scale we can generalise the estimator bias ($\overline{\mathcal{E}_X}$) as follows, and with this value defined we can define an adjusted true value $X_{i,adj}$.
+For a linear variable the bias of an estimator is simply the average difference between a set of true values and the central quantile of the predictions. For logarithmic variables a better representation is the average proportional bias. If we specify a link function ($g$) that relates the variable of interest to a linear scale we can generalise the median estimator bias ($\mathcal{E}_{X,0.5}$) as follows, and with this value defined we can define an adjusted true value $X_{i,adj}$.
 
 \begin{equation*}
 \begin{aligned}
-\overline{\mathcal{E}_X} &= \frac{1}{n} \sum_n{ g(X_i) - g(x_{i,0.5}) } \\
-X_{i,adj} &= g^{-1}(g(X_i) - \mathcal{E}_X)
+\mathcal{E}_{X,0.5} &= \operatorname{med} ( g(X_i) - g(x_{i,0.5}) ) \\
+X_{i,adj} &= g^{-1}(g(X_i) - \mathcal{E}_{X,0.5})
 \end{aligned}
 \mytag{eq:bias}
 \end{equation*}
@@ -136,6 +137,8 @@ For a single prediction we can assign a logical value to the condition that the 
 \end{aligned}
 \mytag{eq:cover}
 \end{equation*}
+
+% TODO: need to compare with PIT-W distance metrics from CDF to Uniform from previous works including Dheur 2023 adn Zhao 2020. Difference is in prior work there is no bias adjustment, so it is not a pure measure of dispersion calibration, and affected by bias. And directed wasserstein is new and useful.
 
 We defined the probability integral transform (PIT) for a single prediction above. For many predictions if the estimator is well calibrated the PIT value should be approximately uniformly distributed on [0,1]. It is common practice to visually compare PIT histograms and look for flatness. If the PIT value histogram is U-shaped, and there is more mass at the edges, it represents an over confident prediction, or if dome shaped with more mass in the centre, it represents an excessively uncertain prediction. However if bias is also present the PIT histogram is then skewed and difficult to interpret and compare \cite{hamill2001,anderson1996}.
 

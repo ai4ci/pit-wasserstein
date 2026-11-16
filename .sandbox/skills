@@ -8,6 +8,8 @@ r-.*|tidyverse.*|shiny.*|quarto.*
 
 # Research: reading reference PDFs and producing/consuming documents.
 pdf|parse-document
-docx|docx-cli
 
-using-bibliographic-apis
+
+
+creating-a-loom-workflow
+using-loom-cli

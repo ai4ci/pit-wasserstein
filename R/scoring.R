@@ -19,7 +19,7 @@
 #'   dplyr::group_by(dist, link, calibration)
 #' df %>% prediction_scores() %>% view()
 prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA_real_) {
-  df = interfacer::ivalidate(df)
+  df = interfacer::ivalidate(df, .fix = TRUE)
   # bias is positive if prediction mean > true value
 
   out = df %>%
@@ -34,18 +34,31 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
         }
 
         medians = inv_cdf(0.5, d$location, d$scale)
-        link_bias = mean(ln$linkfun(medians) - ln$linkfun(d$true_value))
+        u_i_unadj = cdf(d$true_value, d$location, d$scale)
+
+        if (g$adjust == "probit") {
+          log_u_i_unadj = cdf(d$true_value, d$location, d$scale, log.p = TRUE)
+          probit_u_i_unadj = qnorm(log_u_i_unadj, log.p = TRUE)
+          probit_bias = median(probit_u_i_unadj)
+          u_i = pnorm(probit_u_i_unadj - probit_bias)
+          adj_true_value = inv_cdf(u_i)
+        } else if (g$adjust == "link") {
+          link_bias = median(ln$linkfun(medians) - ln$linkfun(d$true_value))
+          adj_true_value = ln$linkinv(ln$linkfun(d$true_value) + link_bias)
+          u_i = cdf(adj_true_value, d$location, d$scale)
+        } else {
+          stop("adjustment method must be `link` or `probit`")
+        }
 
         crps_fn = crps_fn_generator(g$dist)
         tmp = d %>%
           dplyr::mutate(
-            bias = ln$linkinv(link_bias),
-            adj_true_value = ln$linkinv(ln$linkfun(true_value) + link_bias),
             # adj_location = ln$linkinv(ln$linkfun(location) - link_bias),
-            u_i_unadj = cdf(true_value, location, scale),
+            u_i_unadj = u_i_unadj,
             univ_resid = 2 * u_i_unadj - 1,
-            u_i = cdf(adj_true_value, location, scale),
-            # u_i = cdf(true_value, adj_location, scale),
+            u_i = u_i,
+            adj_true_value = adj_true_value,
+            bias = true_value - medians,
             rank_order = rank(u_i, ties.method = "first"),
             unif = (rank_order * 2 - 1) / (2 * g$samples),
             u_pit_unadj = abs(unif - u_i_unadj),
@@ -102,6 +115,7 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
 #' @param scale The spread estimate of the probabilisitic prediction
 #' @param dist The distribution name of the prediction
 #' @param link A link function mapping the value space to a linear one, e.g. "identity", "log"
+#' @param adjust adjustment method for constructing the pit value
 #'
 #' @returns a one row data frame with:
 #' * `U_pit` an undirected pit-wasserstein
@@ -111,45 +125,59 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
 #'
 #' @unit
 #' qs = seq(1,199,2)/200
+#'
 #' scores = pit_w(0, qnorm(qs, 0, 1), 1, dist = "norm", link="identity")
-#' testthat::expect_equal(scores$undirected_pit_w, 0)
+#' testthat::expect_equal(scores$U_pit, 0)
 #'
-#' scores = pit_w(1, qlnorm4(qs, 1, 1), 1, dist = "lnorm4", link="log")
-#' testthat::expect_equal(scores$undirected_pit_w, 0)
+#' scores = pit_w(1, calibrated_locations(qlnorm4, 1, 1), 1, dist = "lnorm4", link="log")
+#' testthat::expect_equal(scores$U_pit, 0)
 #'
-#' scores = pit_w(1, qlnorm4(qs, 1, 1), 1, dist = "lnorm4", link="log")
-#' testthat::expect_equal(scores$undirected_pit_w, 0)
+#' scores = pit_w(1, calibrated_locations(qlnorm4, 1, 1), 1, dist = "lnorm4", link="log")
+#' testthat::expect_equal(scores$U_pit, 0)
+#'
+#' scores = pit_w(1, calibrated_locations(qgamma4, 1, 0.5), 0.5, dist = "gamma4", link="log")
+#' testthat::expect_equal(scores$U_pit, 0, tolerance = 10^-5)
 #'
 pit_w = function(
   true_value,
   location,
   scale,
   dist = "norm",
-  link = "identity"
+  link = "identity",
+  adjust = c("link", "probit")
 ) {
   n = interfacer::recycle(true_value, location, scale)
+  adjust = match.arg(adjust)
 
   cdf = rlang::as_function(sprintf("p%s", dist))
   inv_cdf = rlang::as_function(sprintf("q%s", dist))
   ln = make.link(link)
 
-  link_medians = ln$linkfun(inv_cdf(0.5, location, scale))
-  link_true_value = ln$linkfun(true_value)
-  link_bias = mean(link_medians - link_true_value)
-  adj_true_value = ln$linkinv(link_true_value + link_bias)
+  u_i_unadj = cdf(true_value, location, scale)
 
-  pit_unadj = cdf(true_value, location, scale)
-  pit_unadj = sort(pit_unadj)
+  if (adjust == "probit") {
+    log_u_i_unadj = cdf(true_value, location, scale, log.p = TRUE)
+    probit_u_i_unadj = qnorm(log_u_i_unadj, log.p = TRUE)
+    probit_bias = median(probit_u_i_unadj)
+    u_i = pnorm(probit_u_i_unadj - probit_bias)
+  } else if (adjust == "link") {
+    medians = inv_cdf(0.5, location, scale)
+    link_bias = median(ln$linkfun(medians) - ln$linkfun(true_value))
+    adj_true_value = ln$linkinv(ln$linkfun(true_value) + link_bias)
+    u_i = cdf(adj_true_value, location, scale)
+  } else {
+    stop("adjustment method must be `link` or `probit`")
+  }
 
-  pit = cdf(adj_true_value, location, scale)
-  pit = sort(pit)
-
-  rank = seq(0.5 / n, 1 - 0.5 / n, length.out = n)
+  rank_order = rank(u_i, ties.method = "first")
+  unif = (rank_order * 2 - 1) / (2 * n)
 
   return(dplyr::tibble(
-    U_pit = mean(abs(pit - rank)),
-    U_pit_unadj = mean(abs(pit_unadj - rank)),
-    D_pit = mean((rank - pit) * sign(0.5 - rank)),
+    U_pit = mean(abs(u_i - unif)),
+    U_pit_unadj = mean(abs(u_i_unadj - unif)),
+    D_pit = mean((unif - u_i) * sign(0.5 - unif)),
+    adjust = adjust,
+    link = link
   ))
 }
 

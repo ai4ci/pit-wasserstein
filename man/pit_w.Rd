@@ -4,7 +4,14 @@
 \alias{pit_w}
 \title{Calculate a pit-wasserstein value for a single estimator}
 \usage{
-pit_w(true_value, location, scale, dist = "norm", link = "identity")
+pit_w(
+  true_value,
+  location,
+  scale,
+  dist = "norm",
+  link = "identity",
+  adjust = c("link", "probit")
+)
 }
 \arguments{
 \item{true_value}{The true value}
@@ -16,6 +23,8 @@ pit_w(true_value, location, scale, dist = "norm", link = "identity")
 \item{dist}{The distribution name of the prediction (default \code{`norm`} [character])}
 
 \item{link}{A link function mapping the value space to a linear one, e.g. "identity", "log" (default \code{`identity`} [character])}
+
+\item{adjust}{adjustment method for constructing the pit value (default \code{`link  `}; allowed: \code{`link  `,`probit`})}
 }
 \value{
 a one row data frame with:
@@ -34,14 +43,18 @@ which we can calculate scores such as CPRS and PIT-W
 \if{html}{\out{<div class="sourceCode">}}\preformatted{
 
 qs = seq(1,199,2)/200
+
 scores = pit_w(0, qnorm(qs, 0, 1), 1, dist = "norm", link="identity")
-testthat::expect_equal(scores$undirected_pit_w, 0)
+testthat::expect_equal(scores$U_pit, 0)
 
-scores = pit_w(1, qlnorm4(qs, 1, 1), 1, dist = "lnorm4", link="log")
-testthat::expect_equal(scores$undirected_pit_w, 0)
+scores = pit_w(1, calibrated_locations(qlnorm4, 1, 1), 1, dist = "lnorm4", link="log")
+testthat::expect_equal(scores$U_pit, 0)
 
-scores = pit_w(1, qlnorm4(qs, 1, 1), 1, dist = "lnorm4", link="log")
-testthat::expect_equal(scores$undirected_pit_w, 0)
+scores = pit_w(1, calibrated_locations(qlnorm4, 1, 1), 1, dist = "lnorm4", link="log")
+testthat::expect_equal(scores$U_pit, 0)
+
+scores = pit_w(1, calibrated_locations(qgamma4, 1, 0.5), 0.5, dist = "gamma4", link="log")
+testthat::expect_equal(scores$U_pit, 0, tolerance = 10^-5)
 
 }\if{html}{\out{</div>}}
 }

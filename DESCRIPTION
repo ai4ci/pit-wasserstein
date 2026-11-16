@@ -1,6 +1,6 @@
 Package: pitw
 Title: Analysis package to demonstrate pit wasserstein methods for 
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: 
     person("Rob", "Challen", , "rob.challen@bristol.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5504-7768"))
@@ -8,7 +8,7 @@ Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Config/roxygen2/version: 8.1.1
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE, packages = "pkgtools", roclets = c("collate", "namespace", "pkgtools::pkgtools_rd"))
+Roxygen: list(markdown = TRUE, packages = "pkgtools", roclets = c("collate", "namespace", "pkgtools::pkgtools_rd", "pkgtools::pkgtools_unit"))
 Imports: 
     base64enc,
     dplyr,
@@ -35,6 +35,7 @@ Imports:
     stringr,
     svglite,
     systemfonts,
+    scoringRules,
     targets,
     testthat,
     tibble,

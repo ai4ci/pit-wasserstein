@@ -16,7 +16,8 @@ i_comparison = interfacer::iface(
   i_single_true_value,
   i_prob_pred,
   calibration = numeric ~ "the calibration as determined by the SD of the probabilistic prediction (sharpness) / the SD of the true values distribution, overconfident is <1, and conservative is >1 ",
-  .groups = ~ dist + link + calibration + .
+  adjust = character + default("link") ~ "method for adjusting for bias. Either link function adjustment of true values, or probit adjustment of PIT values",
+  .groups = ~ dist + link + calibration + adjust + .
 )
 
 i_sim_setup = interfacer::iface(
