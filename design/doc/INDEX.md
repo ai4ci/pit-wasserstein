@@ -24,7 +24,6 @@ by `loom render` from `design/document-model.mmd`.
 
 | uri | status | priority |
 | --- | --- | --- |
-| [scoringRules is used but not declared in DESCRIPTION Imports](../task/add-missing-scoringrules-import.md) | todo | high |
 | [Use the existing non-normal distribution capability to test bias-adjustment robustness](../task/add-non-normal-distribution-robustness-study.md) | todo | high |
 | [EpiEstim on simulated SEIR data: differential calibration at low vs high prevalence](../task/add-real-worked-example.md) | todo | high |
 | [Characterise D*_pit sampling distribution under H0 by simulation](../task/characterise-d-pit-sampling-distribution-by-simulation.md) | todo | high |
@@ -34,17 +33,12 @@ by `loom render` from `design/document-model.mmd`.
 | [Derive the analytical null distribution of the PIT-W metrics](../task/derive-analytical-null-distribution-for-pit-w-metrics.md) | todo | high |
 | [DESCRIPTION still has placeholder Title and Description](../task/fix-description-placeholder-metadata.md) | todo | high |
 | [Implement a bootstrap significance test for H0: dispersion-calibrated](../task/implement-bootstrap-test-for-dispersion-calibration.md) | todo | high |
-| [pit_w bias estimator uses a mean and is inconsistent for skewed predictive families](../task/mean-based-bias-estimator-fails-for-skewed-distributions.md) | todo | high |
-| [README still describes the pre-package layout](../task/readme-describes-pre-package-layout.md) | todo | high |
 | [Reframe the introduction as a mathematical methods paper, not an educational piece](../task/reframe-introduction-as-mathematical-methods-paper.md) | todo | high |
-| [Generated test-unit-*.R files predate the pitw rename and fail to parse](../task/regenerate-stale-generated-unit-tests.md) | todo | high |
 | [Settle the bias adjustment: x-space kept, PIT-space ruled out](../task/restore-pivotality-of-the-bias-adjustment.md) | todo | high |
 | [Frame the metrics as a two-part test: D* for median dispersion, U* for residual shape](../task/two-part-test-decomposition-d-then-u.md) | todo | high |
-| [Rework Figure 3: unadjusted vs adjusted/directed PIT-W, plus PCE/MCB comparison](../task/update-figure-3-compare-unadjusted-vs-adjusted-pit-w.md) | todo | high |
 | [No CI runs R CMD check or the test suite](../task/add-ci-r-cmd-check-workflow.md) | todo | medium |
 | [U*_pit and D*_pit are swapped in README relative to main.tex and the code](../task/pit-w-notation-swapped-between-readme-and-paper.md) | todo | medium |
 | [Reframe the four figure vignettes as supplementary materials](../task/reframe-vignettes-as-supplementary-materials.md) | todo | medium |
-| [tests/testthat.R still sources R/metrics.R and runs with package=NULL](../task/testthat-runner-is-pre-package.md) | todo | medium |
 | [State the asymptotic D*_pit question precisely as future work](../task/document-asymptotic-theory-as-future-work.md) | todo | low |
 | [refs.bib has two entries for Dheur & Ben Taieb (2023)](../task/duplicate-dheur-bib-entry.md) | todo | low |
 <!-- loom view: openTasks end -->
