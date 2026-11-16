@@ -1,6 +1,6 @@
 # Adjusted PIT-Wasserstein: A Calibration Metric for Probabilistic Estimators
 
-A calibration metric for probabilistic estimators, disentangled from bias and
+A dispersion calibration metric for probabilistic estimators, disentangled from bias and
 sharpness. Originally published as Supplementary Appendix 2 of
 **Challen & Danon (2025), "Instantaneous Reproduction Number Estimation From
 Modelled Incidence"** (PCOMPBIOL-D-26-00077, also on medRxiv); this repository
@@ -8,45 +8,9 @@ is the rework into a standalone short paper.
 
 ---
 
-## Contents
-
-| Path | Description |
-|------|-------------|
-| `analysis.R` | Simulations; writes every figure and table into `main/fig/` |
-| `R/metrics.R` | Reference implementation of the paper's metrics — `pit_w()`, `coverage_prob()`, `threshold_misclass()`, `rlnorm4()` |
-| `tests/` | Tests asserting the paper's stated properties; `Rscript --no-init-file tests/testthat.R` |
-| `main/main.tex` | Paper source (compile from `main/`) |
-| `main/refs.bib` | Bibliography, shared with the parent paper |
-| `main/fig/` | Generated figures and the parameter table |
-| `R/` | `metrics.R` plus standalone plotting/output helpers (vendored from `ggrrr`), loaded by `.Rprofile` |
-| `references/literature-review.md` | Positioning against existing calibration metrics |
-| `design/doc/INDEX.md` | Design index — rendered views over the design records |
-| `design/doc/scope.md` | Architecture and the phased roadmap |
-| `design/doc/priorities.md` | What is left to do |
-| `design/doc/active-issues.md` | Open issues that need an author decision |
-| `design/adr/` `design/task/` `design/issue/` | One loom instance per file |
-
-The design records are loom instances, governed by `design/document-model.mmd`:
-one file per decision, task and issue under `design/`. Edit a file, then run
-`loom validate`; `loom render` refreshes the views in `design/doc/INDEX.md`.
-
-## Reproducing the figures
-
-```r
-# from the project root
-install.packages(c("tidyverse", "scoringRules", "patchwork", "huxtable", "here"))
-source("analysis.R")
-```
-
-Rendering needs a device that can draw the requested fonts, and
-`tab1-params.pdf` additionally needs Chromium (see
-`design/doc/active-issues.md`). Then compile `main/main.tex` with any LaTeX engine.
-
----
-
 ## Core concepts
 
-The paper defines two metrics for assessing **calibration**, separately from
+The paper defines two metrics for assessing **dispersion calibration**, separately from
 bias and sharpness.
 
 ### Adjusted PIT-Wasserstein ($D^*_{pit}$)
@@ -100,5 +64,6 @@ a **standalone evaluative calibration metric** because it uniquely combines:
 4. **Validation** showing it is independent of bias and sharpness
 
 The closest existing metrics (Wessel et al.'s MCB, Kuleshov et al.'s PCE)
-measure raw PIT uniformity without de-biasing, so they conflate bias with
-miscalibration.
+measure raw PIT uniformity without de-biasing, so represent calibration as 
+both bias and dispersion calibration and are not informative on dispersion 
+miscalibration in the presence of bias.
