@@ -36,12 +36,13 @@ Imports:
     svglite,
     systemfonts,
     scoringRules,
-    targets,
     testthat,
     tibble,
     tidyr,
     tidyselect,
     utils
+Suggests:
+    deSolve
 Remotes: ai4ci/interfacer
 Config/Needs/build: terminological/pkgtools
 VignetteBuilder: knitr

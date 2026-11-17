@@ -29,10 +29,9 @@ conf_range = 2
 
 config = tibble(
   sd_sd_mean = c(conf_range),
-  sd_label = forcats::as_factor(c("heterogenous CIs")),
-  adjust = "probit"
+  sd_label = forcats::as_factor(c("heterogenous CIs"))
 ) %>%
-  group_by(sd_label, sd_sd_mean, adjust) %>%
+  group_by(sd_label, sd_sd_mean) %>%
   reframe(
     samples = 1000,
     bias_dist = "norm",
@@ -75,12 +74,12 @@ scores = sim %>% prediction_scores()
 
 p2a = ggplot(
   scores,
-  aes(x = calibration, y = mean_crps, colour = sharpness_scale)
+  aes(x = calibration, y = mean_crps, colour = abs(bias))
 ) +
   geom_point() +
   scale_x_log10() +
   # facet_wrap(~sd_label)+
-  scale_color_viridis_c(name = "CI variation") +
+  scale_color_viridis_c(name = "Absolute bias",option = "magma") +
   geom_vline(xintercept = 1) +
   # ggpp::annotate(geom=ggpp::GeomLabelNpc, label="conservative \u2192", npcx=0.6,npcy=0.95,hjust="left",vjust="center",alpha=0.75, size=6, size.unit="pt", label.r=unit(0,"pt"))+
   # ggpp::annotate(geom=ggpp::GeomLabelNpc, label="\u2190 overconfident", npcx=0.4,npcy=0.95,hjust="right",vjust="center",alpha=0.75, size=6, size.unit="pt", label.r=unit(0,"pt"))+
@@ -232,12 +231,12 @@ p3a
 ```{r}
 p2b = ggplot(
   scores,
-  aes(x = calibration, y = U_pit_unadj, colour=sharpness_scale)
+  aes(x = calibration, y = U_pit_unadj, colour=abs(bias))
 ) +
   geom_point() +
   scale_x_log10() +
   # facet_wrap(~sd_label)+
-  scale_color_viridis_c(name = "CI variation") +
+  scale_color_viridis_c(name = "Absolute bias", option = "magma") +
   xlab("estimator SD/error SD") +
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 1) +

@@ -39,7 +39,7 @@ test_that("prediction_scores unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/scoring.R"), c(11, 1, 11+1, 1))
+    srcref = srcref(srcfile("../../R/scoring.R"), c(12, 1, 12+1, 1))
   )
 })
 
@@ -90,7 +90,7 @@ test_that("pit_w unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/scoring.R"), c(126, 1, 126+1, 1))
+    srcref = srcref(srcfile("../../R/scoring.R"), c(127, 1, 127+1, 1))
   )
 })
 
@@ -120,7 +120,7 @@ test_that("crps_fn_generator unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/scoring.R"), c(197, 1, 197+1, 1))
+    srcref = srcref(srcfile("../../R/scoring.R"), c(198, 1, 198+1, 1))
   )
 })
 

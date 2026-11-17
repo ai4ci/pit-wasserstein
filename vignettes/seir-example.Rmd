@@ -1,0 +1,178 @@
+---
+title: "A PIT-Wasserstein study using SIR dynamics and EpiEstim"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{A PIT-Wasserstein study using SIR dynamics and EpiEstim}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+devtools::load_all(quiet = TRUE)
+library(tidyverse)
+.gg_pedantic(size = 0.5)
+fig_dir = here::here("vignettes", "main", "fig")
+set.seed(1001)
+```
+
+## 1. Simulation setup
+
+We use a simple SIR model with known reproductive number dynamics. The true $R_t$ at each time point is analytically known:
+
+$$R_t = R_0 \cdot \frac{S_t}{N}$$
+
+```{r}
+
+sir_model = function(t, R0, g) {
+  
+  init <- c(S=1-1e-4, I=1e-4, R=0)
+  parameters <- c(beta=R0 * g, gamma=g)
+  time <- seq(0,t,length.out = t+1)
+  
+  eqn <- function(time,state,parameters){
+    with(as.list(c(state,parameters)),{
+      dS <- -beta*S*I
+      dI <- beta*S*I-gamma*I
+      dR <- gamma*I
+      return(list(c(dS,dI,dR)))})
+  }
+  out = deSolve::ode(y=init,times=time,eqn,parms=parameters)
+  out = as.data.frame(out)
+  out %>% mutate(
+    R_t = R0 * S,
+    incid = parameters["beta"]*S*I
+  )
+  
+}
+
+tmp = sir_model(100, 2, 1/5)
+
+ggplot(tmp, aes(x=time))+
+  geom_line(aes(y=S,colour = "susceptible"))+
+  geom_line(aes(y=I,colour = "infected"))+
+  geom_line(aes(y=incid,colour = "new cases"))+
+  geom_line(aes(y=R,colour = "recovered"))
+
+ggplot(tmp, aes(x=time))+
+  geom_line(
+    aes(y=R_t,colour = "R_t")
+    
+  )
+
+```
+
+```{r}
+scenarios = tidyr::crossing(
+  N = round(10 ^ seq(2.5,5,length.out=100)),
+  pObs = 0.5, #c(0.2, 0.8),
+  run = 1:10
+) %>% 
+  dplyr::cross_join(tmp) %>%
+  dplyr::mutate(
+    cases = round(incid*N),
+    obs = rbinom(dplyr::n(), cases, pObs)
+  ) %>%
+  dplyr::group_by(run,N,pObs) %>%
+  dplyr::glimpse()
+
+# ggplot(scenarios, aes(x=time, group=run))+
+#   facet_grid(as.factor(N) ~ as.factor(pObs), scales = "free")+
+#   geom_step(aes(y=obs))
+  
+```
+
+```{r}
+
+starts = 7:(100-7)
+ends = (7+7):100
+config = EpiEstim::make_config(
+  method = "parametric_si",
+  mean_si = 5, std_si = 5,
+  t_start = starts, t_end = ends,
+  mean_prior = 2, std_prior = 2
+)
+
+results = scenarios %>% dplyr::group_modify(function(d,g,...) {
+  
+  ee = suppressWarnings(EpiEstim::estimate_R(
+    incid = data.frame(I = d$obs),
+    method = "parametric_si",
+    config = config,
+  ))
+  
+  tmp = d %>% 
+    filter(obs>0) %>% 
+    inner_join(ee$R %>% 
+                 select(time = t_end, mean=`Mean(R)`, sd = `Std(R)`), by = "time")
+  return(tmp)
+  
+})
+```
+
+
+```{r}
+scores = results %>% dplyr::transmute(
+  max_obs = max(obs),
+  true_value= R_t, location = mean, scale = sd, link="log", dist="gamma2",
+  calibration=NA_real_) %>%
+  group_by(max_obs, N, pObs, dist, link, calibration, run) %>%
+  prediction_scores(threshold = 1) 
+```
+
+```{r}
+
+plotdata = scores %>% mutate(`P(obs)`=as.factor(pObs))
+
+p5a = ggplot(plotdata, aes(x=max_obs, colour = `P(obs)`,y=D_pit))+
+  geom_point()+
+  geom_smooth(se=FALSE,method="loess", span=0.8)+
+  scale_x_log10()+
+  xlab("peak observed case count")+
+  ylab("directed pit-w")
+  
+
+p5b = ggplot(plotdata, aes(x=max_obs, colour = `P(obs)`,y=U_pit))+
+  geom_point()+
+  geom_smooth(se=FALSE,method="loess", span=0.8)+
+  scale_x_log10()+
+  xlab("peak observed case count")+
+  ylab("undirected pit-w")
+
+p5c = ggplot(plotdata, aes(x=max_obs, colour = `P(obs)`,y=mean_crps))+
+  geom_point()+
+  geom_smooth(se=FALSE,method="loess", span=0.8)+
+  scale_x_log10()+
+  xlab("peak observed case count")+
+  ylab("mean CRPS")
+
+p5d = ggplot(plotdata, aes(x=max_obs, colour = `P(obs)`,y=bias))+
+  geom_point()+
+  geom_smooth(se=FALSE,method="loess", span=0.8)+
+  scale_x_log10()+
+  xlab("peak observed case count")+
+  ylab("bias")
+
+p5 = p5a+p5b+p5c+p5d+patchwork::plot_layout(guides="collect",axes="collect")+
+  patchwork::plot_annotation(tag_level="A")
+
+p5
+
+```
+
+```{r}
+
+.gg_save_as(
+  p5,
+  file.path(fig_dir, "fig5-epiestim-by-epi-size"),
+  size = std_size$two_third,
+  formats = c("pdf", "eps")
+)
+
+```

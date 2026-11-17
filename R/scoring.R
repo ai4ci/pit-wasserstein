@@ -8,6 +8,7 @@
 #' @param summarise produce the results as a groupwise summary or a prediction by prediction metric
 #' @param threshold If given calculates the threshold misclassification probability
 #' @returns a dataframe. columns depend on `summarise`
+#' @export
 #' @unit
 #' qs = seq(1,199,2)/200
 #' df = tidyr::crossing(
@@ -60,11 +61,11 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
             adj_true_value = adj_true_value,
             bias = true_value - medians,
             rank_order = rank(u_i, ties.method = "first"),
-            unif = (rank_order * 2 - 1) / (2 * g$samples),
+            unif = (rank_order * 2 - 1) / (2 * dplyr::n()),
             u_pit_unadj = abs(unif - u_i_unadj),
             u_pit = abs(unif - u_i),
             d_pit = (unif - u_i) * sign(0.5 - unif),
-            P_i_err = abs(cdf(threshold) - (adj_true_value < threshold)),
+            P_i_err = abs(cdf(threshold, location, scale) - (adj_true_value < threshold)),
             abs_diff_gX_gT = abs(ln$linkfun(true_value) - ln$linkfun(threshold)),
             crps = crps_fn(
               true_value = true_value,
