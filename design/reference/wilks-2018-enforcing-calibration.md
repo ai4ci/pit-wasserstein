@@ -2,7 +2,7 @@
 class: reference
 id: wilks-2018-enforcing-calibration.md
 title: Enforcing calibration in ensemble postprocessing
-citeKey: Wilks_2018
+citeKey: wilks2018
 year: 2018
 doi: 10.1002/qj.3185
 citedIn:

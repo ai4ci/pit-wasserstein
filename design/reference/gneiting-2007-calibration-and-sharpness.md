@@ -2,7 +2,7 @@
 class: reference
 id: gneiting-2007-calibration-and-sharpness.md
 title: Probabilistic forecasts, calibration and sharpness
-citeKey: Gneiting_Balabdaoui_Raftery_2007
+citeKey: gneiting2007
 year: 2007
 doi: 10.1111/j.1467-9868.2007.00587.x
 citedIn:

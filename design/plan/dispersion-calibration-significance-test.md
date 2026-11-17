@@ -9,6 +9,8 @@ informedBy:
 - reference:diebold-1998-density-forecast-evaluation.md
 - reference:panaretos-2019-wasserstein-distances.md
 - reference:siegert-2017-detecting-skill-improvements.md
+- reference:bhattacharya-2021-brownian-bridge.md
+- reference:takacs-1993-absolute-brownian-motion.md
 spawns:
 - task:characterise-d-pit-sampling-distribution-by-simulation.md
 - task:implement-bootstrap-test-for-dispersion-calibration.md

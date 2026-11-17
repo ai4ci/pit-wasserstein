@@ -2,7 +2,7 @@
 class: reference
 id: zhao-2020-individual-calibration.md
 title: Individual Calibration with Randomized Forecasting
-citeKey: Zhao_Ma_Ermon_2020a
+citeKey: zhao2020
 year: 2020
 zoteroKey: 9H8T2GXP
 citedIn:

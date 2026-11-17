@@ -2,7 +2,7 @@
 class: reference
 id: siegert-2017-detecting-skill-improvements.md
 title: 'Detecting improvements in forecast correlation skill: Statistical testing and power analysis'
-citeKey: Siegert_Bellprat_Ménégoz_Stephenson_Doblas-Reyes_2017
+citeKey: siegert2017
 year: 2017
 zoteroKey: 5XLBRWBN
 citedIn:

@@ -2,7 +2,7 @@
 class: reference
 id: hamill-2001-rank-histograms.md
 title: Interpretation of Rank Histograms for Verifying Ensemble Forecasts
-citeKey: Hamill_2001
+citeKey: hamill2001
 year: 2001
 citedIn:
 - paper:refs.bib

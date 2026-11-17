@@ -2,7 +2,7 @@
 class: reference
 id: zhou-2021-collaborating-networks.md
 title: Estimating Uncertainty Intervals from Collaborating Networks
-citeKey: Zhou_Li_Wu_Carlson_2021
+citeKey: zhou2021
 year: 2021
 zoteroKey: AHYZZ27J
 citedIn:

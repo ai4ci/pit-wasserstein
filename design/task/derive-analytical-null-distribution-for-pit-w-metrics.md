@@ -8,6 +8,7 @@ priority: high
 touches:
 - paper:main.tex
 - src:scoring.R#pit_w
+- vignette:significance-testing.Rmd
 blocks:
 - task:characterise-d-pit-sampling-distribution-by-simulation.md
 - task:restore-pivotality-of-the-bias-adjustment.md
@@ -44,8 +45,8 @@ correction or an exact tail below $n\approx50$.
 
 ## $U^*_{pit}$ (undirected) — a named distribution
 
-$\sqrt{n}\,U^*_{pit} \Rightarrow \int_0^1|B^\circ(p)|dp$, the Kac-Takács
-statistic. Takács (1993) gives the exact CDF as a series. Mean is clean:
+$\sqrt{n}\,U^*_{pit} \Rightarrow \int_0^1|B^\circ(p)|dp$, the integrated
+absolute Brownian-bridge functional. Its mean is clean:
 
 $$\mathbb{E}\!\int_0^1|B^\circ| = \sqrt{\tfrac{2}{\pi}}\int_0^1\!\sqrt{p(1-p)}\,dp
 = \sqrt{\tfrac{2}{\pi}}\cdot\tfrac{\pi}{8} = \tfrac{\sqrt{2\pi}}{8} \approx 0.3133$$
@@ -66,10 +67,16 @@ $O(1/n)$ — a *relative* $O(n^{-1/2})$ correction that matters at small $n$.
 ## Deliverable
 
 Write this up as a theory section: state both limits, give the $D^*_{pit}$
-test in closed form, tabulate $U^*_{pit}$ critical values from the Takács
-series (validated against simulation rather than derived from it). This
+test in closed form, tabulate $U^*_{pit}$ critical values from a
+bridge-specific distributional result or simulation (validated against
+simulation rather than derived from it). This
 reframes `task:characterise-d-pit-sampling-distribution-by-simulation.md`
 from "primary evidence" to "validation of known theory", which is
 substantially more publishable.
 
 Blocked by nothing; feeds the publication-format decision.
+
+
+## Reference check 2026-11-16
+
+The new Takács (1993) reference is specifically about the integral of the absolute value of **Brownian motion**, not the Brownian bridge. It therefore does not support the claim that the bridge functional has the same exact CDF series. The supplementary vignette now names the limit descriptively as the integrated absolute Brownian-bridge functional; critical values should be taken from a bridge-specific source or simulation until a direct reference is verified. Bhattacharya and Waymire (2021) is useful background on the bridge itself, but does not establish this functional's distribution.

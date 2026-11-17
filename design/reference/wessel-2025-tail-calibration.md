@@ -2,7 +2,7 @@
 class: reference
 id: wessel-2025-tail-calibration.md
 title: Enforcing tail calibration when training probabilistic forecast models
-citeKey: Wessel_Schillinger_Kwasniok_Allen_2025
+citeKey: wessel2025
 year: 2025
 doi: 10.48550/arXiv.2506.13687
 citedIn:

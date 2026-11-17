@@ -8,58 +8,63 @@ Reallocated glb_str_end (elt_size=4) to 20 items from 10.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: refs.bib
-I was expecting a `,' or a `}'---line 6 of file refs.bib
- :  @inproceedings{Dheur_Ben 
- :                           Taieb_2023, title={A Large-Scale Study of Probabilistic Calibration in Neural Network Regression}, volume={202}, url={https://proceedings.mlr.press/v202/dheur23a.html}, DOI={10.48550/arXiv.2306.02738}, abstractNote={While neural network miscalibration has been studied primarily in classification, we conduct the largest empirical study to date to assess the probabilistic calibration of neural networks in regression, covering 400+ configurations across 4 datasets. We evaluate the Probabilistic Calibration Error (PCE) and introduce new diagnostics for calibration assessment.}, booktitle={Proceedings of the 40th International Conference on Machine Learning}, author={Dheur, Victor and Ben Taieb, Souhaib}, year={2023}, pages={7922–7945} }
-I'm skipping whatever remains of this entry
-Warning--I didn't find a database entry for "anderson1996"
-Warning--I didn't find a database entry for "bosse2024"
-Warning--I didn't find a database entry for "bosse2023"
-Warning--I didn't find a database entry for "brocker2008"
-Warning--I didn't find a database entry for "gneiting2007"
-Warning--I didn't find a database entry for "david1948"
-Warning--I didn't find a database entry for "brockwell2007"
-Warning--I didn't find a database entry for "hamill2001"
-Warning--I didn't find a database entry for "panaretos2019"
-You've used 0 entries,
+Warning--entry type for "bosse2024" isn't style-file defined
+--line 72 of file refs.bib
+Warning--empty journal in anderson1996
+Warning--empty year in anderson1996
+Warning--empty journal in bosse2023
+Warning--empty year in bosse2023
+Warning--empty journal in brocker2008
+Warning--empty year in brocker2008
+Warning--empty journal in gneiting2007
+Warning--empty year in gneiting2007
+Warning--empty journal in david1948
+Warning--empty year in david1948
+Warning--empty journal in brockwell2007
+Warning--empty year in brockwell2007
+Warning--empty journal in hamill2001
+Warning--empty year in hamill2001
+Warning--empty journal in panaretos2019
+Warning--empty year in panaretos2019
+You've used 9 entries,
             2616 wiz_defined-function locations,
-            590 strings with 4691 characters,
-and the built_in function-call counts, 41 in all, are:
-= -- 0
-> -- 0
+            654 strings with 6841 characters,
+and the built_in function-call counts, 3778 in all, are:
+= -- 394
+> -- 100
 < -- 0
-+ -- 0
-- -- 0
-* -- 2
-:= -- 30
-add.period$ -- 0
-call.type$ -- 0
-change.case$ -- 0
++ -- 32
+- -- 23
+* -- 299
+:= -- 479
+add.period$ -- 35
+call.type$ -- 9
+change.case$ -- 9
 chr.to.int$ -- 0
-cite$ -- 0
-duplicate$ -- 0
-empty$ -- 1
-format.name$ -- 0
-if$ -- 1
+cite$ -- 25
+duplicate$ -- 95
+empty$ -- 407
+format.name$ -- 23
+if$ -- 1006
 int.to.chr$ -- 0
-int.to.str$ -- 0
-missing$ -- 0
-newline$ -- 3
-num.names$ -- 0
-pop$ -- 0
+int.to.str$ -- 9
+missing$ -- 8
+newline$ -- 56
+num.names$ -- 9
+pop$ -- 91
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 1
+skip$ -- 238
 stack$ -- 0
-substring$ -- 0
-swap$ -- 0
-text.length$ -- 0
+substring$ -- 229
+swap$ -- 23
+text.length$ -- 18
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 0
-while$ -- 0
-width$ -- 0
-write$ -- 2
-(There was 1 error message)
+warning$ -- 16
+while$ -- 24
+width$ -- 10
+write$ -- 110
+(There were 17 warnings)

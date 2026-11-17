@@ -2,7 +2,7 @@
 class: reference
 id: guo-2017-calibration-neural-networks.md
 title: On Calibration of Modern Neural Networks
-citeKey: Guo_Pleiss_Sun_Weinberger_2017
+citeKey: guo2017
 year: 2017
 zoteroKey: 94XTKHM9
 citedIn:

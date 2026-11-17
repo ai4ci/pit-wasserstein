@@ -8,13 +8,17 @@
 * Design artefacts are in the `design` folder.
 * Assume any scripts in the `design` folder are instructional examples and must
   be completely rewritten for production.
-* Document architecture decisions and a phased roadmap (as a checklist) before
-  implementation (`design/adr/` - one file per decision, `design/doc/scope.md`).
-  Design records are loom instances; run `loom validate` after editing them and
-  `loom render` when a rendered view section needs refreshing. See
-  `design/adr/design-records-are-loom-instances.md`. Never write a literal loom
-  view marker in prose outside `design/` — `loom render` rewrites every markdown
-  file in the repository, including this one.
+* Design records are `loom` instances governed by `design/document-model.mmd`:
+  one file per `plan`, `task`, `reference` and `release`, plus prose in
+  `design/doc/`. Prefer `loom create` / `loom set` / `loom link` / `loom body`
+  over editing frontmatter by hand. Plan before implementing: a `plan` states
+  the intent, the `task` instances it `spawns` are the checklist.
+  See `.agents/skills/pit-wasserstein-methodology/SKILL.md` and the
+  `using-loom-cli` skill.
+* After editing design records run `loom validate`, and `loom render` when a
+  view section needs refreshing. Never write a literal loom view marker in prose
+  outside `design/` — `loom render` rewrites every markdown file in the
+  repository, including this one.
 * **MAKE SURE YOU HAVE A CLEAN REVERT POINT BEFORE MAKING EVEN SEEMING MINOR
   CHANGES**
 * All tests must be implemented and proven to fail before starting development
@@ -22,8 +26,9 @@
 * All tests must be proven to pass before development of a feature is complete.
 * **IT IS NOT HELPFUL TO IMMEDIATELY FIX PRE-EXISTING BUGS WITHOUT CONSULTING
   THE USER**
-* **IT IS ALWAYS HELPFUL TO DOCUMENT PRE-EXISTING BUGS IN
-  `design/active-issues.md` (n.b. create it if it does not exist)**
+* **IT IS ALWAYS HELPFUL TO DOCUMENT PRE-EXISTING BUGS AS A `task` INSTANCE
+  WITH `kind: issue`** (`loom create task:<slug>.md "title=..." "status=todo"
+  "kind=issue" "priority=..."`)
 * If you are asked to work on documentation, ONLY change documentation files:
   When documenting **do NOT fix bugs, refactor code, or modify any
   non-documentation files, even when you discover bugs.** Document discovered
@@ -31,17 +36,18 @@
 * When you discover a bug during any task:
   1. If the bug was INTRODUCED BY YOUR OWN PREVIOUS CHANGE → fix it immediately
   2. If the bug is PRE-EXISTING (introduced by the user or existed before)
-     document it in `design/active-issues.md` and do NOT fix it
-  3. It is helpful to document the suggested fix in `design/active-issues.md`
-  4. If `design/active-issues.md` does not exist → create it
+     raise it as a `task` with `kind: issue` and do NOT fix it
+  3. It is helpful to record the suggested fix in that task's body
+     (`loom body append task:<slug>.md ...`)
+  4. Link the task to the code it concerns:
+     `loom link task:<slug>.md touches src:<file>.R#<symbol>`
 * Always distinguish between bugs you introduced (fix immediately) and
   pre-existing bugs (document and move on).
 * If you are asked to create tests for existing code **CREATE TESTS BASED ON
   YOUR UNDERSTANDING OF INTENTION NOT EXISTING CODE BEHAVIOUR EVEN IF THEY
   FAIL**.
-  1. Discuss new test failures with the user and document in
-     `design/active-issues.md`.
-  2. If `design/active-issues.md` does not exist → create it
+  1. Discuss new test failures with the user and raise each as a `task` with
+     `kind: issue`.
 * If you are asked to use a TODO list to manage a process then
   1. **CREATE THE TODO LIST**,
   2. **EXECUTE THE NEXT TASK ON THE LIST ONE AT A TIME**,
@@ -53,8 +59,8 @@
   2. **NO NEW LINTING OR STATIC ANALYSIS ISSUES**,
   3. **DESIGN DOCUMENTATION IS UP TO DATE**,
   4. **PATCH VERSION NUMBER IS INCREMENTED**
-* When you or the user have fixed an active issue remove it from
-  `design/active-issues.md`
+* When you or the user have fixed an issue, close its task:
+  `loom set task:<slug>.md status=done` — never delete it.
 * git push is the users responsibility.
   **DO NOT TRY AND GIT PUSH THE PROJECT**
 

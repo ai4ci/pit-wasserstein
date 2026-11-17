@@ -2,7 +2,7 @@
 class: reference
 id: arrieta-ibarra-2022-metrics-of-calibration.md
 title: Metrics of Calibration for Probabilistic Predictions
-citeKey: Arrieta-Ibarra_Gujral_Tannen_Tygert_Xu_2022
+citeKey: arrieta-ibarra2022
 year: 2022
 doi: 10.48550/arXiv.2205.09680
 citedIn:

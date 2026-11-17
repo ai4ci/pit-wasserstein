@@ -2,7 +2,7 @@
 class: reference
 id: panaretos-2019-wasserstein-distances.md
 title: Statistical Aspects of Wasserstein Distances
-citeKey: Panaretos_Zemel_2019
+citeKey: panaretos2019
 year: 2019
 doi: 10.1146/annurev-statistics-030718-104938
 citedIn:

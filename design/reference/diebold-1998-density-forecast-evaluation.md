@@ -2,7 +2,7 @@
 class: reference
 id: diebold-1998-density-forecast-evaluation.md
 title: Evaluating Density Forecasts with Applications to Financial Risk Management
-citeKey: Diebold_Gunther_Tay_1998
+citeKey: diebold1998
 year: 1998
 doi: 10.2307/2527342
 zoteroKey: WFB3G5YT

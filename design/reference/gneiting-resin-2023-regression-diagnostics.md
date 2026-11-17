@@ -2,7 +2,7 @@
 class: reference
 id: gneiting-resin-2023-regression-diagnostics.md
 title: 'Regression Diagnostics meets Forecast Evaluation: Conditional Calibration, Reliability Diagrams, and Coefficient of Determination'
-citeKey: Gneiting_Resin_2023
+citeKey: gneiting2023
 year: 2023
 doi: 10.1214/23-EJS2180
 zoteroKey: F7673UKG

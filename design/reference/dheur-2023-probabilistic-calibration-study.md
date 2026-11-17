@@ -2,7 +2,7 @@
 class: reference
 id: dheur-2023-probabilistic-calibration-study.md
 title: A Large-Scale Study of Probabilistic Calibration in Neural Network Regression
-citeKey: Dheur_Taieb_2023
+citeKey: dheur2023
 year: 2023
 doi: 10.48550/arXiv.2306.02738
 citedIn:

@@ -2,7 +2,7 @@
 class: reference
 id: kuleshov-2018-calibrated-regression.md
 title: Accurate Uncertainties for Deep Learning Using Calibrated Regression
-citeKey: Kuleshov_Fenner_Ermon_2018
+citeKey: kuleshov2018
 year: 2018
 doi: 10.48550/arXiv.1807.00263
 citedIn:

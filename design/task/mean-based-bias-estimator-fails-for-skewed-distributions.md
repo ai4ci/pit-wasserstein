@@ -8,6 +8,7 @@ priority: high
 touches:
 - src:scoring.R#pit_w
 - src:scoring.R#prediction_scores
+- vignette:significance-testing.Rmd
 blocks:
 - task:add-non-normal-distribution-robustness-study.md
 ---

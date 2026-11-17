@@ -2,7 +2,7 @@
 class: reference
 id: brockwell-2007-universal-residuals.md
 title: 'Universal residuals: A multivariate transformation'
-citeKey: Brockwell_2007
+citeKey: brockwell2007
 year: 2007
 doi: 10.1016/j.spl.2007.02.008
 citedIn:

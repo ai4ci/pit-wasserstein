@@ -1,0 +1,442 @@
+---
+title: "Significance testing for the PIT-Wasserstein metrics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Significance testing for the PIT-Wasserstein metrics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+# library(pitw)
+devtools::load_all()
+library(tidyverse)
+set.seed(101)
+```
+
+This supplementary vignette derives a null distribution for the
+PIT-Wasserstein metrics, so that an observed $U^*_{pit}$ or $D^*_{pit}$ can be
+reported with a $p$-value rather than only as a point estimate. It is
+organised as a sequence of questions:
+
+1. What are the metrics, as functionals of the PIT values?
+2. What is their sampling distribution when the estimator is calibrated?
+3. Does the bias adjustment disturb that distribution?
+4. What exactly is the null hypothesis being tested?
+5. How should the test be computed in practice?
+
+Throughout, every analytical claim is checked against simulation in the
+following chunk. The simulation is the evidence; the algebra is the
+explanation.
+
+## 1. The metrics as functionals of the PIT values
+
+Given $n$ predictions and their realised outcomes, the probability integral
+transform (PIT) values are $u_i = F_i(x_i)$, where $F_i$ is the $i$-th
+predictive distribution and $x_i$ the true value. If the estimator is
+calibrated, $u_1,\dots,u_n$ are iid $\mathrm{Uniform}(0,1)$.
+
+Both metrics compare the sorted PIT values $u_{(1)} \le \dots \le u_{(n)}$
+against the uniform plotting positions $r_i = (i - \tfrac12)/n$:
+
+$$
+U^*_{pit} = \frac1n\sum_{i=1}^n \left| r_i - u_{(i)} \right|, \qquad
+  D^*_{pit} = \frac1n\sum_{i=1}^n \left( r_i - u_{(i)} \right)\,\mathrm{sgn}\!\left(\tfrac12 - r_i\right)
+$$
+
+$U^*_{pit}$ is the 1-Wasserstein distance between the empirical PIT
+distribution and the uniform: an undirected measure of *any* departure from
+calibration, taking values in $[0, \tfrac12]$. $D^*_{pit}$ replaces the
+absolute value with a sign that is $+1$ in the lower half of the distribution
+and $-1$ in the upper, so that over-dispersion and under-dispersion cancel
+rather than accumulate; it takes values in $[-\tfrac14, \tfrac14]$ and is
+positive for an over-confident estimator.
+
+```{r metrics}
+# Row-wise metrics on a matrix of PIT values: one replicate per row.
+pit_metrics <- function(v) {
+  n <- ncol(v)
+  s <- t(apply(v, 1, sort))
+  r <- matrix(seq(0.5 / n, 1 - 0.5 / n, length.out = n), nrow(v), n, byrow = TRUE)
+  list(U = rowMeans(abs(r - s)),
+       D = rowMeans((r - s) * sign(0.5 - r)))
+}
+```
+
+The key structural observation is that both are **linear functionals of the
+empirical quantile process**. Writing $w(t) = \mathrm{sgn}(\tfrac12 - t)$,
+
+$$
+\sqrt{n}\,D^*_{pit} \;\Rightarrow\; \int_0^1 w(t)\, B^\circ(t)\,\mathrm{d}t,
+\qquad
+\sqrt{n}\,U^*_{pit} \;\Rightarrow\; \int_0^1 \left| B^\circ(t) \right| \mathrm{d}t
+$$
+
+where $B^\circ$ is a standard Brownian bridge. This is the whole derivation in
+one line: under the null the scaled difference $\sqrt{n}(r_i - u_{(i)})$
+converges to a Brownian bridge, and the two metrics are just two different
+integrals of it. The difference between the metrics — a signed weight versus
+an absolute value — is exactly the difference between a Gaussian limit and a
+non-Gaussian one.
+
+## 2. The null distribution of `D_pit`: exactly Gaussian
+
+Because $\int w B^\circ$ is a *linear* functional of a Gaussian process, it is
+Gaussian with mean zero. Its variance follows from the bridge covariance
+$\mathrm{Cov}(B^\circ(s), B^\circ(t)) = s\wedge t - st$:
+
+$$
+\mathrm{Var}\left( \int_0^1 w B^\circ \right)
+ = \int_0^1\!\!\int_0^1 w(s) w(t) \left( s\wedge t - st \right) \mathrm{d}s\,\mathrm{d}t
+ = \frac{1}{48}
+$$
+
+giving the simple and fully explicit null
+
+$$D^*_{pit} \;\sim\; \mathcal{N}\!\left(0,\; \frac{1}{48n}\right)$$
+
+Confirming the constant by direct simulation of the limiting bridge:
+
+```{r bridge, fig.width = 6, fig.height = 3.5}
+# Simulate Brownian bridges and evaluate both limiting functionals.
+sim_bridge <- function(reps = 2000, m = 1000) {
+  t <- seq_len(m) / m
+  incr <- matrix(rnorm(reps * m, sd = sqrt(1 / m)), reps, m)
+  w <- t(apply(incr, 1, cumsum))                                     # Wiener
+  b <- w - outer(w[, m], t)                                          # bridge
+  wt <- matrix(sign(0.5 - t), reps, m, byrow = TRUE)
+  list(signed = rowMeans(b * wt), absolute = rowMeans(abs(b)))
+}
+bridge <- sim_bridge()
+tibble(
+  quantity  = c("Var(int w B)", "E|int |B||"),
+  simulated = c(var(bridge$signed), mean(bridge$absolute)),
+  theory    = c(1 / 48, sqrt(2 * pi) / 8)
+)
+```
+
+The signed functional matches $1/48$ closely. The absolute functional comes
+out slightly *above* $\sqrt{2\pi}/8$: approximating $\int|B^\circ|$ on a finite
+grid is biased upward, because the discretisation cannot see the excursions
+that cross zero between grid points. The bias is $O(m^{-1/2})$ and is a
+property of this check, not of the metric — the finite-sample confirmation
+below uses the metric itself and is unaffected.
+
+Confirming that the finite-sample metric matches the theory:
+
+```{r d-null}
+null_pit <- function(n, reps = 4000) matrix(runif(n * reps), reps, n)
+
+map_dfr(c(10L, 25L, 50L, 100L, 400L), function(n) {
+  d <- pit_metrics(null_pit(n))$D
+  tibble(n,
+         n_var_D   = n * var(d),
+         theory    = 1 / 48,
+         size_0.05 = mean(abs(d) > qnorm(0.975) / sqrt(48 * n)))
+})
+```
+
+The variance constant is attained essentially exactly from $n = 25$. The test
+size is mildly inflated at very small $n$ (the normal approximation to a sum
+of order statistics converges from above), so for $n \lesssim 50$ the
+closed-form critical value should be treated as approximate.
+
+## 3. The null distribution of `U_pit`: integrated absolute bridge
+
+Replacing the signed weight with an absolute value destroys the Gaussianity:
+$\int_0^1 |B^\circ|$ is the integrated absolute Brownian-bridge functional.
+Its distribution has no elementary closed form, but its mean is known exactly,
+
+$$\mathbb{E}\int_0^1 \left| B^\circ \right| = \frac{\sqrt{2\pi}}{8} \approx 0.3133$$
+
+so that $\mathbb{E}\,U^*_{pit} \approx 0.3133/\sqrt{n}$. Critical values are
+most simply obtained by simulation, and because the null is
+*distribution-free* — it depends on nothing but $n$ — they can be tabulated
+once and reused:
+
+```{r u-null}
+u_critical <- map_dfr(c(25L, 50L, 100L, 400L), function(n) {
+  u <- pit_metrics(null_pit(n))$U
+  tibble(n,
+         mean_sqrt_n = sqrt(n) * mean(u),
+         theory      = sqrt(2 * pi) / 8,
+         q95         = quantile(u, 0.95),
+         q95_sqrt_n  = sqrt(n) * quantile(u, 0.95))
+})
+u_critical
+```
+
+$\sqrt{n}\,\mathbb{E}U^*$ sits at the theoretical $0.3133$ and
+$\sqrt{n}\,q_{0.95}$ is stable near $0.58$, confirming the $\sqrt{n}$ scaling.
+A practical rule of thumb is therefore
+
+$$U^*_{pit} > \frac{0.58}{\sqrt{n}} \;\Rightarrow\; \text{reject calibration at } 5\%$$
+
+## 4. Does the bias adjustment disturb the null?
+
+The metrics are applied to *bias-adjusted* PIT values, so the null above is
+only useful if the adjustment leaves it intact. This is not automatic: the
+adjustment estimates a quantity from the same data, which generically costs a
+degree of freedom and shrinks the statistic.
+
+### 4a. The adjustment must stay in `x`-space
+
+A natural idea is to perform the adjustment in PIT space — subtracting a
+centring statistic from $\Phi^{-1}(u_i)$ — since an adjustment that is a
+function of the $u_i$ alone would automatically preserve
+distribution-freeness. This does not work, for a reason worth stating.
+
+Bias is a location error in $x$-space. An $x$-space shift $\delta$ becomes a
+**heterogeneous** shift $\delta/\sigma_i$ in probit space. A single common
+shift in probit space therefore over-corrects confident predictions (small
+$\sigma_i$) and under-corrects uncertain ones. When the predictions are
+homoscedastic the two are identical, but under heteroscedasticity they
+diverge, and the symptom is a loss of the log-calibration symmetry of
+$U^*_{pit}$.
+
+That symmetry is worth recording as a theorem rather than an observation. With
+no bias and constant $\sigma$, the probit-transformed PIT values are exactly
+$z_i \sim \mathcal{N}(0, s)$ with $s = \sigma_E/\sigma_S$, so the PIT CDF is
+$F_s(p) = \Phi(\Phi^{-1}(p)/s)$ and
+
+$$F_{1/s}(p) = \Phi\!\left(s\,\Phi^{-1}(p)\right) = F_s^{-1}(p)$$
+
+Inverting a monotone function reflects its graph in the diagonal, which
+preserves the area between the graph and the diagonal. Hence
+$\int_0^1 |F_s(p) - p|\,\mathrm{d}p$ is *exactly* invariant under
+$c \leftrightarrow 1/c$: an estimator twice too wide and one twice too narrow
+score identically. Any observed asymmetry is therefore an artefact of the
+adjustment, not a property of the metric.
+
+```{r symmetry}
+# Asymmetry of U* under c <-> 1/c, in the figure-3 configuration
+# (random bias and random sharpness heterogeneity).
+asymmetry <- function(c_cal, n = 2000, reps = 400) {
+  b  <- runif(reps, -1, 1)
+  k  <- runif(reps, 0, 2)
+  e  <- matrix(rnorm(n * reps), reps, n) + b
+  sc <- matrix(rlnorm(n * reps, log(c_cal), sqrt(log(k^2 + 1))), reps, n)
+  z  <- -e / sc
+  c(x_space     = mean(pit_metrics(pnorm((-e + rowMeans(e)) / sc))$U),
+    probit_mean = mean(pit_metrics(pnorm(z - rowMeans(z)))$U),
+    probit_med  = mean(pit_metrics(pnorm(z - apply(z, 1, median)))$U))
+}
+hi <- asymmetry(2); lo <- asymmetry(0.5)
+tibble(adjustment = names(hi), U_at_c_2 = hi, U_at_c_half = lo,
+       asymmetry_pct = 100 * (hi - lo) / ((hi + lo) / 2))
+```
+
+The $x$-space adjustment used by `pit_w()` is symmetric to within Monte Carlo
+error; the probit alternatives are not. This is a genuine constraint rather
+than a tuning problem: **an adjustment that is a function of the $u_i$ alone
+cannot know the $\sigma_i$, so distribution-freeness of the null and exact
+bias-invariance under heteroscedasticity cannot both hold.** We keep
+bias-invariance.
+
+### 4b. The `x`-space adjustment preserves the null exactly under bias
+
+```{r adjustment-null}
+adjusted_null <- function(n, bias, kappa, reps = 4000) {
+  e  <- matrix(rnorm(n * reps), reps, n) + bias
+  sc <- if (kappa == 0) matrix(1, reps, n) else
+        matrix(rlnorm(n * reps, 0, sqrt(log(kappa^2 + 1))), reps, n)
+  d  <- pit_metrics(pnorm((-e + rowMeans(e)) / sc))$D
+  tibble(n, bias, kappa, n_var_D = n * var(d),
+         size = mean(abs(d) > qnorm(0.975) / sqrt(48 * n)))
+}
+pmap_dfr(crossing(n = c(100L, 400L), bias = c(0, 1), kappa = c(0, 0.5, 2)),
+         adjusted_null) |>
+  mutate(theory = 1 / 48)
+```
+
+With $\kappa = 0$ the null survives the adjustment **exactly**, with or
+without bias: $n\mathrm{Var}(D^*)$ stays at $1/48$ and the test holds its
+nominal size. Bias-invariance — the property the metric exists for — costs
+nothing.
+
+With $\kappa > 0$ the variance inflates, and does not shrink with $n$, so this
+is an asymptotic effect and not a small-sample artefact. The next section
+explains why that is not a defect.
+
+## 5. What is the null hypothesis?
+
+The inflation above is not size distortion, because $\kappa > 0$ is **not a
+calibrated estimator**, even when the median dispersion is exactly right. A
+scale mixture of normals is heavier-tailed than a normal, so some predictions
+are over-confident and others under-confident, and the PIT values are not
+uniform:
+
+```{r kappa-not-null}
+map_dfr(c(0, 0.25, 0.5, 1, 2), function(k) {
+  n <- 5000; reps <- 200
+  e  <- matrix(rnorm(n * reps), reps, n)
+  sc <- if (k == 0) matrix(1, reps, n) else
+        matrix(rlnorm(n * reps, 0, sqrt(log(k^2 + 1))), reps, n)
+  u <- pnorm(-e / sc)
+  tibble(kappa = k,
+         E_U_unadjusted   = mean(pit_metrics(u)$U),
+         tail_mass        = mean(u < 0.05 | u > 0.95))   # uniform => 0.10
+})
+```
+
+So the null hypothesis is **not** "the median predictive width is correct". It
+is
+
+$$H_0: \quad u_1, \dots, u_n \ \text{are iid}\ \mathrm{Uniform}(0,1)$$
+
+which in the simulation family requires the dispersion ratio $c = 1$ *and*
+$\kappa = 0$. An estimator whose stated uncertainty varies without tracking
+the realised error is miscalibrated, and the metric is right to say so.
+
+It is worth being precise about what $\kappa > 0$ represents. The failure is
+not heterogeneity of $\sigma_i$ as such — if the stated uncertainty varied
+*in step with* the realised per-prediction error, the PIT values would be
+uniform and the estimator perfectly calibrated, which is what a good
+heteroscedastic model achieves. Here $\sigma_i$ varies *independently* of the
+realised error, so what is penalised is **spread--error decoupling**:
+uncertainty that varies without being informative.
+
+## 6. A two-part test
+
+The two metrics respond to $\kappa$ quite differently, and the contrast is
+useful rather than inconvenient:
+
+```{r two-part}
+sweep_c <- function(c_cal, kappa, n = 20000, reps = 100) {
+  e  <- matrix(rnorm(n * reps), reps, n)
+  sc <- if (kappa == 0) matrix(c_cal, reps, n) else
+        matrix(rlnorm(n * reps, log(c_cal), sqrt(log(kappa^2 + 1))), reps, n)
+  m <- pit_metrics(pnorm((-e + rowMeans(e)) / sc))
+  tibble(c_cal, kappa, U = mean(m$U), D = mean(m$D))
+}
+pmap_dfr(crossing(c_cal = c(0.5, 0.8, 1, 1.25, 2), kappa = c(0, 0.5, 1, 2)),
+         sweep_c) |>
+  pivot_wider(names_from = c_cal, values_from = c(U, D)) |>
+  print(width = Inf)
+```
+
+$\mathbb{E}[D^*_{pit}]$ is zero at $c = 1$ for **every** $\kappa$ — the root
+does not move — whereas $\mathbb{E}[U^*_{pit}]$ at $c = 1$ rises steadily with
+$\kappa$.
+
+The mechanism is that a lognormal scale mixture is *leptokurtic*: it has
+excess mass at the edges **and** at the centre, with a deficit in between, so
+the PIT histogram under $\kappa > 0$ is W-shaped rather than U-shaped.
+$D^*_{pit}$ weights edge and centre departures with opposite signs, so they
+cancel; $U^*_{pit}$ takes absolute values, so they accumulate.
+
+This suggests reporting the pair rather than either alone:
+
+| statistic | tests |
+|---|---|
+| $D^*_{pit}$ | is the **median** predictive width correct? Immune to bias *and* to $\kappa$ |
+| $U^*_{pit}$ given $D^* \approx 0$ | residual **shape** mismatch |
+
+The second row should not be overclaimed. $U^*$ large with $D^* \approx 0$
+indicates any residual shape departure — a wrong distributional family, skew
+or tail misspecification would also land there — so it is evidence of shape
+mismatch, of which spread--error decoupling is the leading cause, rather than
+an identification of $\kappa$.
+
+## 7. Computing the test in practice
+
+$D^*_{pit}$ is *unbiased* under $\kappa$ but not *pivotal*: its null variance
+depends on the unknown PIT shape. Using the fixed $1/48$ critical value when
+$\kappa$ is large therefore over-rejects. Studentising with a bootstrap
+standard error over the PIT values largely repairs this:
+
+```{r studentised}
+D_single <- function(u) {
+  n <- length(u)
+  mean((seq(0.5 / n, 1 - 0.5 / n, length.out = n) - sort(u)) * 
+       sign(0.5 - seq(0.5 / n, 1 - 0.5 / n, length.out = n)))
+}
+one_test <- function(n, kappa, B = 149) {
+  sc <- if (kappa == 0) rep(1, n) else rlnorm(n, 0, sqrt(log(kappa^2 + 1)))
+  e  <- rnorm(n)
+  u  <- pnorm((-e + mean(e)) / sc)              # H0: c = 1, x-space adjusted
+  d  <- D_single(u)
+  se <- sd(replicate(B, D_single(sample(u, n, replace = TRUE))))
+  c(fixed = abs(d) > qnorm(0.975) / sqrt(48 * n),
+    studentised = abs(d) > qnorm(0.975) * se)
+}
+map_dfr(c(0, 1, 2), function(k) {
+  r <- replicate(400, one_test(200L, k))
+  tibble(kappa = k, size_fixed = mean(r[1, ]), size_studentised = mean(r[2, ]))
+})
+```
+
+The studentised test is close to nominal across the range. It is still
+slightly over-sized at large $\kappa$, because this naive bootstrap ignores
+both the bias-adjustment step and the dependence induced by sorting;
+re-applying the adjustment within each bootstrap replicate would be the
+refinement.
+
+The recommended procedure is therefore to use the **closed-form
+$\mathcal{N}(0, 1/48n)$ as the reference null** — it is exact, it is free, and
+it validates the implementation — and the **studentised bootstrap as the test
+actually reported**, with the closed form checking the bootstrap rather than
+being replaced by it.
+
+## 8. Caveat: skewed predictive families
+
+Two issues arise when extending any of the above beyond `norm` and `lnorm4`,
+and both must be handled before the null distribution can be trusted for
+skewed families.
+
+**Constructing a calibrated example.** For a scale family $X = \mu W$ with
+$\mathrm{median}(W) = 1$, placing predictions at $\mu_i = F_W^{-1}(q_i)$
+yields $u_i = F_W(x_0 / \mu_i)$, which is uniform only if
+$W \overset{d}{=} 1/W$, that is only if $\log W$ is symmetric. This holds for
+`lnorm4` but not for `gamma4`. The correct placement solves
+$F(x_0; \mu_i) = 1 - q_i$, giving
+
+$$\mu_i = \frac{x_0}{F_W^{-1}(1 - q_i)}$$
+
+```{r calibrated-locations}
+calibrated_locations <- function(qs, x0, kappa, qfn) x0 / qfn(1 - qs, 1, kappa)
+
+qs <- seq(1, 199, 2) / 200
+tibble(
+  placement = c("naive quantiles", "calibrated"),
+  U_unadjusted = c(
+    pit_w(2.5, qgamma4(qs, 2.5, 0.5), 0.5, dist = "gamma4", link = "log")$U_pit_unadj,
+    pit_w(2.5, calibrated_locations(qs, 2.5, 0.5, qgamma4), 0.5,
+          dist = "gamma4", link = "log")$U_pit_unadj)
+)
+```
+
+**A known defect in the bias adjustment.** `pit_w()` currently estimates the
+link-scale bias with a *mean*. For a calibrated estimator the PIT values are
+uniform, which forces the *median* log-residual to zero but not the mean when
+the log-residuals are skewed. The adjustment therefore detects a spurious bias
+for skewed families and corrects for it, injecting the miscalibration it then
+measures. The effect is invisible for `norm` and `lnorm4`, which are
+log-symmetric, and all results in the main paper use those families.
+
+Until this is resolved, **use `U_pit_unadj` rather than `U_pit` when checking
+that a skewed-family example is calibrated**, as above. The issue is tracked
+in the design records.
+
+## Summary
+
+* Both metrics are functionals of the empirical quantile process, hence of a
+  Brownian bridge.
+* $D^*_{pit} \sim \mathcal{N}(0, 1/(48n))$ exactly, attained from $n \approx 25$.
+* $\sqrt{n}\,U^*_{pit} \Rightarrow \int_0^1|B^\circ|$, with mean
+  $\sqrt{2\pi}/8$ and a $5\%$ critical value near $0.58/\sqrt{n}$.
+* The $x$-space bias adjustment preserves both nulls exactly; a PIT-space
+  adjustment would be distribution-free but is not bias-invariant under
+  heteroscedasticity.
+* $H_0$ is PIT uniformity, which is stronger than "the median width is
+  correct": spread--error decoupling is an alternative, not a null.
+* Report the pair — $D^*$ for net width, $U^*$ for residual shape — and
+  compute the test with a studentised bootstrap benchmarked against the
+  closed form.

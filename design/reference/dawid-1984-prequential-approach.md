@@ -2,7 +2,7 @@
 class: reference
 id: dawid-1984-prequential-approach.md
 title: 'Present Position and Potential Developments: Some Personal Views Statistical Theory the Prequential Approach'
-citeKey: Dawid_1984
+citeKey: dawid1984
 year: 1984
 doi: 10.2307/2981683
 zoteroKey: 6JTLRD54

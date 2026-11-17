@@ -1,8 +1,8 @@
 ---
 class: task
 id: citation-keys-do-not-match-refs-bib.md
-title: main.tex cite keys do not match refs.bib and the bibliography does not build
-status: todo
+title: Synchronize loom citeKeys with generated refs.bib
+status: done
 kind: issue
 priority: high
 touches:
@@ -29,3 +29,20 @@ kpsewhich unsrturl.bst
 /usr/share/texlive/texmf-dist/bibtex/bst/urlbst/unsrturl.bst
 ```
 
+
+## Resolution 2026-11-16
+
+The user regenerated `refs.bib` with Better BibTeX using lowercase
+first-author + year keys. The nine `main.tex` citations now all resolve, and
+`main.bbl` is non-empty (3511 bytes); `unsrturl.bst` is installed. All 21
+loom reference records now use keys that exactly match entries in the
+regenerated bibliography. Four older bibliography entries (`anderson1996`,
+`bosse2023`, `brocker2008`, `david1948`) do not have loom reference records;
+they were not part of this key-synchronisation request.
+
+This task is complete for cite-key resolution and bibliography generation.
+A separate issue was filed for the remaining BibTeX/Better BibTeX field
+compatibility warnings: `date` and `journaltitle` are not recognised by the
+current BibTeX style, so years and journal names are omitted from the rendered
+bibliography. The generated `refs.bib` must be corrected at its Zotero /
+Better BibTeX source, not hand-edited.

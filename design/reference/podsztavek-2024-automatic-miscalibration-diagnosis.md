@@ -2,7 +2,7 @@
 class: reference
 id: podsztavek-2024-automatic-miscalibration-diagnosis.md
 title: 'Automatic Miscalibration Diagnosis: Interpreting Probability Integral Transform (PIT) Histograms'
-citeKey: Podsztavek_Jordan_Tvrdík_Polsterer_2024
+citeKey: podsztavek2024
 year: 2024
 citedIn:
 - paper:refs.bib

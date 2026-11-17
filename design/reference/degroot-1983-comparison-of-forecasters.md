@@ -2,7 +2,7 @@
 class: reference
 id: degroot-1983-comparison-of-forecasters.md
 title: The Comparison and Evaluation of Forecasters
-citeKey: Degroot_Fienberg_1983
+citeKey: degroot1983
 year: 1983
 doi: 10.2307/2987588
 zoteroKey: 3F7WB4S2
