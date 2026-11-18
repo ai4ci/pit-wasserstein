@@ -7,7 +7,7 @@ kind: feature
 priority: high
 touches:
 - paper:main.tex
-- vignette:seir-example.Rmd
+- vignette:sir-epiestim-example.Rmd
 produces:
 - resource:fig5-epiestim-by-epi-size.pdf
 ---

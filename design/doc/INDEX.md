@@ -25,21 +25,15 @@ by `loom render` from `design/document-model.mmd`.
 | uri | status | priority |
 | --- | --- | --- |
 | [Use the existing non-normal distribution capability to test bias-adjustment robustness](../task/add-non-normal-distribution-robustness-study.md) | todo | high |
-| [Better BibTeX fields are omitted by the paper bibliography style](../task/bibtex-journal-and-year-fields-missing.md) | todo | high |
-| [Characterise D*_pit sampling distribution under H0 by simulation](../task/characterise-d-pit-sampling-distribution-by-simulation.md) | todo | high |
 | [Clarify standard calibration versus the bias-adjusted PIT diagnostic](../task/clarify-bias-adjusted-pit-diagnostic.md) | todo | high |
-| [Decide: short communication or full methods paper](../task/decide-publication-format-short-communication-or-full-paper.md) | todo | high |
+| [Document the three-part PIT-Wasserstein test decomposition in the paper](../task/document-three-part-test-decomposition.md) | todo | high |
 | [DESCRIPTION still has placeholder Title and Description](../task/fix-description-placeholder-metadata.md) | todo | high |
-| [Implement a bootstrap significance test for H0: dispersion-calibrated](../task/implement-bootstrap-test-for-dispersion-calibration.md) | todo | high |
+| [Integrate JMLR LaTeX style file for the paper](../task/integrate-jmlr-latex-style.md) | todo | high |
 | [Reframe the introduction as a mathematical methods paper, not an educational piece](../task/reframe-introduction-as-mathematical-methods-paper.md) | todo | high |
-| [Settle the bias adjustment: x-space kept, PIT-space ruled out](../task/restore-pivotality-of-the-bias-adjustment.md) | todo | high |
-| [Frame the metrics as a two-part test: D* for median dispersion, U* for residual shape](../task/two-part-test-decomposition-d-then-u.md) | todo | high |
 | [No CI runs R CMD check or the test suite](../task/add-ci-r-cmd-check-workflow.md) | todo | medium |
 | [Find or tabulate a c.d.f. for the bias-adjusted U_pit null](../task/derive-cdf-of-the-adjusted-u-pit-null.md) | todo | medium |
-| [U*_pit and D*_pit are swapped in README relative to main.tex and the code](../task/pit-w-notation-swapped-between-readme-and-paper.md) | todo | medium |
 | [Reframe the four figure vignettes as supplementary materials](../task/reframe-vignettes-as-supplementary-materials.md) | todo | medium |
 | [State the asymptotic D*_pit question precisely as future work](../task/document-asymptotic-theory-as-future-work.md) | todo | low |
-| [refs.bib has two entries for Dheur & Ben Taieb (2023)](../task/duplicate-dheur-bib-entry.md) | todo | low |
 <!-- loom view: openTasks end -->
 
 ## References

@@ -6,8 +6,10 @@ status: todo
 kind: feature
 priority: medium
 touches:
-- vignette:figure-1.Rmd
-- vignette:figure-2.Rmd
+- vignette:figure-3.Rmd
+- vignette:figure-4.Rmd
+- vignette:introduction-to-pit.Rmd
+- vignette:sir-epiestim-example.Rmd
 - vignette:figure-3.Rmd
 - vignette:figure-4.Rmd
 ---

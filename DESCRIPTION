@@ -1,10 +1,16 @@
 Package: pitw
-Title: Analysis package to demonstrate pit wasserstein methods for 
+Title: PIT-Wasserstein Metrics for Diagnosing Dispersion Miscalibration
 Version: 0.0.0.9001
 Authors@R: 
     person("Rob", "Challen", , "rob.challen@bristol.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5504-7768"))
-Description: What the package does (one paragraph).
+Description: Implements the PIT-Wasserstein family of metrics for diagnosing
+    dispersion miscalibration in probabilistic estimators. The package provides
+    three nested metrics—B_pit (baseline), U_pit (bias-adjusted undirected), and
+    D_pit (bias-adjusted signed, detecting overconfidence vs. underconfidence)—each
+    with an exact or numerically-exact distribution-free null hypothesis test
+    depending only on the number of predictions. Also provides batch scoring,
+    CRPS calculation, simulation helpers, and diagnostic visualisation tools.
 License: MIT + file LICENSE
 Config/roxygen2/version: 8.1.1
 Encoding: UTF-8

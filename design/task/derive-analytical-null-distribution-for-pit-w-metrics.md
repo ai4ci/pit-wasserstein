@@ -13,7 +13,7 @@ touches:
 blocks:
 - task:characterise-d-pit-sampling-distribution-by-simulation.md
 - task:restore-pivotality-of-the-bias-adjustment.md
-- task:two-part-test-decomposition-d-then-u.md
+- task:document-three-part-test-decomposition.md
 ---
 Worked through with the user 2026-11-13; numerically verified in-session
 (20k-40k replicates per $n$). Under $H_0$ the unadjusted PIT values are iid

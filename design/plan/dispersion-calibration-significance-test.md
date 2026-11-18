@@ -17,7 +17,7 @@ spawns:
 - task:document-asymptotic-theory-as-future-work.md
 - task:derive-analytical-null-distribution-for-pit-w-metrics.md
 - task:restore-pivotality-of-the-bias-adjustment.md
-- task:two-part-test-decomposition-d-then-u.md
+- task:document-three-part-test-decomposition.md
 - task:derive-cdf-of-the-adjusted-u-pit-null.md
 ---
 Strategic direction agreed 2026-11-13; **scope and approach revised

@@ -2,7 +2,7 @@
 class: task
 id: pit-w-notation-swapped-between-readme-and-paper.md
 title: U*_pit and D*_pit are swapped in README relative to main.tex and the code
-status: todo
+status: done
 kind: issue
 priority: medium
 touches:

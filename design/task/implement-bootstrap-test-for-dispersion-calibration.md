@@ -2,7 +2,7 @@
 class: task
 id: implement-bootstrap-test-for-dispersion-calibration.md
 title: 'Implement a bootstrap significance test for H0: dispersion-calibrated'
-status: todo
+status: dropped
 kind: feature
 priority: high
 touches:

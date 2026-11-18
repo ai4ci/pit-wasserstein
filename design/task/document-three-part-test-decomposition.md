@@ -1,9 +1,9 @@
 ---
 class: task
-id: two-part-test-decomposition-d-then-u.md
-title: 'Frame the metrics as a two-part test: D* for median dispersion, U* for residual shape'
+id: document-three-part-test-decomposition.md
+title: 'Document the three-part PIT-Wasserstein test decomposition in the paper'
 status: todo
-kind: feature
+kind: paperFix
 priority: high
 touches:
 - src:scoring.R#pit_w
@@ -110,3 +110,19 @@ diagnosis rather than three separate tests:
 Note the multiplicity: the three statistics are computed from the same PIT
 values and are not independent. The sequence should be presented as a
 diagnostic read-down from a single rejection, not as three tests each at 5%.
+
+## Update 2026-11-18
+
+Kind changed to `paperFix`: code in `src:significance.R` implements the
+B_pit → D_pit → U_pit diagnostic correctly. The paper (`vignettes/main/main.tex`)
+still only describes two metrics (U_pit and D_pit) and does not present the
+three-part diagnostic sequence. This task now covers documenting the three-part
+decomposition in the paper.
+
+## Update 2026-11-18
+
+The three-part diagnostic is implemented in `src:significance.R` as the
+`b_pit_significance() / d_pit_significance() / u_pit_significance()` family.
+The paper (`vignettes/main/main.tex`) still describes only two metrics and
+lacks the B_pit → D_pit → U_pit diagnostic sequence. This task covers writing
+that section into the paper.

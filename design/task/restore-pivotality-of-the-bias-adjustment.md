@@ -2,7 +2,7 @@
 class: task
 id: restore-pivotality-of-the-bias-adjustment.md
 title: 'Settle the bias adjustment: x-space kept, PIT-space ruled out'
-status: todo
+status: done
 kind: paperFix
 priority: high
 touches:

@@ -13,9 +13,9 @@ is the rework into a standalone short paper.
 The paper defines two metrics for assessing **dispersion calibration**, separately from
 bias and sharpness.
 
-### Adjusted PIT-Wasserstein ($D^*_{pit}$)
+### Adjusted PIT-Wasserstein ($U^*_{pit}$)
 
-$$D^*_{pit} = \frac{1}{n}\sum_{i=1}^n{|rank_i - u_{i,adj}|}$$
+$$U^*_{pit} = \frac{1}{n}\sum_{i=1}^n{|u_{i,adj} - rank_i|}$$
 
 Where $rank_i = (i-0.5)/n$ and $u_{i,adj}$ are the bias-adjusted PIT values.
 
@@ -24,9 +24,9 @@ Where $rank_i = (i-0.5)/n$ and $u_{i,adj}$ are the bias-adjusted PIT values.
   estimators of equal magnitude score equally.
 - **Validated:** Independent of bias and sharpness in simulation.
 
-### Directed PIT-Wasserstein ($U^*_{pit}$)
+### Directed PIT-Wasserstein ($D^*_{pit}$)
 
-$$U^*_{pit} = \frac{1}{n}\sum_{i=1}^n{(rank_i - u_{i,adj}) \times \sgn(0.5-rank_i)}$$
+$$D^*_{pit} = \frac{1}{n}\sum_{i=1}^n{(u_{i,adj} - rank_i) \times \sgn(0.5-rank_i)}$$
 
 - **Range:** [-0.25, +0.25]
 - **Direction:** Positive = overconfident (U-shaped PIT histogram); Negative =
@@ -39,7 +39,7 @@ $$U^*_{pit} = \frac{1}{n}\sum_{i=1}^n{(rank_i - u_{i,adj}) \times \sgn(0.5-rank_
 Closest existing work; all of it is in the `pit-wasserstein` Zotero collection,
 and `references/literature-review.md` has the detail.
 
-| Paper | Metric | Difference from $D^*_{pit}$ |
+| Paper | Metric | Difference from $U^*_{pit}$ |
 |-------|--------|----------------------------|
 | **Wessel et al. (2025)** arXiv:2506.13687 | **MCB** = mean \|sorted PIT - uniform\| | No bias adjustment. Used as regularisation during training, not evaluation. |
 | **Wilks (2018)** QJRMS 144:76–88 | Miscalibration penalty (deviations of PIT from uniform) | First PIT-uniformity penalty. Qualitative/binned, not Wasserstein. |
@@ -55,12 +55,12 @@ and `references/literature-review.md` has the detail.
 
 ### Summary of novelty
 
-The **adjusted PIT-Wasserstein ($D^*_{pit}$)** appears to be genuinely novel as
+The **adjusted PIT-Wasserstein ($U^*_{pit}$)** appears to be genuinely novel as
 a **standalone evaluative calibration metric** because it uniquely combines:
 
 1. **Bias adjustment** before PIT uniformity assessment (no other metric does this)
 2. **Wasserstein/L1 distance** rather than sup-norm (PCE) or binning (reliability diagrams)
-3. **Signed direction** ($U^*_{pit}$) distinguishing overconfidence from over-conservatism
+3. **Signed direction** ($D^*_{pit}$) distinguishing overconfidence from over-conservatism
 4. **Validation** showing it is independent of bias and sharpness
 
 The closest existing metrics (Wessel et al.'s MCB, Kuleshov et al.'s PCE)

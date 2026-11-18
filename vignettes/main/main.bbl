@@ -2,9 +2,9 @@
 
 \bibitem{anderson1996}
 Jeffrey~L. Anderson.
-\newblock A {{Method}} for {{Producing}} and {{Evaluating Probabilistic
-  Forecasts}} from {{Ensemble Model Integrations}}.
-\newblock 9(7):1518--1530.
+\newblock A {Method} for {Producing} and {Evaluating} {Probabilistic}
+  {Forecasts} from {Ensemble} {Model} {Integrations}.
+\newblock {\em Journal of Climate}, 9(7):1518--1530, July 1996.
 \newblock URL:
   \url{https://journals.ametsoc.org/view/journals/clim/9/7/1520-0442_1996_009_1518_amfpae_2_0_co_2.xml},
   \href {https://doi.org/10.1175/1520-0442(1996)009<1518:AMFPAE>2.0.CO;2}
@@ -13,9 +13,9 @@ Jeffrey~L. Anderson.
 \bibitem{bosse2024}
 {Nikos I. Bosse}, {Hugo Gruson}, {Anne Cori}, {Edwin van Leeuwen}, {Sebastian
   Funk}, and {Sam Abbott}.
-\newblock Evaluating {{Forecasts}} with scoringutils in {{R}}.
+\newblock Evaluating {Forecasts} with scoringutils in {R}, November 2024.
+\newblock arXiv:2205.07090 [stat].
 \newblock URL: \url{http://arxiv.org/abs/2205.07090}, \href
-  {https://arxiv.org/abs/2205.07090} {\path{arXiv:2205.07090}}, \href
   {https://doi.org/10.48550/arXiv.2205.07090}
   {\path{doi:10.48550/arXiv.2205.07090}}.
 
@@ -23,7 +23,7 @@ Jeffrey~L. Anderson.
 {Nikos I. Bosse}, {Sam Abbott}, {Anne Cori}, {Edwin van Leeuwen}, {Johannes
   Bracher}, and {Sebastian Funk}.
 \newblock Scoring epidemiological forecasts on transformed scales.
-\newblock 19(8):e1011393.
+\newblock {\em PLOS Computational Biology}, 19(8):e1011393, August 2023.
 \newblock URL:
   \url{https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1011393},
   \href {https://doi.org/10.1371/journal.pcbi.1011393}
@@ -32,7 +32,7 @@ Jeffrey~L. Anderson.
 \bibitem{brocker2008}
 J.~Bröcker.
 \newblock On reliability analysis of multi-categorical forecasts.
-\newblock 15(4):661--673.
+\newblock {\em Nonlinear Processes in Geophysics}, 15(4):661--673, August 2008.
 \newblock URL: \url{https://npg.copernicus.org/articles/15/661/2008/}, \href
   {https://doi.org/10.5194/npg-15-661-2008}
   {\path{doi:10.5194/npg-15-661-2008}}.
@@ -40,7 +40,10 @@ J.~Bröcker.
 \bibitem{gneiting2007}
 Tilmann Gneiting, Fadoua Balabdaoui, and Adrian~E. Raftery.
 \newblock Probabilistic forecasts, calibration and sharpness.
-\newblock 69(2):243--268.
+\newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
+  Methodology)}, 69(2):243--268, 2007.
+\newblock \_eprint:
+  https://rss.onlinelibrary.wiley.com/doi/pdf/10.1111/j.1467-9868.2007.00587.x.
 \newblock URL:
   \url{https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-9868.2007.00587.x},
   \href {https://doi.org/10.1111/j.1467-9868.2007.00587.x}
@@ -48,17 +51,17 @@ Tilmann Gneiting, Fadoua Balabdaoui, and Adrian~E. Raftery.
 
 \bibitem{david1948}
 F.~N. David and N.~L. Johnson.
-\newblock The {{Probability Integral Transformation When Parameters}} are
-  {{Estimated}} from the {{Sample}}.
-\newblock 35(1/2):182--190.
+\newblock The {Probability} {Integral} {Transformation} {When} {Parameters} are
+  {Estimated} from the {Sample}.
+\newblock {\em Biometrika}, 35(1/2):182--190, 1948.
 \newblock URL: \url{https://www.jstor.org/stable/2332638}, \href
-  {https://arxiv.org/abs/2332638} {\path{arXiv:2332638}}, \href
   {https://doi.org/10.2307/2332638} {\path{doi:10.2307/2332638}}.
 
 \bibitem{brockwell2007}
 A.~E. Brockwell.
-\newblock Universal residuals: {{A}} multivariate transformation.
-\newblock 77(14):1473--1478.
+\newblock Universal residuals: {A} multivariate transformation.
+\newblock {\em Statistics \& Probability Letters}, 77(14):1473--1478, August
+  2007.
 \newblock URL:
   \url{https://www.sciencedirect.com/science/article/pii/S0167715207000715},
   \href {https://doi.org/10.1016/j.spl.2007.02.008}
@@ -66,9 +69,9 @@ A.~E. Brockwell.
 
 \bibitem{hamill2001}
 Thomas~M. Hamill.
-\newblock Interpretation of {{Rank Histograms}} for {{Verifying Ensemble
-  Forecasts}}.
-\newblock 129(3):550--560.
+\newblock Interpretation of {Rank} {Histograms} for {Verifying} {Ensemble}
+  {Forecasts}.
+\newblock {\em Monthly Weather Review}, 129(3):550--560, March 2001.
 \newblock URL:
   \url{https://journals.ametsoc.org/view/journals/mwre/129/3/1520-0493_2001_129_0550_iorhfv_2.0.co_2.xml},
   \href {https://doi.org/10.1175/1520-0493(2001)129<0550:IORHFV>2.0.CO;2}
@@ -76,8 +79,9 @@ Thomas~M. Hamill.
 
 \bibitem{panaretos2019}
 Victor~M. Panaretos and Yoav Zemel.
-\newblock Statistical {{Aspects}} of {{Wasserstein Distances}}.
-\newblock 6:405--431.
+\newblock Statistical {Aspects} of {Wasserstein} {Distances}.
+\newblock {\em Annual Review of Statistics and Its Application}, 6(Volume 6,
+  2019):405--431, March 2019.
 \newblock URL:
   \url{https://www.annualreviews.org/content/journals/10.1146/annurev-statistics-030718-104938},
   \href {https://doi.org/10.1146/annurev-statistics-030718-104938}

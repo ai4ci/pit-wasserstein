@@ -2,7 +2,7 @@
 class: task
 id: decide-publication-format-short-communication-or-full-paper.md
 title: 'Decide: short communication or full methods paper'
-status: todo
+status: done
 kind: chore
 priority: high
 blocks:

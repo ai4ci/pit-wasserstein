@@ -1,8 +1,8 @@
 ---
-title: "figure-3"
+title: "PIT-Wasserstein metrics for miscalibration diagnosis"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{figure-3}
+  %\VignetteIndexEntry{PIT-Wasserstein metrics for miscalibration diagnosis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

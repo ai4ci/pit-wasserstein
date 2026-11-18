@@ -2,7 +2,7 @@
 class: task
 id: fix-description-placeholder-metadata.md
 title: DESCRIPTION still has placeholder Title and Description
-status: todo
+status: done
 kind: issue
 priority: high
 blocks:

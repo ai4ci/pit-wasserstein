@@ -2,7 +2,7 @@
 class: task
 id: characterise-d-pit-sampling-distribution-by-simulation.md
 title: Characterise D*_pit sampling distribution under H0 by simulation
-status: todo
+status: done
 kind: feature
 priority: high
 touches:

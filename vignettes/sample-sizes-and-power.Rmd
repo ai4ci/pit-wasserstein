@@ -1,0 +1,240 @@
+---
+title: "Testing for bias, dispersion miscalibration and skill spread decoupling"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Testing for bias, dispersion miscalibration and skill spread decoupling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+# library(pitw)
+devtools::load_all()
+library(tidyverse)
+.gg_pedantic(size = 0.5)
+fig_dir = here::here("vignettes", "main", "fig")
+set.seed(1001)
+```
+
+Sticking with normally distributed at the moment we want to see what happens 
+to the U_pit and D_pit if the number of estimates vary, in a low bias, med bias, high bias
+scenario.
+
+We are doing this to establish whether there is a lower number of estimates 
+needed to get a sensible pitw result. For starters we can look at this 
+in a small range of calibration scenarios.
+
+```{r}
+bias_limit = 1
+conf_range = 2
+runs = 100
+variability = 0 # this is a dispersion measure
+
+config = tidyr::crossing(
+  calibration = c(1/1.5, 1, 1.5),
+  bias_location = c(0, 0.5, 1) * bias_limit,
+  samples = c(10,100,1000),
+  run = 1:runs
+) %>% 
+  dplyr::group_by(calibration, bias_location, samples) %>%
+  dplyr::mutate(
+    true_value = 0,
+    bias_dist = "norm",
+    bias_scale = exp(runif(runs, -log(conf_range), log(conf_range))),
+    sharpness_dist = "lnorm4",
+    sharpness_location = bias_scale * calibration,
+    sharpness_scale = variability
+  )
+```
+
+
+```{r}
+sim = config %>% generate_simulation()
+scores = sim %>% prediction_scores()
+
+scores = scores %>% 
+  mutate(
+    confidence = case_when(
+      calibration < 1 ~ "overconfident",
+      calibration > 1 ~ "conservative",
+      TRUE ~ "calibrated"
+    ) %>%
+      factor(levels = c("conservative", "calibrated", "overconfident")),
+  bias = case_when(
+      bias_location == 0.5 ~ "medium",
+      bias_location == 1 ~ "high",
+      TRUE ~ "unbiased"
+    ) %>%
+      factor(levels = c( "unbiased", "medium", "high")),
+  samples = as.factor(samples)
+  )
+
+scores = scores %>% mutate()
+```
+
+
+```{r}
+
+
+crit_b = pitw::b_pit_significance(NA, c(10,100,1000))
+
+fig4a = ggplot(scores, aes(y=B_pit, x = confidence, colour= bias, fill = bias))+
+  geom_boxplot(outliers=FALSE, alpha = 0.2)+
+  geom_hline(data = crit_b, aes(yintercept = critical_0.05), linetype="dashed")+
+  facet_wrap(~ n_predictions)+
+  ylab("Baseline pit-w")+
+  xlab(NULL)
+
+crit_d = pitw::d_pit_significance(NA, c(10,100,1000))
+
+fig4b = ggplot(scores, aes(y=D_pit, x = confidence, colour= bias, fill = bias))+
+  geom_boxplot(outliers=FALSE, alpha = 0.2)+
+  geom_hline(data = crit_d, aes(yintercept = critical_0.05), linetype="dashed")+
+  geom_hline(data = crit_d, aes(yintercept = -critical_0.05), linetype="dashed")+
+  facet_wrap(~ n_predictions)+
+  ylab("Directed pit-w")+
+  xlab(NULL)
+
+crit_u = pitw::u_pit_significance(NA, c(10,100,1000))
+
+fig4c = ggplot(scores, aes(y=U_pit, x = confidence, colour= bias, fill = bias))+
+  geom_boxplot(outliers=FALSE, alpha = 0.2)+
+  geom_hline(data = crit_u, aes(yintercept = critical_0.05), linetype="dashed")+
+  facet_wrap(~ n_predictions)+
+  ylab("Undirected pit-w")+
+  xlab(NULL)
+
+
+fig4 = fig4a+fig4b+fig4c+patchwork::plot_annotation(tag_levels = "A")+patchwork::plot_layout(guides = "collect",axes="collect_x", ncol=1)
+```
+
+```{r}
+.gg_save_as(
+  fig4,
+  file.path(fig_dir, "fig2-critical-limits"),
+  size = std_size$two_third,
+  formats = c("pdf", "eps")
+)
+```
+
+
+```{r}
+ggplot(scores, aes(y=mean_coverage.0.5, x = confidence, colour= samples, fill = samples))+
+  geom_boxplot(outliers=FALSE, alpha = 0.2)+
+  facet_wrap(~ biased)+
+  ylab("mean 50% coverage")
+
+```
+```{r}
+ggplot(scores, aes(y=mean_crps, x = confidence, colour= samples, fill = samples))+
+  geom_boxplot(outliers=FALSE, alpha = 0.2)+
+  facet_wrap(~ biased)+
+  ylab("mean CRPS")
+
+```
+# Detailed pit-w against sample size
+
+```{r}
+bias_limit = 1
+conf_range = 2
+runs = 250
+variability = 0 # this is a dispersion measure
+
+config = tidyr::crossing(
+  samples = floor(10^seq(1,3,length.out=10)),
+  run = 1:runs,
+  tidyr::nesting(
+    panel = forcats::as_factor(c("unbiased; calibrated", "biased; calibrated","unbiased; overconfident", "unbiased; calibrated; decoupled")),
+    bias_location = c(0,1,0, 0),
+    calibration = c(1, 1, 2/3, 1),
+    sharpness_scale = c(0,0,0,1),
+  )
+) %>% 
+  dplyr::mutate(
+    true_value = 0,
+    bias_dist = "norm",
+    bias_scale = 1, #exp(runif(runs, -log(conf_range), log(conf_range))),
+    sharpness_dist = "lnorm4",
+    sharpness_location = bias_scale * calibration,
+    `(σₑ/σₛ)` = forcats::as_factor(sprintf("%0.2f",calibration))
+  ) %>%
+  dplyr::group_by(calibration, `(σₑ/σₛ)`, panel, samples)
+```
+
+
+```{r}
+sim = config %>% generate_simulation()
+scores = sim %>% prediction_scores()
+
+
+crit_b = pitw::b_pit_significance(NA,floor(10^seq(1,3,length.out=100)))
+crit_d = pitw::d_pit_significance(NA,floor(10^seq(1,3,length.out=100)))
+crit_u = pitw::u_pit_significance(NA,floor(10^seq(1,3,length.out=100)))
+
+```
+
+
+```{r}
+
+plot_b = scores %>% ungroup() %>% group_by(samples, calibration, `(σₑ/σₛ)`, panel) %>% summarise(
+  q.0.05 = quantile(B_pit, 0.025),
+  q.0.5 = median(B_pit),
+  q.0.95 = quantile(B_pit, 0.975)
+)
+
+fig5a = ggplot(plot_b, aes(y=q.0.5,ymin=q.0.05,ymax=q.0.95, x = samples))+
+  geom_line(mapping=aes(colour=panel))+
+  geom_line(data=crit_b, mapping=aes(x=n_predictions, y=critical_0.05), linetype="dashed", inherit.aes = FALSE)+
+  geom_ribbon(mapping=aes(fill=panel),alpha=0.2)+
+  scale_x_log10(n.breaks=9)+
+  ylab("Baseline pit-w")+
+  .gg_narrow(45)
+
+plot_d = scores %>% ungroup() %>% group_by(samples, calibration, `(σₑ/σₛ)`, panel) %>% summarise(
+  q.0.025 = quantile(D_pit, 0.025),
+  q.0.5 = median(D_pit),
+  q.0.975 = quantile(D_pit, 0.975)
+)
+
+fig5b = ggplot(plot_d, aes(y=q.0.5,ymin=q.0.025,ymax=q.0.975, x = samples))+
+  geom_line(mapping=aes(colour=panel))+
+  geom_line(data=crit_d, mapping=aes(x=n_predictions, y=critical_0.05), linetype="dashed", inherit.aes = FALSE)+
+  geom_line(data=crit_d, mapping=aes(x=n_predictions, y=-critical_0.05), linetype="dashed", inherit.aes = FALSE)+
+  geom_ribbon(mapping=aes(fill=panel),alpha=0.2)+
+  geom_hline(yintercept = 0)+
+  scale_x_log10(n.breaks=9)+
+  ylab("Directed pit-w")+
+  .gg_narrow(45)
+
+plot_u = scores %>% ungroup() %>% group_by(samples, calibration, `(σₑ/σₛ)`, panel) %>% summarise(
+  q.0.05 = quantile(U_pit, 0.025),
+  q.0.5 = median(U_pit),
+  q.0.95 = quantile(U_pit, 0.975)
+)
+
+fig5c = ggplot(plot_u, aes(y=q.0.5,ymin=q.0.05,ymax=q.0.95, x = samples))+
+  geom_line(mapping=aes(colour=panel))+
+  geom_line(data=crit_u, mapping=aes(x=n_predictions, y=critical_0.05), linetype="dashed", inherit.aes = FALSE)+
+  geom_ribbon(mapping=aes(fill=panel),alpha=0.2)+
+  scale_x_log10(n.breaks=9)+
+  ylab("Undirected pit-w")+
+  .gg_narrow(45)
+
+fig5 = fig5a+fig5b+fig5c+patchwork::plot_annotation(tag_levels = "A")+patchwork::plot_layout(guides = "collect",axes="collect_x", ncol=3)&theme(legend.position = "bottom")
+```
+
+```{r}
+.gg_save_as(
+  fig5,
+  file.path(fig_dir, "fig3-three-part-test"),
+  size = std_size$third,
+  formats = c("pdf", "eps")
+)
+```

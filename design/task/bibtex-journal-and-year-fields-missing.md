@@ -2,7 +2,7 @@
 class: task
 id: bibtex-journal-and-year-fields-missing.md
 title: Better BibTeX fields are omitted by the paper bibliography style
-status: todo
+status: done
 kind: issue
 priority: high
 touches:
