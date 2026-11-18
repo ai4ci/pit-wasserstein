@@ -6,7 +6,7 @@ status: done
 kind: paperFix
 priority: high
 touches:
-- vignette:figure-3.Rmd
+- vignette:pit-w-metrics.Rmd
 - paper:main.tex
 - src:scoring.R#pit_w
 produces:

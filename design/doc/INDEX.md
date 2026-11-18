@@ -27,7 +27,6 @@ by `loom render` from `design/document-model.mmd`.
 | [Use the existing non-normal distribution capability to test bias-adjustment robustness](../task/add-non-normal-distribution-robustness-study.md) | todo | high |
 | [Clarify standard calibration versus the bias-adjusted PIT diagnostic](../task/clarify-bias-adjusted-pit-diagnostic.md) | todo | high |
 | [Document the three-part PIT-Wasserstein test decomposition in the paper](../task/document-three-part-test-decomposition.md) | todo | high |
-| [DESCRIPTION still has placeholder Title and Description](../task/fix-description-placeholder-metadata.md) | todo | high |
 | [Integrate JMLR LaTeX style file for the paper](../task/integrate-jmlr-latex-style.md) | todo | high |
 | [Reframe the introduction as a mathematical methods paper, not an educational piece](../task/reframe-introduction-as-mathematical-methods-paper.md) | todo | high |
 | [No CI runs R CMD check or the test suite](../task/add-ci-r-cmd-check-workflow.md) | todo | medium |

@@ -3,19 +3,29 @@
 A dispersion calibration metric for probabilistic estimators, disentangled from bias and
 sharpness. Originally published as Supplementary Appendix 2 of
 **Challen & Danon (2025), "Instantaneous Reproduction Number Estimation From
-Modelled Incidence"** (PCOMPBIOL-D-26-00077, also on medRxiv); this repository
-is the rework into a standalone short paper.
+Modelled Incidence"**; this repository is the extension into a standalone paper.
 
 ---
 
 ## Core concepts
 
-The paper defines two metrics for assessing **dispersion calibration**, separately from
-bias and sharpness.
+The paper defines three metrics for assessing probabilistic estimators and 
+differentiating between, bias, dispersion miscalibration, and skill-spread
+decoupling.
+
+### Baseline PIT-Wasserstein ($U^*_{pit}$)
+
+$$B_{pit} = \frac{1}{n}\sum_{i=1}^n{|u_i - rank_i|}$$
+
+Where $rank_i = (i-0.5)/n$ and $u_i$ are the PIT values.
+
+- **Range:** [0, 0.5]. Zero = perfect calibration and zero bias.
+- **Property:** Symmetric on log-calibration for a given bias.
+- **Validated:** Dependent on bias, dispersion calibration and sharpness in simulation.
 
 ### Adjusted PIT-Wasserstein ($U^*_{pit}$)
 
-$$U^*_{pit} = \frac{1}{n}\sum_{i=1}^n{|u_{i,adj} - rank_i|}$$
+$$U_{pit} = \frac{1}{n}\sum_{i=1}^n{|u_{i,adj} - rank_i|}$$
 
 Where $rank_i = (i-0.5)/n$ and $u_{i,adj}$ are the bias-adjusted PIT values.
 
@@ -26,11 +36,15 @@ Where $rank_i = (i-0.5)/n$ and $u_{i,adj}$ are the bias-adjusted PIT values.
 
 ### Directed PIT-Wasserstein ($D^*_{pit}$)
 
-$$D^*_{pit} = \frac{1}{n}\sum_{i=1}^n{(u_{i,adj} - rank_i) \times \sgn(0.5-rank_i)}$$
+$$D_{pit} = \frac{1}{n}\sum_{i=1}^n{(u_{i,adj} - rank_i) \times \sgn(0.5-rank_i)}$$
 
 - **Range:** [-0.25, +0.25]
 - **Direction:** Positive = overconfident (U-shaped PIT histogram); Negative =
   conservative (dome-shaped).
+
+All three metrics are accompanied by significance tests which answer the 
+question, given an estimator and a known set of true values is there any evidence
+of bias or miscalibration.
 
 ---
 

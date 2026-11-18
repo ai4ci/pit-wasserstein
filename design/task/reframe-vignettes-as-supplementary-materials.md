@@ -6,23 +6,32 @@ status: todo
 kind: feature
 priority: medium
 touches:
-- vignette:figure-3.Rmd
-- vignette:figure-4.Rmd
+- vignette:pit-w-metrics.Rmd
+- vignette:sample-sizes-and-power.Rmd
 - vignette:introduction-to-pit.Rmd
 - vignette:sir-epiestim-example.Rmd
-- vignette:figure-3.Rmd
-- vignette:figure-4.Rmd
+- vignette:significance-testing.Rmd
 ---
-The four vignettes (`vignettes/figure-1.Rmd` .. `figure-4.Rmd`, 135-325 lines
-each) are currently bare figure-generation scripts: a title, `devtools::load_all()`,
-and code that writes to `vignettes/main/fig/`. No prose explains what each
-figure shows or why, beyond the title "figure-N".
+The figure vignettes were originally bare figure-generation scripts named
+`figure-1.Rmd` .. `figure-4.Rmd`: a title, `devtools::load_all()`, and code
+that wrote to `vignettes/main/fig/`, with no prose explaining what each figure
+showed or why.
+
+**Renamed 2026-11-18** as part of this reframing, so the links above point at
+the current filenames:
+
+| was | now |
+|---|---|
+| `figure-1.Rmd`, `figure-2.Rmd` | `vignette:introduction-to-pit.Rmd` |
+| `figure-3.Rmd` | `vignette:pit-w-metrics.Rmd` |
+| `figure-4.Rmd` | `vignette:sample-sizes-and-power.Rmd` |
+| (new) | `vignette:significance-testing.Rmd`, `vignette:sir-epiestim-example.Rmd` |
 
 Reframe them as the paper's supplementary materials:
 
 - Each vignette gets an introductory paragraph stating what question the
   figure answers and how it relates to the paper's argument (point readers
-  from the published paper to `vignette:figure-N.Rmd` the way a traditional
+  from the published paper to the named vignette the way a traditional
   paper points to "Supplementary Figure N").
 - Narrate the simulation setup in prose before the code that builds it, not
   just inline comments — a reader checking reproducibility should be able to

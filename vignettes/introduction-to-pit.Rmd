@@ -22,7 +22,27 @@ library(tidyverse)
 fig_dir = here::here("vignettes", "main", "fig")
 ```
 
-# Example of a estimatator and predictions
+This vignette is an informal introduction to the ideas the PIT-Wasserstein
+metrics are built on: what it means for a probabilistic forecaster to be
+*calibrated*, why calibration has more than one way of going wrong, and how
+the probability integral transform turns all of those failures into one
+picture. It assumes no background beyond a histogram and a normal
+distribution.
+
+It is a companion to the paper rather than part of it. Readers who already
+know what a PIT histogram is can skip straight to
+`vignette("pit-w-metrics")` for the metrics themselves, or
+`vignette("significance-testing")` for their null distributions.
+
+# An estimator and its predictions
+
+A *probabilistic* forecaster does not output a number, it outputs a
+distribution: a central estimate plus a statement of how uncertain it is. To
+judge it we need many predictions, because a single interval that misses tells
+us nothing — intervals are supposed to miss sometimes.
+
+Here are 100 predictions of the same underlying truth, from an estimator that
+is slightly biased and somewhat over-cautious.
 
 ```{r}
 
@@ -78,6 +98,25 @@ fig1 = fig1a + fig1b + fig1c + patchwork::plot_layout(design = "AAB\nAAC") + pat
 fig1
 
 ```
+
+Panel **A** is the raw material: one prediction per row, with its median (dot),
+interquartile range (thick bar) and 95% interval (thin line). The blue line is
+the truth. Two things vary from prediction to prediction, and they vary
+*independently*:
+
+- **where the prediction sits** — panel **B** shows the medians scattered
+  around the truth (blue) with their own average displaced from it (red). That
+  displacement is **bias**.
+- **how wide the prediction is** — panel **C** shows the interquartile widths.
+  The red line is how wide they *should* be, given the spread of the errors in
+  panel B; the orange line is how wide they actually are. This estimator's
+  intervals are systematically too wide.
+
+That second comparison is the one this package is about. It is not asking
+whether the predictions are accurate; it is asking whether the estimator's
+stated uncertainty matches its realised error. We call that **dispersion
+calibration**.
+
 ```{r}
 # .gg_save_as(
 #   fig1,
@@ -87,7 +126,17 @@ fig1
 # )
 ```
 
-# Bias and dispersion calibration
+# Bias and dispersion calibration are different failures
+
+It helps to separate the two explicitly. Think of each prediction as drawn
+from two distributions:
+
+- an **error distribution** (red below) — how far this estimator's centre
+  tends to land from the truth;
+- a **spread distribution** (orange) — what width it tends to claim.
+
+A single prediction (grey) is then one draw from each. The estimator is
+calibrated when the width it claims matches the width of its own errors.
 
 ```{r}
 # config = tibble(
@@ -116,7 +165,21 @@ configuration_plot(config, xlim=c(-4,6))
 
 ```
 
-# Skill spread decoupling
+Left: unbiased but **conservative** — the red error distribution is centred on
+the truth, but the grey prediction is much wider than it needs to be. The
+forecaster is honest about where, and needlessly vague about how sure.
+
+Right: **biased and over-confident** — the red distribution is shifted off the
+truth *and* the grey prediction is narrow, so it is both wrong and confident
+about it. The worst combination, and the one a single accuracy score is least
+likely to flag.
+
+These are independent axes. An estimator can be unbiased and over-confident,
+biased and well-dispersed, or any other combination, and they need different
+fixes: bias is a modelling error, dispersion miscalibration is an uncertainty
+error.
+
+# A subtler failure: spread–error decoupling
 
 ```{r}
 config = tibble(
@@ -131,10 +194,41 @@ config = tibble(
 configuration_plot(config, labels=FALSE, xlim=c(-4,6))
 
 ```
-  
 
-# PIT Histograms
+All three predictions come from the same estimator, which is unbiased and
+whose *average* width is right. But look at which is which: the narrow,
+confident prediction (left) is badly wrong, and the wide, hedged one (right)
+happens to be nearly spot on. The confidence and the accuracy are the wrong
+way round.
 
+Averaged over many predictions this estimator looks fine on both axes above —
+no bias, correct typical width. It is nonetheless miscalibrated, because its
+stated uncertainty carries no information about its error. We call this
+**spread–error decoupling**, and it is the failure mode that most obviously
+needs a diagnostic rather than a score. Note the contrast with genuine
+heteroscedasticity: a good model whose uncertainty varies *in step with* its
+error is perfectly calibrated, and that is the thing we do not want to
+penalise.
+
+# The probability integral transform
+
+All three failures above can be seen at once, with a trick.
+
+For each prediction, ask: **what proportion of my predictive distribution lies
+below the value that actually happened?** That single number between 0 and 1
+is the probability integral transform, or PIT value, $u_i = F_i(x_i)$.
+
+If the forecaster is perfectly calibrated, the truth is an ordinary draw from
+its own predictive distribution, so it is equally likely to land anywhere in
+it: the PIT values are **uniform on $[0,1]$**. That is the whole idea. It
+holds whatever the predictive distributions were — normal, gamma, different
+for every prediction — so the PIT transform reduces "is this forecaster
+calibrated?" to the single universal question "is this sample of numbers
+uniform?"
+
+And when it is *not* uniform, the shape of the departure says which failure
+you have. Below is a 3×3 grid: bias varies across the columns, dispersion
+calibration down the rows. First the configurations themselves,
 
 
 ```{r}
@@ -215,6 +309,26 @@ fig2_pit = ggplot() +
 fig2_pit
 ```
 
+The centre panel is the calibrated case: flat. The others each have a
+signature:
+
+| PIT histogram | Diagnosis |
+|---|---|
+| flat | calibrated |
+| **U-shaped** (mass at both ends) | over-confident — the truth keeps falling outside the intervals |
+| **dome-shaped** (mass in the middle) | conservative — the truth sits comfortably inside, too often |
+| **sloped** (mass at one end) | biased — the truth is persistently to one side |
+| sloped *and* U- or dome-shaped | both |
+
+The labels in each panel give the three PIT-Wasserstein metrics and the mean
+CRPS. The metrics are ways of turning the *shape* of these histograms into a
+number: $B_{pit}$ measures total departure from flat, $D_{pit}$ measures the
+U-versus-dome tilt while ignoring slope, and $U_{pit}$ measures what is left
+after the slope has been removed. The CRPS, by contrast, is an accuracy score
+and does not read the shape at all.
+
+The parameters behind the grid, for reference:
+
 ```{r}
 # .gg_save_as(
 #   fig2_pit,
@@ -242,6 +356,16 @@ tab1 = summary_scores %>%
 
 tab1
 ```
+
+# Where next
+
+- `vignette("pit-w-metrics")` — how the three metrics are defined and how they
+  separate bias from dispersion.
+- `vignette("significance-testing")` — their null distributions, so that a
+  value can be reported with a $p$-value.
+- `vignette("sample-sizes-and-power")` — how many predictions you need.
+- `vignette("sir-epiestim-example")` — the whole thing applied to a real
+  estimator.
 
 
 ```{r}

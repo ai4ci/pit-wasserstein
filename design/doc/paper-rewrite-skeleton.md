@@ -387,12 +387,25 @@ practice and how to read a PIT histogram off it.
 
 | Scenario | $B_{pit}$ | $D_{pit}$ | $U_{pit}$ | PIT shape |
 |---|---|---|---|---|
-| Calibrated | $\approx 0$ | $\approx 0$ | $\approx 0$ | flat |
-| Pure location error | large | $\approx 0$ | $\approx 0$ | skewed |
-| Overconfident | large | positive | small | U-shaped |
-| Overconservative | large | negative | small | dome |
-| Shape mismatch (skew, tails, $\kappa > 0$) | large | $\approx 0$ | large | W-shaped |
-| Location error + miscalibration | large | depends | large | skewed + shaped |
+| Calibrated | not rej. | not rej. | not rej. | flat |
+| Pure location error | **rejected** | not rej. | not rej. | skewed |
+| Overconfident | rejected | **positive** | **rejected** | U-shaped |
+| Overconservative | rejected | **negative** | **rejected** | dome |
+| Shape mismatch (skew, tails, $\kappa > 0$) | often misses | not rej. | **rejected** | W-shaped |
+| Location + dispersion error | rejected | rejected | rejected | skewed + shaped |
+
+Rejection rates at $n = 200$, nominal 5%, confirm this (see the
+significance-testing vignette). Two rows are easy to get wrong and should be
+stated explicitly in the paper:
+
+- A genuine **dispersion error moves $U_{pit}$ as well as $D_{pit}$** —
+  $U_{pit}$ is undirected and accumulates any departure. What distinguishes a
+  width error from a shape error is not whether $U_{pit}$ fires but whether
+  $D_{pit}$ fires alongside it.
+- For spread–error decoupling the **adjusted test is the more powerful one**:
+  $U_{pit}$ rejects 69% of the time where $B_{pit}$ manages 19%. Paying for a
+  tighter null buys power. This is a good argument for the family framing and
+  should not be buried.
 
 Practical recommendation: **report all three with their p values**. $B_{pit}$
 answers "is this forecaster calibrated", which is the question most readers
@@ -593,11 +606,11 @@ The rewrite skeleton maps to these loom tasks:
 |------|-----------|--------|
 | `clarify-bias-adjusted-pit-diagnostic` | 2, 3 (terminology fix) | todo, blocks intro |
 | `reframe-introduction-as-mathematical-methods-paper` | 1 | todo, blocked by above |
-| `update-figure-3-compare-unadjusted-vs-adjusted-pit-w` | 5 | todo |
+| `update-figure-3-compare-unadjusted-vs-adjusted-pit-w` | 5 | **done** — `vignette:pit-w-metrics.Rmd` |
 | `characterise-d-pit-sampling-distribution-by-simulation` | 5 | todo, blocked by null derivation |
 | `implement-bootstrap-test-for-dispersion-calibration` | 6 | **superseded** — recommend drop |
 | `two-part-test-decomposition-d-then-u` | 6 | todo — now three-part |
-| `restore-pivotality-of-the-bias-adjustment` | 3 | todo, blocked by null |
+| `restore-pivotality-of-the-bias-adjustment` | 3, 6 | **done** — link scale kept, PIT space ruled out |
 | `add-real-worked-example` | 7 | **done** — `vignette:seir-example.Rmd`, Fig. 5 |
 | `derive-analytical-null-distribution-for-pit-w-metrics` | 4 | **done** — `src:significance.R` |
 | `derive-cdf-of-the-adjusted-u-pit-null` | 4.4 | todo |

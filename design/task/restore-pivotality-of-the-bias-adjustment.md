@@ -8,7 +8,7 @@ priority: high
 touches:
 - src:scoring.R#pit_w
 - paper:main.tex
-- vignette:figure-3.Rmd
+- vignette:pit-w-metrics.Rmd
 - vignette:significance-testing.Rmd
 blocks:
 - task:implement-bootstrap-test-for-dispersion-calibration.md

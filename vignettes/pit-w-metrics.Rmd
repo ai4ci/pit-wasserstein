@@ -23,6 +23,85 @@ fig_dir = here::here("vignettes", "main", "fig")
 set.seed(1001)
 ```
 
+This vignette is the reference for **Figure 1** of the paper. It sets out the
+simulation in enough detail to be reproduced, defines the three
+PIT-Wasserstein metrics briefly, and reads the four panels. The paper states
+the same material compactly in its methods section and refers back here for
+the full specification.
+
+If you are new to calibration or to the probability integral transform, read
+`vignette("introduction-to-pit")` first. For the null distributions and
+$p$-values, see `vignette("significance-testing")`.
+
+# 1. The simulation
+
+The difficulty in evaluating a calibration metric is that real forecasters do
+not come with their miscalibration written on the label. So we simulate
+estimators whose failure mode we fix by construction, and ask what each metric
+reports.
+
+## 1.1 The error-function model
+
+Each simulated **estimator** is defined by two distributions, following the
+structure introduced in `vignette("introduction-to-pit")`:
+
+| Component | Symbol | Role |
+|---|---|---|
+| error distribution | $\mathcal{E} \sim \mathcal{N}(\mu_\mathcal{E}, \sigma_\mathcal{E})$ | how far the estimator's central estimate lands from the truth |
+| spread distribution | $\mathcal{S} \sim \mathrm{LogNormal}(\sigma_\mathcal{S}, \kappa_\mathcal{S})$ | what uncertainty the estimator *claims* |
+
+For each of the estimator's predictions $i$ we draw a true value $x_i$, an
+error $e_i \sim \mathcal{E}$ and a claimed uncertainty $s_i \sim \mathcal{S}$,
+and emit the probabilistic prediction
+
+$$
+\hat{X}_i \;\sim\; \mathcal{N}\!\left(x_i + e_i,\; s_i\right)
+$$
+
+Three parameters therefore control everything, and they are independent:
+
+- $\mu_\mathcal{E}$ — **bias**. The systematic displacement of the central
+  estimate. Zero means unbiased.
+- $\sigma_\mathcal{S}/\sigma_\mathcal{E}$ — **dispersion calibration**, written
+  `calibration` in the code and plotted on every x-axis below. This is the
+  ratio of the uncertainty the estimator *claims* to the uncertainty it
+  actually *has*. One is perfect; below one is over-confident; above one is
+  conservative.
+- $\kappa_\mathcal{S}$ — **spread–error decoupling**, labelled "CI variation"
+  in the figures. The coefficient of variation of the claimed uncertainty.
+  Zero means every prediction claims the same width. Larger values mean the
+  stated uncertainty varies from prediction to prediction *without tracking
+  the realised error*, which is miscalibration even when the average width is
+  right.
+
+The spread distribution is lognormal (`lnorm4`, parametrised by median and
+coefficient of variation) because a claimed uncertainty must be positive and
+because it makes $\kappa_\mathcal{S}$ scale-free.
+
+## 1.2 The parameter sweep
+
+We simulate **1000 estimators**, each making **1000 predictions**, with the
+three parameters drawn independently so that the whole space is covered rather
+than a grid of special cases:
+
+| Parameter | Drawn as | Range |
+|---|---|---|
+| true values $x_i$ | $\mathrm{Uniform}(-1, 1)$ | per prediction |
+| bias $\mu_\mathcal{E}$ | $\mathrm{Uniform}(-1, 1)$ | per estimator |
+| error scale $\sigma_\mathcal{E}$ | $\log$-uniform | $[\tfrac12, 2]$ |
+| claimed scale $\sigma_\mathcal{S}$ | $\log$-uniform | $[\tfrac12, 2]$ |
+| decoupling $\kappa_\mathcal{S}$ | $\mathrm{Uniform}(0, 2)$ | per estimator |
+
+Drawing $\sigma_\mathcal{S}$ and $\sigma_\mathcal{E}$ independently and
+log-uniformly gives a dispersion calibration ratio spanning $[\tfrac14, 4]$,
+symmetric on the log scale — which matters, because an estimator twice too
+wide and one twice too narrow are equally wrong and the metric should say so.
+
+Crucially, **bias is drawn independently of dispersion calibration**. Each
+point in the figures is an estimator with its own arbitrary combination of the
+three, so if a metric conflates bias with dispersion error it will show up as
+vertical scatter coloured by bias.
+
 ```{r}
 bias_limit = 1
 conf_range = 2
@@ -44,33 +123,71 @@ config = tibble(
 ```
 
 
+`generate_simulation()` expands that configuration into 1000 × 1000 individual
+predictions, and `prediction_scores()` collapses each estimator's 1000
+predictions back to one row of scores.
+
 ```{r}
 sim = config %>% generate_simulation(true_value_fn = function(n) runif(n, -1, 1))
 scores = sim %>% prediction_scores()
 ```
 
+# 2. The metrics
+
+Full definitions and derivations are in the paper; this is the working
+summary. For each estimator, the PIT values $u_i = F_i(x_i)$ are sorted and
+compared against the uniform plotting positions $r_i = (i - \tfrac12)/n$:
+
+$$
+B_{pit} = \frac1n\sum_i \left| r_i - u_{(i)} \right|
+$$
+
+which is the 1-Wasserstein distance between the empirical PIT distribution and
+$\mathrm{Uniform}(0,1)$ — the area between the PIT histogram's cumulative
+curve and the diagonal. It is zero for a calibrated estimator and grows with
+*any* departure, including a pure bias.
+
+The **bias adjustment** estimates one location shift,
+$\hat\delta = \mathrm{median}_i(g(m_i) - g(x_i))$ on the link scale, applies
+it to the observations, and recomputes the PIT values as $u^{adj}$. Applying
+the same two summaries to the adjusted values gives
+
+$$
+U_{pit} = \frac1n\sum_i \left| r_i - u^{adj}_{(i)} \right|,
+\qquad
+D_{pit} = \frac1n\sum_i \left( r_i - u^{adj}_{(i)} \right)\mathrm{sgn}\!\left(\tfrac12 - r_i\right)
+$$
+
+$U_{pit}$ is the same undirected distance with the location error removed.
+$D_{pit}$ replaces the absolute value with a weight that is $+1$ below the
+median and $-1$ above it, so that departures at the two ends **cancel instead
+of accumulating** — which is what makes it signed, and positive for an
+over-confident estimator.
+
+| Metric | Range | Reads |
+|---|---|---|
+| $B_{pit}$ | $[0, \tfrac12]$ | total miscalibration, bias included |
+| $U_{pit}$ | $[0, \tfrac12]$ | miscalibration with bias removed |
+| $D_{pit}$ | $[-\tfrac14, \tfrac14]$ | signed dispersion error: $+$ over-confident, $-$ conservative |
+
+All three are returned by `prediction_scores()` alongside the mean CRPS and
+coverage probabilities.
+
+# 3. Figure 1
+
+The four panels plot each of the 1000 estimators against its true dispersion
+calibration $\sigma_\mathcal{S}/\sigma_\mathcal{E}$ on a log x-axis, with the
+vertical line at 1 marking perfect calibration. A metric that measures
+dispersion calibration should form a tight, monotone curve about that line;
+scatter is the metric responding to something else.
 
 ```{r}
 # estimator SD/error SD:
 # ratio between the SD of an estimate and the SD of the error function
 # a low value means that the estimate is more confident than it should be
+# a high value says it is too conservative
 
-# directed PIT wasserstein
-# a bias corrected measure.
-# designed to show PIT EMD distance from a uniform distribution with direction
-# towards or away from the centre
-
-# bias adjusted coverage probability
-# if the probabilistic estimate is adjusted to correct for average bias for that
-# estimator, would the true value have fallen in the 95% CI for the estimator?
-# replicated over multiple estimations what is the probability.
-# If the estimate is narrow this will be low. If the estimate is conservative this
-# will be high (>0.95)
-# If the variability of the width of the estimator is high for some reason the
-# coverage probability only goes down. This is because if there is a spread of
-# CIs, the more uncertain CIs will catch everything fixed ones can, but more
-# certain CIs will more likely result in no coverage. Because it is binary the
-# distribution of mass behaviour is complex
+# Panel A: mean CRPS
 
 p2a = ggplot(
   scores,
@@ -78,11 +195,8 @@ p2a = ggplot(
 ) +
   geom_point() +
   scale_x_log10() +
-  # facet_wrap(~sd_label)+
   scale_color_viridis_c(name = "Absolute bias",option = "magma") +
   geom_vline(xintercept = 1) +
-  # ggpp::annotate(geom=ggpp::GeomLabelNpc, label="conservative \u2192", npcx=0.6,npcy=0.95,hjust="left",vjust="center",alpha=0.75, size=6, size.unit="pt", label.r=unit(0,"pt"))+
-  # ggpp::annotate(geom=ggpp::GeomLabelNpc, label="\u2190 overconfident", npcx=0.4,npcy=0.95,hjust="right",vjust="center",alpha=0.75, size=6, size.unit="pt", label.r=unit(0,"pt"))+
   annotate(
     geom = "label",
     label = "conservative >",
@@ -105,30 +219,96 @@ p2a = ggplot(
   theme(aspect.ratio = 1) +
   xlab("estimator SD/error SD")
 
-p2a
-```
+# Panel B: baseline PIT-Wasserstein
 
-```{r}
-# .gg_save_as(p2a,size=std_size$third,formats = "pdf")
+p2b = ggplot(
+  scores,
+  aes(x = calibration, y = B_pit, colour=abs(bias))
+) +
+  geom_point() +
+  scale_x_log10() +
+  scale_color_viridis_c(name = "Absolute bias", option = "magma") +
+  xlab("estimator SD/error SD") +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 1) +
+  annotate(
+    geom = "label",
+    label = "< better",
+    x = 1,
+    y = 0,
+    hjust = -1.5,
+    vjust = 0.5,
+    angle = 90,
+    alpha = 0.75
+  ) +
+  annotate(
+    geom = "label",
+    label = "conservative >",
+    x = 1,
+    y = 0,
+    hjust = -0.5,
+    vjust = 0.5,
+    alpha = 0.75
+  ) +
+  annotate(
+    geom = "label",
+    label = "< overconfident",
+    x = 1,
+    y = 0,
+    hjust = 1.5,
+    vjust = 0.5,
+    alpha = 0.75
+  ) +
+  theme(aspect.ratio = 1) +
+  ylab("baseline\nPIT wasserstein")
 
-# ggplot(analysis_data, aes(x=unbiased_percent_95_ci, y=unbiased_mean_crps, colour=abs(bias)))+geom_point()+.gg_scale_x_logit()+
-#   facet_wrap(~sd_label)+scale_y_log10()
-#
-# ggplot(analysis_data, aes(x=directed_was, y=mean_crps, colour=abs(bias)))+geom_point()+
-#   facet_wrap(~sd_label)+scale_y_log10()
-#
-# ggplot(analysis_data, aes(x=conf_vs_error, y=mean_crps, colour=abs(bias)))+geom_point()+
-#   facet_wrap(~sd_label)+scale_y_log10()+scale_x_log10()
-#
-# ggplot(analysis_data, aes(x=conf_vs_error, y=unbiased_mean_crps, colour=confidence))+geom_point()+scale_x_log10()+
-#   facet_wrap(~sd_label)+scale_y_log10()
-#
-# ggplot(analysis_data, aes(x=directed_was, y=unbiased_mean_crps, colour=confidence))+geom_point()+
-#   facet_wrap(~sd_label)+scale_y_log10()
+# Panel C: undirected PIT-Wasserstein
+
+p3a = ggplot(
+  scores,
+  aes(x = calibration, y = U_pit, colour=sharpness_scale)
+) +
+  geom_point() +
+  scale_x_log10() +
+  scale_color_viridis_c(name = "CI variation") +
+  xlab("estimator SD/error SD") +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 1) +
+  annotate(
+    geom = "label",
+    label = "< better",
+    x = 1,
+    y = 0,
+    hjust = -1.5,
+    vjust = 0.5,
+    angle = 90,
+    alpha = 0.75
+  ) +
+  annotate(
+    geom = "label",
+    label = "conservative >",
+    x = 1,
+    y = 0,
+    hjust = -0.5,
+    vjust = 0.5,
+    alpha = 0.75
+  ) +
+  annotate(
+    geom = "label",
+    label = "< overconfident",
+    x = 1,
+    y = 0,
+    hjust = 1.5,
+    vjust = 0.5,
+    alpha = 0.75
+  ) +
+  theme(aspect.ratio = 1) +
+  ylab("undirected\nPIT wasserstein")
+
+# Panel D: directed PIT-Wasserstein
 
 p3b = ggplot(
   scores,
-  # aes(x = calibration, y = D_pit, colour = mean_pred_interval_width.0.5)
   aes(x = calibration, y = D_pit, colour=sharpness_scale)
 ) +
   geom_point() +
@@ -179,122 +359,91 @@ p3b = ggplot(
   theme(aspect.ratio = 1) +
   ylab("directed\nPIT wasserstein")
 
-p3b
-```
+## Combined 4 panel plot
 
-```{r}
-p3a = ggplot(
-  scores,
-  aes(x = calibration, y = U_pit, colour=sharpness_scale)
+plot_metrics = patchwork::wrap_plots(
+  p2a,
+  p2b,
+  p3a,
+  p3b,
+  ncol = 2,
+  guides = "collect",
+  axes = "collect"
 ) +
-  geom_point() +
-  scale_x_log10() +
-  # facet_wrap(~sd_label)+
-  scale_color_viridis_c(name = "CI variation") +
-  xlab("estimator SD/error SD") +
-  geom_hline(yintercept = 0) +
-  geom_vline(xintercept = 1) +
-  annotate(
-    geom = "label",
-    label = "< better",
-    x = 1,
-    y = 0,
-    hjust = -1.5,
-    vjust = 0.5,
-    angle = 90,
-    alpha = 0.75
-  ) +
-  annotate(
-    geom = "label",
-    label = "conservative >",
-    x = 1,
-    y = 0,
-    hjust = -0.5,
-    vjust = 0.5,
-    alpha = 0.75
-  ) +
-  annotate(
-    geom = "label",
-    label = "< overconfident",
-    x = 1,
-    y = 0,
-    hjust = 1.5,
-    vjust = 0.5,
-    alpha = 0.75
-  ) +
-  theme(aspect.ratio = 1) +
-  ylab("undirected\nPIT wasserstein")
+  patchwork::plot_annotation(tag_levels = "A")
 
-p3a
+.gg_save_as(
+  plot_metrics,
+  file.path(fig_dir, "fig1-metric-compare"),
+  size = std_size$two_third,
+  formats = c("pdf", "eps")
+)
 ```
 
-```{r}
-p2b = ggplot(
-  scores,
-  aes(x = calibration, y = B_pit, colour=abs(bias))
-) +
-  geom_point() +
-  scale_x_log10() +
-  # facet_wrap(~sd_label)+
-  scale_color_viridis_c(name = "Absolute bias", option = "magma") +
-  xlab("estimator SD/error SD") +
-  geom_hline(yintercept = 0) +
-  geom_vline(xintercept = 1) +
-  annotate(
-    geom = "label",
-    label = "< better",
-    x = 1,
-    y = 0,
-    hjust = -1.5,
-    vjust = 0.5,
-    angle = 90,
-    alpha = 0.75
-  ) +
-  annotate(
-    geom = "label",
-    label = "conservative >",
-    x = 1,
-    y = 0,
-    hjust = -0.5,
-    vjust = 0.5,
-    alpha = 0.75
-  ) +
-  annotate(
-    geom = "label",
-    label = "< overconfident",
-    x = 1,
-    y = 0,
-    hjust = 1.5,
-    vjust = 0.5,
-    alpha = 0.75
-  ) +
-  theme(aspect.ratio = 1) +
-  ylab("baseline\nPIT wasserstein")
+**Panel B, Mean CRPS** The CRPS is a *proper score* and the standard summary of 
+probabilistic forecast quality. Points are coloured by absolute bias.
 
-p2b
-```
+It does respond to dispersion calibration — the lower envelope of the cloud
+has a minimum near 1 — but the response is swamped. For any given value on
+the x-axis the CRPS varies by a factor of several, ordered almost entirely by
+**colour**: the dark points (unbiased) sit low and the light points (badly
+biased) sit high. CRPS is dominated by accuracy, which is what a proper score
+is for. Two estimators with identical dispersion calibration score very
+differently if one is biased, and an unbiased over-confident estimator can
+outscore a well-dispersed biased one.
+
+This is the gap the rest of the figure addresses. CRPS answers "which
+forecaster is better?"; none of these panels is trying to answer that. They
+ask "*how* is this forecaster wrong?", which a single proper score cannot be
+expected to decompose.
+
+Reading the three PIT-Wasserstein panels together:
+
+**Panel B, $B_{pit}$** (coloured by absolute bias) has the same V shape
+but, like CRPS, is stratified by colour: bias inflates it. $B_{pit}$ is the
+honest omnibus statistic — it answers "is anything wrong?" and a location
+error genuinely is something wrong — but it cannot tell you *what*.
+
+**Panel C, $U_{pit}$** (coloured by CI variation aka skill-spread decoupling) is 
+the same statistic after the bias adjustment. The colour stratification is gone:
+the points collapse onto a tight V with its minimum at 1. **This is the central
+claim of the paper made as a picture** — the same estimators, the same arbitrary
+biases, and the metric now responds to dispersion calibration alone. What
+vertical spread remains is ordered by the colour scale, i.e. by
+$\kappa_\mathcal{S}$: spread–error decoupling lifts the floor of the V above
+zero, correctly, because an estimator whose stated uncertainty varies without
+tracking its error is not calibrated however good its average width.
+
+**Panel D, $D_{pit}$** (coloured by CI variation)  is the signed version, and it crosses zero —
+monotonically — at exactly the point of perfect calibration. Negative is
+conservative, positive is over-confident, so the sign names the failure rather
+than merely detecting it. Two further properties are visible: the root does
+not move with $\kappa_\mathcal{S}$ (the colours are mixed where the curve
+crosses zero, unlike in panel C), and the curve is close to symmetric about
+the crossing on the log scale.
+
+Together C and D are complementary rather than redundant: $D_{pit}$ locates
+and signs a width error, $U_{pit}$ picks up shape departures that $D_{pit}$
+cancels away. `vignette("significance-testing")` turns that pairing into a
+formal procedure.
+
+The one-line summary: **colour stratification in panels A and B reflects bias
+, and in C and D reflects spread-skill decoupling.** That is the bias invariance 
+the adjustment buys, and it is what makes the adjusted metrics diagnostic 
+rather than merely descriptive.
+
+## 3.5 An aside: coverage probability
+
+The obvious alternative diagnostic is to ask how often the truth falls inside
+a stated interval. For comparison:
 
 ```{r}
-# ggplot(analysis_data, aes(x=unbiased_percent_95_ci, y=directed_was, colour=conf_sd_cv))+
-#   geom_point()+
-#   facet_wrap(~sd_label)+
-#   geom_vline(xintercept = 0.95)+geom_hline(yintercept=0)+
-#   annotate(geom="label",label="overconfident \u2192", x=0.95,y=0,hjust=-0.6,vjust=0.5,angle=90,alpha=0.75)+
-#   annotate(geom="label",label="\u2190 conservative", x=0.95,y=0,hjust=1.6,vjust=0.5,angle=90,alpha=0.75)+
-#   annotate(geom="label",label="conservative \u2192", x=0.95,y=0,hjust=-0.6,vjust=0.5,alpha=0.75)+
-#   annotate(geom="label",label="\u2190 overconfident", x=0.95,y=0,hjust=1.6,vjust=0.5,alpha=0.75)+
-#   xlab("bias adjusted\ncoverage probability")+
-#   .gg_scale_x_logit() + theme(aspect.ratio=1)+
-#   scale_color_viridis_c(name="CI variation")+
-#   ylab("directed PIT wasserstein")
 
 ggplot(
   scores,
-  # aes(x = calibration, y = D_pit, colour = mean_pred_interval_width.0.5)
   aes(x = calibration, y = mean_coverage.0.5, colour=sharpness_scale)
 ) +
   geom_point() +
-  # facet_wrap(~sd_label)+
   geom_vline(xintercept = 1) +
   geom_hline(yintercept = 0.5) +
   annotate(
@@ -336,36 +485,17 @@ ggplot(
     alpha = 0.75
   ) +
   ylab("50% coverage probability") +
-  # .gg_scale_y_logit(sf=3) +
   theme(aspect.ratio = 1) +
   scale_color_viridis_c(name = "CI variation") +
   scale_x_log10() +
   coord_cartesian(ylim = c(0, 1)) +
   xlab("estimator SD/error SD")
-
-p2b
 ```
 
-```{r}
-fig3_metrics = patchwork::wrap_plots(
-  p2a,
-  p2b,
-  p3a,
-  p3b,
-  ncol = 2,
-  guides = "collect",
-  axes = "collect"
-) +
-  patchwork::plot_annotation(tag_levels = "A")
+Coverage is monotone in dispersion calibration and has the right sign, so it
+is a usable diagnostic. Two things limit it. It saturates — the curve flattens
+at both ends, so it discriminates poorly among badly miscalibrated or biased
+estimators — and it is a single binary summary at one nominal level, throwing
+away everything the rest of the predictive distribution says. The
+PIT-Wasserstein metrics use the whole distribution and do not saturate.
 
-fig3_metrics
-```
-
-```{r}
-.gg_save_as(
-  fig3_metrics,
-  file.path(fig_dir, "fig1-metric-compare"),
-  size = std_size$two_third,
-  formats = c("pdf", "eps")
-)
-```
