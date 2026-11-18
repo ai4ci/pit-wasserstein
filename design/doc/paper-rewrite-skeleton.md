@@ -38,8 +38,9 @@ in the first page.
 | 1 | A probabilistic forecast is evaluated by three jointly determined qualities: **calibration** (PIT uniformity), **sharpness** (uncertainty width), and their interaction (dispersion calibration). | Gneiting et al. (2007); DeGroot & Fienberg (1983) |
 | 2 | The gold-standard criterion is probabilistic calibration: PIT values should be i.i.d. $U(0,1)$. | Dawid (1984); Diebold et al. (1998) |
 | 3 | Standard diagnostics (PIT histogram, KS test, AD test) detect *miscalibration but not its direction or cause*. Diebold et al. (1998) call this "tests are not constructive." | Diebold et al. (1998); Bosse et al. (2024) |
-| 4 | Wasserstein-1 distance from the PIT distribution to uniform ($W_1$) is a **quantified**, constructive scalar measure, but existing work (Zhao et al. 2020; Wessel et al. 2025) does **not adjust for bias** — their metric conflates bias with dispersion error. | Zhao et al. (2020); Wessel et al. (2025) |
-| 5 | **Contributions:** (a) a bias-adjusted PIT-Wasserstein metric $U^*_{pit}$ that isolates **dispersion calibration**; (b) a signed directed variant $D^*_{pit}$ giving direction; (c) a bias-invariant adjustment in $x$-space with a proof of pivotality under homoscedasticity; (d) the analytical null distribution of both metrics; (e) empirical validation showing invariance to bias, symmetry under inversion, and two-part diagnostic use. | — |
+| 4 | Wasserstein-1 distance from the PIT distribution to uniform ($W_1$) is a **quantified**, constructive scalar measure, but existing work (Zhao et al. 2020; Wessel et al. 2025) reports it **without a null distribution** — so it can rank forecasters but cannot say whether any of them is calibrated. | Zhao et al. (2020); Wessel et al. (2025) |
+| 5 | That statistic also conflates a location error with a dispersion error. Adjusting for a location shift separates them — but the adjustment estimates a parameter, so it changes the null. Both halves need stating together. | — |
+| 6 | **Contributions:** (a) the exact null distribution of the PIT-Wasserstein statistic, making the *existing* metric testable; (b) a bias-adjusted variant isolating dispersion calibration, with its own (different) null; (c) a signed variant giving the direction of a dispersion error, whose null is unaffected by the adjustment; (d) the observation that these are three nested hypotheses about one forecaster, giving a diagnostic sequence; (e) validation on simulation and on an external estimator where a proper score ranks the forecaster the opposite way. | — |
 
 ### Structure of the intro
 
@@ -109,123 +110,202 @@ lines 63-76 with precise mathematical definitions.
 
 ---
 
-## 3. The Metrics (target: ~1.5 pages)
+## 3. The Metrics: a family of three (target: ~2 pages)
 
 ### Goal
-Define $U^*_{pit}$ and $D^*_{pit}$ formally, explain their range and interpretation,
-and prove the key properties: bias invariance, symmetry, and the signed direction.
+Define the three metrics as **one statistic applied to two different inputs**,
+and establish that they correspond to three nested hypotheses about the same
+forecaster. This is the reframing agreed 2026-11-17 and it replaces the earlier
+"the unadjusted metric is hard to interpret, here is a better one" framing,
+which was both weak and, next to CRPS, indefensible.
 
 ### Content
 
-#### 3.1. The adjusted PIT-Wasserstein metric $U^*_{pit}$
+#### 3.1. One statistic
+
+For PIT values $u_i$ with order statistics $u_{(i)}$ and $r_i = (2i-1)/2n$,
 
 $$
-U^*_{pit} = \frac{1}{n}\sum_{i=1}^n |r_i - u_{(i),adj}|
+W(u) = \frac{1}{n}\sum_{i=1}^n \left| r_i - u_{(i)} \right|
 $$
 
-Range: $[0, 0.5]$. Zero iff perfectly dispersion-calibrated. Interpretation: $W_1$ distance
-between the adjusted PIT distribution and $U(0,1)$.
+is the $W_1$ distance between the empirical PIT distribution and $U(0,1)$.
+This is Zhao et al.'s statistic and we claim no novelty for it.
 
-#### 3.2. The directed metric $D^*_{pit}$
+#### 3.2. Two inputs
+
+The bias adjustment estimates a single link-scale location shift
+$\hat{\delta} = \mathrm{median}_i\left(g(m_i) - g(x_i)\right)$ and applies it to
+the observations before the PIT transform. It is monotone, so it preserves
+ranks (see caveat in §3.5).
+
+- $B_{pit} = W(u)$ on the raw PIT values — the **baseline** metric.
+- $U_{pit} = W(u^{adj})$ on the adjusted PIT values.
+
+#### 3.3. And a signed variant
 
 $$
-D^*_{pit} = \frac{1}{n}\sum_{i=1}^n (r_i - u_{(i),adj})\,\text{sgn}(0.5 - r_i)
+D_{pit} = \frac{1}{n}\sum_{i=1}^n \left(r_i - u^{adj}_{(i)}\right)\mathrm{sgn}(0.5 - r_i)
 $$
 
-Range: $[-0.25, 0.25]$. Positive = overconfident, negative = overconservative, zero =
-median-width correct.
+Range $[-0.25, 0.25]$. Positive = overconfident, negative = overconservative,
+zero = median width correct. $B_{pit}, U_{pit} \in [0, 0.5]$.
 
-#### 3.3. Properties
+#### 3.4. Three nested hypotheses
 
-- **Theorem 1 (Bias invariance):** If $\hat{\delta}$ estimates the true link-scale shift
-  consistently, the null distribution of $D^*_{pit}$ under homoscedasticity is unchanged.
-  Proof sketch: the bias adjustment subtracts a constant in $x$-space; under the null the
-  PIT values are uniform, and the adjustment is a rank-preserving shift.
-- **Theorem 2 (Symmetry under inversion):** For homoscedastic normal predictive families,
-  $U^*_{pit}(c) = U^*_{pit}(1/c)$ exactly. Proof uses $F_{1/c}(p) = F_c^{-1}(p)$.
-- **Theorem 3 (Signed decomposition):** $D^*_{pit} = (\text{overconfidence mass}) -
-  (\text{overconservative mass})$, while $U^*_{pit} = (\text{overconfidence mass}) +
-  (\text{overconservative mass})$.
+**This is the contribution.** The metrics are not competitors; they test
+progressively weaker nulls about the same forecaster.
+
+| Metric | $H_0$ | Rejects when |
+|---|---|---|
+| $B_{pit}$ | PIT values are i.i.d. $U(0,1)$ | anything is wrong |
+| $D_{pit}$ | dispersion correct, **location arbitrary** | the predictive width is wrong, with a direction |
+| $U_{pit}$ | shape correct, **location arbitrary** | skew, tails, or mixed dispersion errors survive the adjustment |
+
+Read as a sequence this is a diagnosis, not three tests:
+
+| $B_{pit}$ | $D_{pit}$ | $U_{pit}$ | Reading |
+|---|---|---|---|
+| not rej. | — | — | calibrated |
+| rejected | not rej. | not rej. | pure location error |
+| rejected | rejected | not rej. | dispersion error, direction from $\mathrm{sgn}(D_{pit})$ |
+| rejected | not rej. | rejected | shape error at the right width |
+| rejected | rejected | rejected | both |
+
+Nobody else can form this sequence, because nobody else has nulls for the
+statistic — Zhao et al. and Wessel et al. report the distance and stop.
+
+#### 3.5. Properties
+
+- **Theorem 1 (Location invariance of $D_{pit}$):** $D_{pit}$ is orthogonal to
+  a common link-scale shift; its null is unchanged by the adjustment. See §4.4
+  — this is what makes the adjustment *free* for $D_{pit}$.
+- **Theorem 2 (Symmetry under inversion):** for homoscedastic normal
+  predictive families $U_{pit}(c) = U_{pit}(1/c)$ exactly, via
+  $F_{1/c}(p) = F_c^{-1}(p)$.
+- **Theorem 3 (Signed decomposition):** $D_{pit}$ is the difference and
+  $U_{pit}$ the sum of the overconfident and overconservative masses — an
+  algebraic identity, no proof needed.
 
 ### Gaps / decisions
 
-- **Q6:** The proofs are currently informal sketches. Do we want formal proofs, or just
-  the simulation evidence + "sketch" prose?
-  Ponytail: a formal proof for Theorem 1 under homoscedasticity, a simulation-supported
-  statement for Theorem 2, and an algebraic identity for Theorem 3 (no proof needed).
-- **Q7:** The bias-adjustment uses a **median** in practice but the code/looms say **mean**.
-  The "mean-based estimator fails for skewed distributions" task is still open.
-  Which should the paper use? Recommendation: **median** (robust, consistent under null).
+- **Q6:** Proof level. Ponytail: formal for Theorem 1 (it carries §4.4),
+  simulation-supported for Theorem 2, identity for Theorem 3.
+- **Q7:** ~~Mean vs median bias estimator~~ — **resolved**: median, in the
+  link scale. Both code and paper.
+- **Q15:** The adjustment is rank-preserving per prediction, but under
+  heteroscedasticity an $x$-space shift moves $u_i$ by $\approx b\varphi/\sigma_i$,
+  which differs across $i$, so the *ordering* can change. This matters for
+  which rank vector $B_{pit}$ is computed against — see
+  `task:b-pit-computed-against-adjusted-ranks.md`. State the definition of
+  $B_{pit}$ as being on its own order statistics and make sure the code agrees.
 
 ---
 
-## 4. The Null Distributions (target: ~2 pages) ⭐
+## 4. The Null Distributions (target: ~3 pages) ⭐
 
 ### Goal
-This is the **star section** of the paper — the analytical results that make the metrics
-publishable. State both limits clearly and give practical critical values.
+The **star section**. Three distribution-free nulls, two of them in closed
+form, all depending on $n$ and nothing else. This is what makes the family
+publishable and what the rest of the paper leans on.
 
 ### Content
 
 #### 4.1. Reduction to the Brownian bridge
 
-Both metrics are functionals of the empirical quantile process
-$q_n(p) = \sqrt{n}(F_n^{-1}(p) - p) \Rightarrow -B^\circ(p)$.
+All three are functionals of the empirical quantile process
+$q_n(p) = \sqrt{n}(F_n^{-1}(p) - p) \Rightarrow -B^\circ(p)$. Everything below
+is a continuous-mapping-theorem step from there.
 
-#### 4.2. $D^*_{pit}$ — closed form Gaussian
-
-A **linear** functional of the bridge:
-
-$$
-\sqrt{n}\,D^*_{pit} \Rightarrow \int_0^1 \text{sgn}(0.5-t)\,B^\circ(t)\,dt
-\;\sim\; N(0, \sigma^2)
-$$
+#### 4.2. $B_{pit}$ — the integrated absolute bridge
 
 $$
-\sigma^2 = \iint \text{sgn}(0.5-s)\text{sgn}(0.5-t)(s\wedge t - st)\,ds\,dt = \frac{1}{48}
+\sqrt{n}\,B_{pit} \Rightarrow \int_0^1 |B^\circ(t)|\,dt
 $$
 
-**Result:** $D^*_{pit} \dot{\sim} N(0, 1/(48n))$ under $H_0$.
-
-Practical 5% test: $|D^*_{pit}| > 0.2829/\sqrt{n}$.
-
-Empirical size: 8.1% at $n=10$, 5.3% at $n=100$, 5.1% at $n=400$.
-Caveat: slight over-rejection at $n < 50$ due to heavy tails.
-
-#### 4.3. $U^*_{pit}$ — integrated absolute bridge
+Mean $\sqrt{2\pi}/8 \approx 0.3133$. **The c.d.f. is explicit**, from
+Johnson & Killeen (1983):
 
 $$
-\sqrt{n}\,U^*_{pit} \Rightarrow \int_0^1 |B^\circ(t)|\,dt
+P(L \le \ell) = \sqrt{\pi/2}\sum_{j\ge1}\delta_j^{-3/2}\,\psi(\ell/\delta_j^{3/2}),
+\quad \psi(t) = 3^{2/3}t^{-1/3}e^{-2/(27t^2)}Ai\!\left((3t)^{-4/3}\right)
 $$
 
-Mean: $\mathbb{E}\int|B^\circ| = \sqrt{2\pi}/8 \approx 0.3133$.
-95% critical value: $\approx 0.580/\sqrt{n}$ (from simulation / known distribution).
+with $\delta_j = |a'_j|/2^{1/3}$ and $a'_j$ the $j$th zero of $Ai'$. Giving
+$q_{0.95} = 0.5821/\sqrt{n}$ and $q_{0.99} = 0.7519/\sqrt{n}$. Note this is a
+*bridge* result; Takács (1993) is Brownian motion and does not apply.
 
-No closed-form CDF for the limit (Takács 1993 is for Brownian *motion*, not bridge).
-Tabulated critical values from simulation.
+#### 4.3. $D_{pit}$ — closed-form Gaussian
 
-#### 4.4. Bias adjustment preserves the null (homoscedastic case)
+A **linear** functional, hence exactly Gaussian:
 
-Simulation evidence: $\kappa = 0 \Rightarrow$ null survives exactly, with or without bias.
-Theoretical argument: under homoscedasticity the adjustment is a constant shift in probit
-space, which preserves uniformity.
+$$
+\sqrt{n}\,D_{pit} \Rightarrow \int_0^1 \mathrm{sgn}(0.5-t)B^\circ(t)\,dt \sim N(0, 1/48)
+$$
 
-#### 4.5. What is the null hypothesis?
+$$
+\sigma^2 = \iint \mathrm{sgn}(0.5-s)\mathrm{sgn}(0.5-t)(s\wedge t - st)\,ds\,dt = \frac{1}{48}
+$$
 
-$H_0$: the PIT values are i.i.d. $U(0,1)$, which requires $c=1$ **and** $\kappa=0$.
-Spread-error decoupling ($\kappa > 0$) is an **alternative**, not a null.
+Practical 5% test: $|D_{pit}| > 0.2829/\sqrt{n}$. Empirical size 8.1% at
+$n=10$, 5.3% at $n=100$, 5.1% at $n=400$; mildly anti-conservative below
+$n \approx 50$.
+
+#### 4.4. $U_{pit}$ — the bridge with one direction removed
+
+The adjustment estimates a parameter from the same data, so the null is **not**
+§4.2's. With $\kappa(t) = \varphi(\Phi^{-1}(t))/\varphi(0)$ the sensitivity of
+the PIT values to the shift, and the median centring pinning the bridge at
+$t = 1/2$,
+
+$$
+\sqrt{n}\,U_{pit} \Rightarrow \int_0^1 \left| B^\circ(t) - \kappa(t)B^\circ(\tfrac12)\right| dt
+$$
+
+Verified against the finite-sample statistic at $n = 400$: limit process mean
+0.2345 and $q_{0.95}$ 0.3791, finite sample 0.236 and 0.382. Still
+distribution-free — the ratio of the adjusted to the baseline 5% critical
+value is a stable **0.65–0.67** across $n \in \{25, 76, 400\}$ and across
+$\kappa_\mathcal{S} \in \{0, 0.5\}$.
+
+**This is the Kolmogorov–Smirnov to Lilliefors step** and it should be named
+as such: same statistic, one estimated parameter, a different and strictly
+smaller null. Using §4.2's critical value for $U_{pit}$ is badly conservative
+(at $n=76$, $U_{pit} = 0.05$ gives $p = 0.165$ against the wrong null and
+$p = 0.022$ against the right one).
+
+No published c.d.f.; currently evaluated by simulating the limit process —
+`task:derive-cdf-of-the-adjusted-u-pit-null.md`.
+
+#### 4.5. The asymmetry: the adjustment is free for $D_{pit}$, costly for $U_{pit}$
+
+$n\mathrm{Var}(D_{pit}) = 1/48$ with **or without** the adjustment, because
+$D_{pit}$ is already orthogonal to a location shift. $U_{pit}$ pays the full
+estimated-parameter price. Worth stating as a result in its own right: it
+explains why $D_{pit}$ is the sharper instrument of the two and why the
+adjustment is not a free lunch in general.
+
+#### 4.6. What the nulls assume
+
+All three require the PIT values to be **independent**. $n$ is the number of
+independent predictions; serial dependence (overlapping forecast windows, as
+in §7) inflates apparent significance. Say this plainly rather than burying it.
+
+Note also that the three statistics come from the same PIT values and are not
+independent of one another — the §3.4 sequence is a read-down from a single
+rejection, not three tests each at 5%.
 
 ### Gaps / decisions
 
-- **Q8:** The variance computation for $D^*_{pit}$ ($1/48$) — is the double integral
-  computation shown in full detail, or just stated?
-  Recommendation: show the integral setup, state the result, cite a reference for the
-  evaluation (or give the 3-line algebra).
-- **Q9:** Critical values for $U^*_{pit}$ — can we cite a reference for the distribution of
-  $\int|B^\circ|$? Takács (1993) is wrong. Is there a bridge-specific source?
-  If not, tabulate from high-quality simulation and cite it as a table in the paper.
-- **Q10:** Do we include the Edgeworth correction for $D^*_{pit}$ at small $n$?
-  Ponytail: not for this paper. Note as a caveat, implement as future work.
+- **Q8:** Show the $1/48$ double integral in full, or state it? Recommendation:
+  show the setup, give the three lines of algebra.
+- **Q9:** ~~Critical values for the undirected metric~~ — **resolved**:
+  Johnson & Killeen (1983) for $B_{pit}$; $U_{pit}$ pending Q16.
+- **Q10:** Edgeworth correction for $D_{pit}$ at small $n$? Ponytail: no, note
+  as a caveat.
+- **Q16:** Does $U_{pit}$'s limit get a formula, a citation, or a shipped
+  high-precision table? A table with a stated accuracy is honest and must not
+  block the paper.
 
 ---
 
@@ -262,12 +342,18 @@ calibration ratio $c \in [0.25, 4]$, sharpness CV $\kappa_{\mathcal{S}} \in [0, 
   W-shaped (non-zero $\kappa$) PIT histograms with associated metric values.
 - This illustrates the two-part diagnostic (Section 6).
 
-#### 5.5. Small-sample behaviour
+#### 5.5. Small-sample behaviour and test size
 
-- Show convergence of $\sqrt{n}\,U^*_{pit}$ and $\sqrt{n}\,D^*_{pit}$ across $n = 25, 50,
-  100, 400$.
-- Compare empirical distribution to the theoretical $N(0, 1/48)$ for $D^*_{pit}$.
-- Tabulate empirical 5% critical values for both metrics.
+- Convergence of $\sqrt{n}\,B_{pit}$, $\sqrt{n}\,U_{pit}$ and $\sqrt{n}\,D_{pit}$
+  across $n = 25, 50, 100, 400$ against the three limits of §4.
+- **Empirical size of all three tests** at nominal 5%, under calibrated but
+  heteroscedastic predictions. At $n = 76$, 3000 replicates: $B_{pit}$ 5.8%,
+  $U_{pit}$ 4.7%, $D_{pit}$ 6.3%. (The $B_{pit}$ figure should come back to
+  5.0% once `task:b-pit-computed-against-adjusted-ranks.md` is fixed; the
+  $D_{pit}$ figure is the documented small-$n$ normal approximation.)
+- The 0.66 ratio between the $U_{pit}$ and $B_{pit}$ critical values, shown to
+  be stable in $n$ and in $\kappa_\mathcal{S}$ — the evidence that the adjusted
+  null is still distribution-free.
 
 ### Gaps / decisions
 
@@ -275,45 +361,130 @@ calibration ratio $c \in [0.25, 4]$, sharpness CV $\kappa_{\mathcal{S}} \in [0, 
   bias defect?
   Recommendation: yes, but as a **caveat box** or footnote, not a main result. File as a
   pre-existing bug.
-- **Q12:** What is the real-world example? The SEIR + EpiEstim example was discussed but not
-  yet implemented. Do we have one?
-  **Status:** NOT YET DONE. A real-data example would significantly strengthen the paper.
-  If available, add as Section 7.
+- **Q12:** What is the real-world example?
+  **Status: DONE.** Built as `vignette:seir-example.Rmd`, producing
+  `resource:fig5-epiestim-by-epi-size`. It is now its own Section 7 below. The
+  SEIR framing was simplified to a deterministic SIR ODE, and the low-vs-high
+  prevalence contrast was replaced by a continuous sweep over epidemic size,
+  which is strictly stronger: it shows a sign change rather than two points.
 
 ---
 
-## 6. The Two-Part Diagnostic (target: ~1 page)
+## 6. The Three-Part Diagnostic (target: ~1.5 pages)
 
 ### Goal
-Show how $D^*_{pit}$ and $U^*_{pit}$ complement each other as a diagnostic system,
-not just two related metrics.
+Show the three tests working as one diagnostic procedure. §3.4 states the
+nesting; this section shows what each combination of outcomes looks like in
+practice and how to read a PIT histogram off it.
 
 ### Content
 
-| Scenario | $D^*_{pit}$ | $U^*_{pit}$ | Interpretation |
-|----------|-------------|-------------|----------------|
-| Calibrated, homoscedastic | $\approx 0$ | $\approx 0$ | Good |
-| Overconfident, correct median width | positive | small | W-shaped PIT |
-| Overconservative, correct median width | negative | small | W-shaped PIT |
-| Wrong median width | large magnitude | small | biased dispersion |
-| Any shape mismatch (skew, heavy tails, $\kappa>0$) | $\approx 0$ | large | non-uniform PIT shape |
-| Biased + mis-calibrated | depends | large | both issues present |
+| Scenario | $B_{pit}$ | $D_{pit}$ | $U_{pit}$ | PIT shape |
+|---|---|---|---|---|
+| Calibrated | $\approx 0$ | $\approx 0$ | $\approx 0$ | flat |
+| Pure location error | large | $\approx 0$ | $\approx 0$ | skewed |
+| Overconfident | large | positive | small | U-shaped |
+| Overconservative | large | negative | small | dome |
+| Shape mismatch (skew, tails, $\kappa > 0$) | large | $\approx 0$ | large | W-shaped |
+| Location error + miscalibration | large | depends | large | skewed + shaped |
 
-Practical recommendation: report **the pair**, not either alone. Use $D^*_{pit}$ for a
-quick check of median-width correctness (immune to bias), then $U^*_{pit}$ for residual
-shape diagnosis.
+Practical recommendation: **report all three with their p values**. $B_{pit}$
+answers "is this forecaster calibrated", which is the question most readers
+actually have; $D_{pit}$ and $U_{pit}$ answer "and if not, what is wrong with
+it". The pair $(D_{pit}, U_{pit})$ alone cannot distinguish a calibrated
+forecaster from one with a pure location error, because the adjustment removes
+exactly that.
+
+Note the critical values differ: at the same $n$, $B_{pit}$'s 5% threshold is
+$0.5821/\sqrt{n}$ and $U_{pit}$'s is $\approx 0.66$ of that. Do not compare the
+two statistics' magnitudes directly; compare their p values.
 
 ### Gaps / decisions
 
-- **Q13:** Should the two-part diagnostic include a formal statistical test? The bootstrap
-  studentisation work is documented in the significance-testing vignette but the paper
-  says to use bootstrap. Does the paper include a bootstrap procedure?
-  Ponytail: describe the bootstrap in words, point to the R implementation. Don't
-  derive the bootstrap distribution analytically.
+- **Q13:** ~~Does the paper include a bootstrap procedure?~~ — **resolved**:
+  no. All three tests are analytical (§4); the bootstrap is superseded, see
+  `task:implement-bootstrap-test-for-dispersion-calibration.md`.
+- **Q17:** Multiplicity. The three statistics share the same PIT values and
+  are dependent. Present as a read-down from a single rejection, or offer a
+  corrected procedure? Ponytail: read-down, stated plainly, no correction —
+  a correction would imply an independence the section explicitly denies.
 
 ---
 
-## 7. Related Work (target: ~1 page)
+## 7. Real-World Example: EpiEstim across epidemic sizes (target: ~2 pages)
+
+### Goal
+Show that the metrics say something useful and non-obvious about an estimator
+**this project did not write**, against a ground truth the estimator never sees,
+and that a proper score does not say it. This is the section that stops the paper
+being a demonstration of our own simulator working on itself.
+
+Source: `vignette:seir-example.Rmd`. Figure: `resource:fig5-epiestim-by-epi-size`
+(panels A–D).
+
+### Design
+
+| Element | Choice | Why |
+|---|---|---|
+| Epidemic | Deterministic SIR ODE, $R_0=2$, $\gamma=1/5$, 100 days | $R_t = R_0 S_t$ is **exact**; no real dataset gives ground-truth $R_t$ |
+| Sweep | 100 log-spaced $N \in [10^{2.5}, 10^{5}]$, 10 replicates = 1000 scenarios | Identical epidemic shape, varying signal strength |
+| Observation | $\mathrm{obs} \sim \mathrm{Binom}(\lfloor \mathrm{incid}\cdot N\rceil,\, p_{obs})$, $p_{obs}=0.5$ fixed | Ascertainment held fixed so it does not confound the size axis |
+| Estimator | `EpiEstim::estimate_R`, parametric SI (mean 5, sd 5), 7-day windows, Gamma(2,2) prior | External, widely used, told nothing about the SIR model |
+| Prediction | posterior mean + sd per window, scored as `dist="gamma2"`, `link="log"` | Exactly how a user would report the estimate |
+| x-axis | peak observed case count | One-dimensional measure of available signal |
+
+Median $n \approx 76$ scored windows per scenario (windows with zero observed
+cases dropped), falling to $\approx 46$ in the smallest epidemics.
+
+### Results to report
+
+| peak cases | $D^*_{pit}$ | $U^*_{pit}$ | mean CRPS | bias | cov$_{50}$ | cov$_{95}$ |
+|---|---|---|---|---|---|---|
+| 10 | $-0.079$ | 0.081 | 0.183 | $-0.185$ | 0.44 | 0.91 |
+| 36 | $-0.018$ | **0.050** | 0.141 | $-0.136$ | 0.39 | 0.70 |
+| 73 | $+0.011$ | 0.056 | 0.119 | $-0.108$ | 0.38 | 0.66 |
+| 304 | $+0.049$ | 0.077 | 0.096 | $-0.091$ | 0.35 | 0.59 |
+| 1261 | $+0.089$ | 0.102 | 0.087 | $-0.088$ | 0.29 | 0.51 |
+
+Four claims, in order:
+
+1. **$D^*_{pit}$ changes sign** at a peak of $\approx 56$ cases; $U^*_{pit}$ is
+   U-shaped with a minimum at $\approx 47$. `EpiEstim` is under-confident in small
+   epidemics and over-confident in large ones. Two independent functionals of the
+   same PIT values locate the same optimum — the two-part diagnostic (Section 6)
+   working on data where nobody supplied the answer.
+2. **CRPS ranks the forecaster in the opposite direction.** CRPS falls
+   monotonically ($r = -0.89$ with $\log_{10}$ peak), $D^*_{pit}$ rises
+   monotonically ($r = +0.91$). CRPS is tracking sharpness: the posterior narrows
+   as counts grow, so the score improves while calibration deteriorates. Coverage
+   corroborates PIT-W, not CRPS — nominal 95% intervals cover 91% at peak 10 and
+   **51%** at peak 1261. **This is the headline result of the paper.**
+3. **Significance read from the analytical null of Section 4**, not a simulated
+   table. With $D^*_{pit}\sim N(0,1/48n)$ and $\mathbb{E}[U^*_{pit}]=\sqrt{2\pi}/(8\sqrt{n})$,
+   at median $n=76$ (null sd 0.0166, null mean 0.0359): $z = -3.7, -1.0, +0.7, +3.1, +5.7$
+   and $U^*/\text{null} = 1.8, 1.3, 1.5, 2.2, 3.0$ across the rows above. Only the
+   36–73 band is indistinguishable from calibrated. The example **exercises** the
+   theory rather than illustrating the metric.
+4. **Bias invariance demonstrated on an error nobody designed.** Bias is negative
+   throughout ($-0.185 \to -0.088$; prior pull towards $R=2$ plus window lag).
+   `U_pit_unadj` is 0.24–0.30 and nearly flat; adjusted `U_pit` is 0.05–0.10 and
+   carries all the structure. Almost all raw PIT deviation is location error.
+
+### Gaps / decisions
+
+- **Q12a:** The experiment shows *that* dispersion calibration changes sign, not
+  *why*. Prior vs window width vs renewal-equation likelihood are not separated.
+  Recommendation: state as a limitation, do not run the sensitivity sweep for this
+  paper. If a reviewer asks, it is a prior/window grid over the same code.
+- **Q12b:** `EpiEstim` becomes a `Suggests` dependency (vignette-only). Covered by
+  `task:add-real-worked-example.md`.
+- **Q12c:** Figure currently has a vestigial `P(obs)` colour aesthetic with one
+  level. Either drop it or restore the 0.2/0.8 arm as a sensitivity panel.
+  Ponytail: drop the aesthetic.
+
+---
+
+## 8. Related Work (target: ~1 page)
 
 ### Goal
 A concise positioning paragraph (not a full literature review — that stays in the
@@ -321,18 +492,33 @@ design doc). Compare directly against the closest existing metrics.
 
 ### Content
 
-| Method | Bias-adjusted? | Signed? | PIT-space? | Reference |
+| Method | Null distribution? | Bias-adjusted? | Signed? | Reference |
 |--------|---------------|---------|------------|-----------|
-| PIT histogram (visual) | No | Directional | Yes | Hamill (2001); Gneiting et al. (2007) |
-| $W_1$(PIT, U) (Zhao et al.) | No | No | Yes | Zhao et al. (2020) |
-| MCB / $D^*$ (Wessel et al.) | No | No | Yes | Wessel et al. (2025) |
-| PIT-W (this paper) | **Yes** | **Yes** | Yes | **Challen, Palmer, Danon** |
-| PCE (Kuleshov et al.) | No | No | Yes (binned) | Kuleshov et al. (2018) |
-| ECE (Guo et al.) | No | No | Yes (binned) | Guo et al. (2017) |
-| CRPS (proper score) | N/A | No | No (integral) | Gneiting & Raftery (2007) |
+| PIT histogram (visual) | No | No | Directional | Hamill (2001); Gneiting et al. (2007) |
+| $W_1$(PIT, U) (Zhao et al.) | No | No | No | Zhao et al. (2020) |
+| MCB (Wessel et al.) | No | No | No | Wessel et al. (2025) |
+| PCE (Kuleshov et al.) | No | No | No | Kuleshov et al. (2018) |
+| ECE (Guo et al.) | No | No | No | Guo et al. (2017) |
+| CRPS (proper score) | N/A | N/A | No | Gneiting & Raftery (2007) |
+| $B_{pit}$ (this paper) | **Exact** | No, by design | No | **Challen, Palmer, Danon** |
+| $D_{pit}$ (this paper) | **Exact** | **Yes** | **Yes** | **Challen, Palmer, Danon** |
+| $U_{pit}$ (this paper) | **Yes** | **Yes** | No | **Challen, Palmer, Danon** |
 
-Key claim: $D^*_{pit}$/$U^*_{pit}$ are the **only** PIT-Wasserstein metrics that adjust
-for bias **and** report direction.
+Two claims, and note that the first is the bigger one:
+
+1. **Nobody has a null distribution for the PIT-Wasserstein statistic.** Zhao
+   et al. and Wessel et al. report the distance and leave the reader to judge
+   whether it is large. $B_{pit}$ is their statistic with a p value attached;
+   that alone is a contribution, and it is the reason the family can be nested.
+2. $D_{pit}$/$U_{pit}$ are the only PIT-Wasserstein metrics that adjust for a
+   location error, and $D_{pit}$ is the only one that reports a direction.
+
+Say explicitly that the unadjusted metric is **not** a flawed predecessor. It
+is the omnibus test, and as a bounded distance with a known null and a p value
+it is *more* interpretable than a proper score, which is unbounded, in the
+units of the outcome, and meaningful only relative to another forecaster. The
+adjustment partitions total miscalibration into location and the rest; it does
+not repair anything.
 
 ### Gaps / decisions
 
@@ -342,7 +528,7 @@ for bias **and** report direction.
 
 ---
 
-## 8. Caveats and Future Work (target: ~0.5 page)
+## 9. Caveats and Future Work (target: ~0.5 page)
 
 ### Content
 
@@ -359,7 +545,7 @@ for bias **and** report direction.
 
 ---
 
-## 9. Conclusion (target: ~0.5 page)
+## 10. Conclusion (target: ~0.5 page)
 
 ### Content
 
@@ -401,13 +587,16 @@ The rewrite skeleton maps to these loom tasks:
 |------|-----------|--------|
 | `clarify-bias-adjusted-pit-diagnostic` | 2, 3 (terminology fix) | todo, blocks intro |
 | `reframe-introduction-as-mathematical-methods-paper` | 1 | todo, blocked by above |
-| `derive-analytical-null-distribution-for-pit-w-metrics` | 4 | todo |
 | `update-figure-3-compare-unadjusted-vs-adjusted-pit-w` | 5 | todo |
 | `characterise-d-pit-sampling-distribution-by-simulation` | 5 | todo, blocked by null derivation |
-| `implement-bootstrap-test-for-dispersion-calibration` | 6, 8 | todo |
-| `two-part-test-decomposition-d-then-u` | 6 | todo, blocked by null |
+| `implement-bootstrap-test-for-dispersion-calibration` | 6 | **superseded** — recommend drop |
+| `two-part-test-decomposition-d-then-u` | 6 | todo — now three-part |
 | `restore-pivotality-of-the-bias-adjustment` | 3 | todo, blocked by null |
-| `add-real-worked-example` | 5/7 | todo |
+| `add-real-worked-example` | 7 | **done** — `vignette:seir-example.Rmd`, Fig. 5 |
+| `derive-analytical-null-distribution-for-pit-w-metrics` | 4 | **done** — `src:significance.R` |
+| `derive-cdf-of-the-adjusted-u-pit-null` | 4.4 | todo |
+| `rename-unadjusted-metric-to-b-pit` | 3 (notation) | todo |
+| `b-pit-computed-against-adjusted-ranks` | 3.5, 5.5 | todo, issue |
 | `mean-based-bias-estimator-fails-for-skewed-distributions` | 8 (caveat) | todo |
 | `add-non-normal-distribution-robustness-study` | 5 | todo |
 | `reframe-vignettes-as-supplementary-materials` | all | todo |
@@ -418,8 +607,8 @@ The rewrite skeleton maps to these loom tasks:
 2. **Title preference** — which of the three options, or a new one?
 3. **Mean vs median bias estimator** — the paper currently uses mean; the correct fix
    is median. Should we switch the whole paper?
-4. **Real-data example** — do we have one ready, or do we need to build the SEIR+EpiEstim
-   example?
+4. ~~**Real-data example**~~ — **resolved.** Built as `vignette:seir-example.Rmd`
+   (SIR sweep + EpiEstim), now Section 7, Fig. 5.
 5. **Proof level** — formal proofs or simulation-supported sketches?
 6. **$U^*_{pit}$ critical values** — find a reference for $\int|B^\circ|$ or tabulate from
    high-quality simulation?

@@ -2,13 +2,14 @@
 class: task
 id: derive-analytical-null-distribution-for-pit-w-metrics.md
 title: Derive the analytical null distribution of the PIT-W metrics
-status: todo
+status: done
 kind: feature
 priority: high
 touches:
 - paper:main.tex
 - src:scoring.R#pit_w
 - vignette:significance-testing.Rmd
+- src:significance.R
 blocks:
 - task:characterise-d-pit-sampling-distribution-by-simulation.md
 - task:restore-pivotality-of-the-bias-adjustment.md
@@ -80,3 +81,4 @@ Blocked by nothing; feeds the publication-format decision.
 ## Reference check 2026-11-16
 
 The new Takács (1993) reference is specifically about the integral of the absolute value of **Brownian motion**, not the Brownian bridge. It therefore does not support the claim that the bridge functional has the same exact CDF series. The supplementary vignette now names the limit descriptively as the integrated absolute Brownian-bridge functional; critical values should be taken from a bridge-specific source or simulation until a direct reference is verified. Bhattacharya and Waymire (2021) is useful background on the bridge itself, but does not establish this functional's distribution.
+/tmp/fam/null-done.md

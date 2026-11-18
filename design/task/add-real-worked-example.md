@@ -2,11 +2,14 @@
 class: task
 id: add-real-worked-example.md
 title: 'EpiEstim on simulated SEIR data: differential calibration at low vs high prevalence'
-status: todo
+status: done
 kind: feature
 priority: high
 touches:
 - paper:main.tex
+- vignette:seir-example.Rmd
+produces:
+- resource:fig5-epiestim-by-epi-size.pdf
 ---
 Concrete scope agreed with the user 2026-11-13, replacing the earlier
 "depends on data availability" framing — this doesn't need real surveillance
@@ -53,3 +56,4 @@ Practical notes for whoever picks this up:
 Can proceed regardless of the short-communication-vs-full-paper decision,
 though a short communication may not have room for it — see
 `task:decide-publication-format-short-communication-or-full-paper.md`.
+/tmp/real-example-outcome.md

@@ -42,7 +42,8 @@ Imports:
     tidyselect,
     utils
 Suggests:
-    deSolve
+    deSolve,
+    EpiEstim
 Remotes: ai4ci/interfacer
 Config/Needs/build: terminological/pkgtools
 VignetteBuilder: knitr

@@ -87,6 +87,7 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
 
   tmp2 = out %>%
     dplyr::summarise(
+      n_predictions = dplyr::n(),
       bias = mean(bias),
       universal_bias = mean(univ_resid),
       mean_crps = mean(crps),

@@ -13,7 +13,7 @@ by `loom render` from `design/document-model.mmd`.
 | uri | status |
 | --- | --- |
 | [Decide: short communication vs full methods paper](../plan/decide-publication-strategy.md) | active |
-| [Significance test for H0: estimator is dispersion-calibrated](../plan/dispersion-calibration-significance-test.md) | draft |
+| [Significance test for H0: estimator is dispersion-calibrated](../plan/dispersion-calibration-significance-test.md) | active |
 | [Rewrite the appendix as a standalone short paper](../plan/paper-rewrite.md) | active |
 | [Make the package build and check cleanly for r-universe](../plan/r-universe-release-readiness.md) | active |
 <!-- loom view: activePlans end -->
@@ -25,18 +25,19 @@ by `loom render` from `design/document-model.mmd`.
 | uri | status | priority |
 | --- | --- | --- |
 | [Use the existing non-normal distribution capability to test bias-adjustment robustness](../task/add-non-normal-distribution-robustness-study.md) | todo | high |
-| [EpiEstim on simulated SEIR data: differential calibration at low vs high prevalence](../task/add-real-worked-example.md) | todo | high |
+| [Baseline PIT-W metric is computed against the adjusted ranks](../task/b-pit-computed-against-adjusted-ranks.md) | todo | high |
 | [Better BibTeX fields are omitted by the paper bibliography style](../task/bibtex-journal-and-year-fields-missing.md) | todo | high |
 | [Characterise D*_pit sampling distribution under H0 by simulation](../task/characterise-d-pit-sampling-distribution-by-simulation.md) | todo | high |
 | [Clarify standard calibration versus the bias-adjusted PIT diagnostic](../task/clarify-bias-adjusted-pit-diagnostic.md) | todo | high |
 | [Decide: short communication or full methods paper](../task/decide-publication-format-short-communication-or-full-paper.md) | todo | high |
-| [Derive the analytical null distribution of the PIT-W metrics](../task/derive-analytical-null-distribution-for-pit-w-metrics.md) | todo | high |
 | [DESCRIPTION still has placeholder Title and Description](../task/fix-description-placeholder-metadata.md) | todo | high |
 | [Implement a bootstrap significance test for H0: dispersion-calibrated](../task/implement-bootstrap-test-for-dispersion-calibration.md) | todo | high |
 | [Reframe the introduction as a mathematical methods paper, not an educational piece](../task/reframe-introduction-as-mathematical-methods-paper.md) | todo | high |
+| [Rename the unadjusted metric to B_pit across code, tests, vignettes and paper](../task/rename-unadjusted-metric-to-b-pit.md) | todo | high |
 | [Settle the bias adjustment: x-space kept, PIT-space ruled out](../task/restore-pivotality-of-the-bias-adjustment.md) | todo | high |
 | [Frame the metrics as a two-part test: D* for median dispersion, U* for residual shape](../task/two-part-test-decomposition-d-then-u.md) | todo | high |
 | [No CI runs R CMD check or the test suite](../task/add-ci-r-cmd-check-workflow.md) | todo | medium |
+| [Find or tabulate a c.d.f. for the bias-adjusted U_pit null](../task/derive-cdf-of-the-adjusted-u-pit-null.md) | todo | medium |
 | [U*_pit and D*_pit are swapped in README relative to main.tex and the code](../task/pit-w-notation-swapped-between-readme-and-paper.md) | todo | medium |
 | [Reframe the four figure vignettes as supplementary materials](../task/reframe-vignettes-as-supplementary-materials.md) | todo | medium |
 | [State the asymptotic D*_pit question precisely as future work](../task/document-asymptotic-theory-as-future-work.md) | todo | low |

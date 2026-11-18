@@ -39,3 +39,4 @@ pass before completion, per AGENTS.md.
 Report the result in `main.tex` (a worked example with a real or simulated
 dataset showing the test in use), and reference back to `main.tex:240`'s
 original "further work" statement as resolved by this work.
+/tmp/fam/bootstrap-note.md

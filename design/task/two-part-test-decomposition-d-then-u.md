@@ -79,3 +79,4 @@ than replace it.
 
 All figures above are quick in-session simulations and must be reproduced in
 a vignette before citation.
+/tmp/fam/decomp-note.md

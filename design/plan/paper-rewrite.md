@@ -15,6 +15,7 @@ spawns:
 - task:pit-w-notation-swapped-between-readme-and-paper.md
 - task:mean-based-bias-estimator-fails-for-skewed-distributions.md
 - task:bibtex-journal-and-year-fields-missing.md
+- task:rename-unadjusted-metric-to-b-pit.md
 informedBy:
 - reference:wessel-2025-tail-calibration.md
 - reference:gneiting-2007-calibration-and-sharpness.md
