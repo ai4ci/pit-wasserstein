@@ -54,9 +54,13 @@ test_that("pit_w unit test", {
   F2 = pit_w
 
 
-  qs = seq(1, 199, 2) / 200
-  
-  scores = pit_w(0, qnorm(qs, 0, 1), 1, dist = "norm", link = "identity")
+  scores = pit_w(
+    0,
+    qnorm(seq(1, 199, 2) / 200, 0, 1),
+    1,
+    dist = "norm",
+    link = "identity"
+  )
   testthat::expect_equal(scores$U_pit, 0)
   
   scores = pit_w(
@@ -90,7 +94,7 @@ test_that("pit_w unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/scoring.R"), c(128, 1, 128+1, 1))
+    srcref = srcref(srcfile("../../R/scoring.R"), c(130, 1, 130+1, 1))
   )
 })
 
@@ -120,7 +124,7 @@ test_that("crps_fn_generator unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/scoring.R"), c(199, 1, 199+1, 1))
+    srcref = srcref(srcfile("../../R/scoring.R"), c(203, 1, 203+1, 1))
   )
 })
 

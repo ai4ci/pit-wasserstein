@@ -25,7 +25,6 @@ by `loom render` from `design/document-model.mmd`.
 | uri | status | priority |
 | --- | --- | --- |
 | [Use the existing non-normal distribution capability to test bias-adjustment robustness](../task/add-non-normal-distribution-robustness-study.md) | todo | high |
-| [Baseline PIT-W metric is computed against the adjusted ranks](../task/b-pit-computed-against-adjusted-ranks.md) | todo | high |
 | [Better BibTeX fields are omitted by the paper bibliography style](../task/bibtex-journal-and-year-fields-missing.md) | todo | high |
 | [Characterise D*_pit sampling distribution under H0 by simulation](../task/characterise-d-pit-sampling-distribution-by-simulation.md) | todo | high |
 | [Clarify standard calibration versus the bias-adjusted PIT diagnostic](../task/clarify-bias-adjusted-pit-diagnostic.md) | todo | high |
@@ -33,7 +32,6 @@ by `loom render` from `design/document-model.mmd`.
 | [DESCRIPTION still has placeholder Title and Description](../task/fix-description-placeholder-metadata.md) | todo | high |
 | [Implement a bootstrap significance test for H0: dispersion-calibrated](../task/implement-bootstrap-test-for-dispersion-calibration.md) | todo | high |
 | [Reframe the introduction as a mathematical methods paper, not an educational piece](../task/reframe-introduction-as-mathematical-methods-paper.md) | todo | high |
-| [Rename the unadjusted metric to B_pit across code, tests, vignettes and paper](../task/rename-unadjusted-metric-to-b-pit.md) | todo | high |
 | [Settle the bias adjustment: x-space kept, PIT-space ruled out](../task/restore-pivotality-of-the-bias-adjustment.md) | todo | high |
 | [Frame the metrics as a two-part test: D* for median dispersion, U* for residual shape](../task/two-part-test-decomposition-d-then-u.md) | todo | high |
 | [No CI runs R CMD check or the test suite](../task/add-ci-r-cmd-check-workflow.md) | todo | medium |
@@ -90,3 +88,4 @@ by `loom render` from `design/document-model.mmd`.
 ## Documents
 
 - [Literature review](literature-review.md)
+- [Paper rewrite skeleton](paper-rewrite-skeleton.md)

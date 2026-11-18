@@ -24,7 +24,6 @@ Predictions whose PIT values are exactly uniform, for a scale family
 (gamma4, lnorm4, ...) where \code{location} is the median.
 }
 \examples{
-qs = seq(1, 199, 2) / 200
-loc = calibrated_locations(, x0 = 1, kappa = 0.5, qfn = qgamma4)
-pit_w(1, loc, 0.5, dist = "gamma4", link = "log")$U_pit_unadj # ~1e-17
+loc = calibrated_locations(qfn = qgamma4, median = 1, kappa = 0.5)
+pit_w(1, loc, 0.5, dist = "gamma4", link = "log")$B_pit # ~1e-17
 }

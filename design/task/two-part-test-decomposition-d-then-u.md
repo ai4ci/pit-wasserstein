@@ -79,4 +79,34 @@ than replace it.
 
 All figures above are quick in-session simulations and must be reproduced in
 a vignette before citation.
-/tmp/fam/decomp-note.md
+
+---
+
+## Revised 2026-11-17: three-part, not two-part
+
+The decomposition now has three stages, because the unadjusted metric has been
+promoted from "the thing the adjustment fixes" to a first-class member of the
+family with its own null hypothesis.
+
+1. **`B_pit`** — $H_0$: the PIT values are i.i.d. $U(0,1)$. Omnibus. Rejects
+   when anything at all is wrong and says nothing about what.
+2. **`D_pit`** — $H_0$: dispersion is correct, location arbitrary. Signed, so
+   a rejection names the direction: positive is overconfident, negative
+   underconfident.
+3. **`U_pit`** — $H_0$: shape is correct, location arbitrary. Rejects on skew,
+   tail weight or mixed dispersion errors that survive the adjustment.
+
+Each null is strictly weaker than the one before, so the sequence reads as a
+diagnosis rather than three separate tests:
+
+| `B_pit` | `D_pit` | `U_pit` | Reading |
+|---|---|---|---|
+| not rejected | — | — | calibrated |
+| rejected | not rejected | not rejected | pure location error |
+| rejected | rejected | not rejected | dispersion error, direction given by sign of `D_pit` |
+| rejected | not rejected | rejected | shape error at the right width |
+| rejected | rejected | rejected | both |
+
+Note the multiplicity: the three statistics are computed from the same PIT
+values and are not independent. The sequence should be presented as a
+diagnostic read-down from a single rejection, not as three tests each at 5%.

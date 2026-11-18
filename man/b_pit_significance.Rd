@@ -8,7 +8,7 @@ b_pit_significance(B_pit, n_predictions)
 }
 \arguments{
 \item{B_pit}{the baseline (unadjusted) PIT-Wasserstein metric, reported as
-\code{U_pit_unadj} by \code{\link[=pit_w]{pit_w()}} and \code{\link[=prediction_scores]{prediction_scores()}}}
+\code{B_pit} by \code{\link[=pit_w]{pit_w()}} and \code{\link[=prediction_scores]{prediction_scores()}}}
 
 \item{n_predictions}{the number of predictions each \code{B_pit} was computed
 from, as returned by \code{\link[=prediction_scores]{prediction_scores()}}}

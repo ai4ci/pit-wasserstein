@@ -181,7 +181,7 @@ q_l1_bridge = function(p, terms = 30L) {
 #' shape.
 #'
 #' @param B_pit the baseline (unadjusted) PIT-Wasserstein metric, reported as
-#'   `U_pit_unadj` by [pit_w()] and [prediction_scores()]
+#'   `B_pit` by [pit_w()] and [prediction_scores()]
 #' @param n_predictions the number of predictions each `B_pit` was computed
 #'   from, as returned by [prediction_scores()]
 #' @returns a dataframe with one row per input value and columns:

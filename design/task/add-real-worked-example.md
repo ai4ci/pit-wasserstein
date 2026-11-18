@@ -56,4 +56,53 @@ Practical notes for whoever picks this up:
 Can proceed regardless of the short-communication-vs-full-paper decision,
 though a short communication may not have room for it — see
 `task:decide-publication-format-short-communication-or-full-paper.md`.
-/tmp/real-example-outcome.md
+
+---
+
+## Outcome (2026-11-17)
+
+Done. Implemented as `vignette:seir-example.Rmd`, producing
+`resource:fig5-epiestim-by-epi-size` (panels A–D).
+
+Two deviations from the scope above, both deliberate and both strengthening
+the result:
+
+1. **SEIR → deterministic SIR ODE.** The exposed compartment adds nothing: the
+   requirement was an exact known $R_t$, and $R_t = R_0 S_t$ from a `deSolve`
+   SIR solution delivers that with less machinery.
+2. **Low-vs-high prevalence → a continuous sweep over epidemic size.** 100
+   log-spaced population sizes from $10^{2.5}$ to $10^{5}$, ten replicates
+   each, same epidemic shape throughout, peak observed case count as the
+   x-axis. Two regimes would have given two points; the sweep shows a **sign
+   change**, which is a much stronger statement than a difference.
+
+Findings, scored with `prediction_scores(dist="gamma2", link="log",
+threshold=1)` against the exact $R_t$:
+
+- $D^*_{pit}$ rises monotonically with epidemic size and **crosses zero** at a
+  peak of ~56 observed cases ($-0.079$ at peak 10, $+0.089$ at peak 1261).
+  $U^*_{pit}$ is U-shaped with a minimum at ~47. EpiEstim is under-confident
+  at low counts and over-confident at high counts — the predicted failure
+  mode is confirmed, and the crossover is located.
+- **CRPS ranks the forecaster in the opposite direction** (falls 0.183 →
+  0.087, $r=-0.89$ with $\log_{10}$ peak, vs $r=+0.91$ for $D^*_{pit}$). CRPS
+  is tracking sharpness, not calibration. Coverage sides with PIT-W: nominal
+  95% intervals cover 91% at peak 10 and 51% at peak 1261. This is the
+  paper's headline comparison, now made on an external estimator.
+- Significance is read from the **analytical null** of
+  `task:derive-analytical-null-distribution-for-pit-w-metrics.md`
+  ($D^*\sim N(0,1/48n)$, $\mathbb{E}[U^*]=\sqrt{2\pi}/8\sqrt{n}$, median
+  $n=76$): $z=-3.7$ at peak 10, $-1.0$ at peak 36, $+5.7$ at peak 1261. Only
+  the 36–73 band is indistinguishable from calibrated.
+- Bias is negative at every size ($-0.185 \to -0.088$). `U_pit_unadj` is
+  0.24–0.30 and flat; adjusted `U_pit` is 0.05–0.10 and carries all the
+  structure — bias invariance demonstrated on an error nobody designed.
+
+Narrative placement: Section 7 of `doc:paper-rewrite-skeleton.md`.
+
+Follow-ups deliberately **not** done here (raise separately if wanted):
+- `EpiEstim` and `deSolve` are not yet in `DESCRIPTION` `Suggests`.
+- The experiment shows *that* the sign changes, not *why* — Gamma(2,2) prior,
+  7-day window and renewal-equation likelihood are not separated.
+- `pObs` is fixed at 0.5, leaving a vestigial single-level `P(obs)` colour
+  aesthetic in the figure.

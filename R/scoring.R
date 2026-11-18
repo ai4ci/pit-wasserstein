@@ -9,16 +9,20 @@
 #' @param threshold If given calculates the threshold misclassification probability
 #' @returns a dataframe. columns depend on `summarise`
 #' @export
-#' @unit
-#' qs = seq(1,199,2)/200
+#' @examples
+#' qs = seq(1, 199, 2) / 200
 #' df = tidyr::crossing(
-#'     true_value = 0,
-#'     location = qnorm(qs, 1, 1),
-#'     scale = c(1/2,1/1.5,1,1.5,2),
-#'     dist="norm", link="identity") %>%
-#'   dplyr::mutate(calibration=scale) %>%
+#'   true_value = 0,
+#'   location = qnorm(qs, 1, 1),
+#'   scale = c(1 / 2, 1 / 1.5, 1, 1.5, 2),
+#'   dist = "norm",
+#'   link = "identity"
+#' ) %>%
+#'   dplyr::mutate(calibration = scale) %>%
 #'   dplyr::group_by(dist, link, calibration)
-#' df %>% prediction_scores() %>% view()
+#' df %>%
+#'   prediction_scores() %>%
+#'   dplyr::glimpse()
 prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA_real_) {
   df = interfacer::ivalidate(df, .fix = TRUE)
   # bias is positive if prediction mean > true value
@@ -62,7 +66,9 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
             bias = true_value - medians,
             rank_order = rank(u_i, ties.method = "first"),
             unif = (rank_order * 2 - 1) / (2 * dplyr::n()),
-            u_pit_unadj = abs(unif - u_i_unadj),
+            rank_order_unadj = rank(u_i_unadj, ties.method = "first"),
+            unif_unadj = (rank_order_unadj * 2 - 1) / (2 * dplyr::n()),
+            b_pit = abs(unif_unadj - u_i_unadj),
             u_pit = abs(unif - u_i),
             d_pit = (unif - u_i) * sign(0.5 - unif),
             P_i_err = abs(cdf(threshold, location, scale) - (adj_true_value < threshold)),
@@ -95,7 +101,7 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
       mean_coverage.0.5 = mean(covered.0.5),
       mean_coverage.0.5_adj = mean(covered.0.5_adj),
       mean_coverage.0.95 = mean(covered.0.95),
-      U_pit_unadj = mean(u_pit_unadj),
+      B_pit = mean(b_pit),
       U_pit = mean(u_pit),
       D_pit = mean(d_pit),
       P_misclass = sum(P_i_err * abs_diff_gX_gT) / sum(abs_diff_gX_gT),
@@ -122,13 +128,12 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
 #' @returns a one row data frame with:
 #' * `U_pit` an undirected pit-wasserstein
 #' * `D_pit` a directed pit-wasserstein
-#' * `U_pit_unadj` raw unadjusted undrected pit-wasserstein
+#' * `B_pit` raw unadjusted undrected pit-wasserstein
 #' @export
 #'
 #' @unit
-#' qs = seq(1,199,2)/200
 #'
-#' scores = pit_w(0, qnorm(qs, 0, 1), 1, dist = "norm", link="identity")
+#' scores = pit_w(0, qnorm(seq(1,199,2)/200, 0, 1), 1, dist = "norm", link="identity")
 #' testthat::expect_equal(scores$U_pit, 0)
 #'
 #' scores = pit_w(1, calibrated_locations(qlnorm4, 1, 1), 1, dist = "lnorm4", link="log")
@@ -174,9 +179,12 @@ pit_w = function(
   rank_order = rank(u_i, ties.method = "first")
   unif = (rank_order * 2 - 1) / (2 * n)
 
+  rank_order_unadj = rank(u_i_unadj, ties.method = "first")
+  unif_unadj = (rank_order_unadj * 2 - 1) / (2 * n)
+
   return(dplyr::tibble(
+    B_pit = mean(abs(u_i_unadj - unif_unadj)),
     U_pit = mean(abs(u_i - unif)),
-    U_pit_unadj = mean(abs(u_i_unadj - unif)),
     D_pit = mean((unif - u_i) * sign(0.5 - unif)),
     adjust = adjust,
     link = link

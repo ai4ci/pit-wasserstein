@@ -407,9 +407,9 @@ qs <- seq(1, 199, 2) / 200
 tibble(
   placement = c("naive quantiles", "calibrated"),
   U_unadjusted = c(
-    pit_w(2.5, qgamma4(qs, 2.5, 0.5), 0.5, dist = "gamma4", link = "log")$U_pit_unadj,
+    pit_w(2.5, qgamma4(qs, 2.5, 0.5), 0.5, dist = "gamma4", link = "log")$B_pit,
     pit_w(2.5, calibrated_locations(qs, 2.5, 0.5, qgamma4), 0.5,
-          dist = "gamma4", link = "log")$U_pit_unadj)
+          dist = "gamma4", link = "log")$B_pit)
 )
 ```
 
@@ -421,7 +421,7 @@ for skewed families and corrects for it, injecting the miscalibration it then
 measures. The effect is invisible for `norm` and `lnorm4`, which are
 log-symmetric, and all results in the main paper use those families.
 
-Until this is resolved, **use `U_pit_unadj` rather than `U_pit` when checking
+Until this is resolved, **use `B_pit` rather than `U_pit` when checking
 that a skewed-family example is calibrated**, as above. The issue is tracked
 in the design records.
 

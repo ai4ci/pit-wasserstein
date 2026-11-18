@@ -31,7 +31,7 @@ a one row data frame with:
 \itemize{
 \item \code{U_pit} an undirected pit-wasserstein
 \item \code{D_pit} a directed pit-wasserstein
-\item \code{U_pit_unadj} raw unadjusted undrected pit-wasserstein
+\item \code{B_pit} raw unadjusted undrected pit-wasserstein
 }
 }
 \description{
@@ -42,9 +42,8 @@ which we can calculate scores such as CPRS and PIT-W
 \section{Unit tests}{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{
 
-qs = seq(1,199,2)/200
 
-scores = pit_w(0, qnorm(qs, 0, 1), 1, dist = "norm", link="identity")
+scores = pit_w(0, qnorm(seq(1,199,2)/200, 0, 1), 1, dist = "norm", link="identity")
 testthat::expect_equal(scores$U_pit, 0)
 
 scores = pit_w(1, calibrated_locations(qlnorm4, 1, 1), 1, dist = "lnorm4", link="log")

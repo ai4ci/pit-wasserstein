@@ -39,4 +39,24 @@ pass before completion, per AGENTS.md.
 Report the result in `main.tex` (a worked example with a real or simulated
 dataset showing the test in use), and reference back to `main.tex:240`'s
 original "further work" statement as resolved by this work.
-/tmp/fam/bootstrap-note.md
+
+---
+
+## Superseded (2026-11-17) — awaiting a decision
+
+The premise of this task was that no analytical null was available, so a
+bootstrap would have to stand in. That premise no longer holds: see
+`task:derive-analytical-null-distribution-for-pit-w-metrics.md`. All three
+metrics now have exact or numerically-exact distribution-free nulls and a
+working significance test in `src:significance.R`, with empirical size at
+nominal 5% confirmed by simulation.
+
+A bootstrap would now be strictly worse — slower, approximate, and it would
+undercut the paper's claim that the family is analytical.
+
+**Recommendation: drop.** Not dropped yet because the user has not confirmed.
+The one argument for keeping it is as a robustness check for dependent
+predictions (overlapping forecast windows, as in the EpiEstim example, violate
+the i.i.d. PIT assumption that every one of these nulls rests on). If that
+check is wanted it is a *different* task with a different rationale, and
+should be raised as one rather than left here.

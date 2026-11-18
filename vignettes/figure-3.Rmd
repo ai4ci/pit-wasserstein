@@ -177,7 +177,7 @@ p3b = ggplot(
     alpha = 0.75
   ) +
   theme(aspect.ratio = 1) +
-  ylab("directed PIT wasserstein")
+  ylab("directed\nPIT wasserstein")
 
 p3b
 ```
@@ -223,7 +223,7 @@ p3a = ggplot(
     alpha = 0.75
   ) +
   theme(aspect.ratio = 1) +
-  ylab("bias adjusted\nPIT wasserstein")
+  ylab("undirected\nPIT wasserstein")
 
 p3a
 ```
@@ -231,7 +231,7 @@ p3a
 ```{r}
 p2b = ggplot(
   scores,
-  aes(x = calibration, y = U_pit_unadj, colour=abs(bias))
+  aes(x = calibration, y = B_pit, colour=abs(bias))
 ) +
   geom_point() +
   scale_x_log10() +
@@ -269,7 +269,7 @@ p2b = ggplot(
     alpha = 0.75
   ) +
   theme(aspect.ratio = 1) +
-  ylab("unadjusted\nPIT wasserstein")
+  ylab("baseline\nPIT wasserstein")
 
 p2b
 ```
@@ -364,7 +364,7 @@ fig3_metrics
 ```{r}
 .gg_save_as(
   fig3_metrics,
-  file.path(fig_dir, "fig3-metric-compare"),
+  file.path(fig_dir, "fig1-metric-compare"),
   size = std_size$two_third,
   formats = c("pdf", "eps")
 )

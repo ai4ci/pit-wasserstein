@@ -33,10 +33,7 @@ Create a basket of scores for a set of paramtrised probabilistic predictions com
 to a known ground truth, predictions are assumed to be distributional and
 associated with a link function that transforms them to linear space.
 }
-
-\section{Unit tests}{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{
-
+\examples{
 qs = seq(1,199,2)/200
 df = tidyr::crossing(
     true_value = 0,
@@ -45,7 +42,5 @@ df = tidyr::crossing(
     dist="norm", link="identity") \%>\%
   dplyr::mutate(calibration=scale) \%>\%
   dplyr::group_by(dist, link, calibration)
-df \%>\% prediction_scores() \%>\% view()
-}\if{html}{\out{</div>}}
+df \%>\% prediction_scores() \%>\% dplyr::glimpse()
 }
-

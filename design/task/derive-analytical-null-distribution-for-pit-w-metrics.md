@@ -81,4 +81,41 @@ Blocked by nothing; feeds the publication-format decision.
 ## Reference check 2026-11-16
 
 The new Takács (1993) reference is specifically about the integral of the absolute value of **Brownian motion**, not the Brownian bridge. It therefore does not support the claim that the bridge functional has the same exact CDF series. The supplementary vignette now names the limit descriptively as the integrated absolute Brownian-bridge functional; critical values should be taken from a bridge-specific source or simulation until a direct reference is verified. Bhattacharya and Waymire (2021) is useful background on the bridge itself, but does not establish this functional's distribution.
-/tmp/fam/null-done.md
+
+---
+
+## Outcome (2026-11-17): done
+
+All three members of the family now have a null, and two of the three are
+exact and analytical.
+
+| Metric | $H_0$ | Null of $\sqrt{n}\times$metric | Status |
+|---|---|---|---|
+| `B_pit` | PITs are i.i.d. $U(0,1)$ | $\int_0^1\|B^\circ\|$, c.d.f. from Johnson & Killeen (1983) | **exact, closed form** |
+| `D_pit` | dispersion correct, location arbitrary | $\mathcal{N}(0, 1/48)$ | **exact, closed form** |
+| `U_pit` | shape correct, location arbitrary | $\int_0^1\|B^\circ(t)-\kappa(t)B^\circ(1/2)\|$ | law identified, c.d.f. open |
+
+with $\kappa(t)=\varphi(\Phi^{-1}(t))/\varphi(0)$.
+
+Implemented in `src:significance.R` as `b_pit_significance()`,
+`d_pit_significance()` and `u_pit_significance()`, with `p_l1_bridge()` /
+`q_l1_bridge()` exposing the Johnson & Killeen series. The Airy function and
+the zeros of $Ai'$ are computed from base R's Bessel functions, so no new
+dependency was needed.
+
+Key finding beyond the original scope: **the bias adjustment is free for
+`D_pit` and expensive for `U_pit`.** $D_{pit}$ is already orthogonal to a
+location shift, so $n\mathrm{Var}(D)$ is $1/48$ with or without the
+adjustment; $U_{pit}$ pays the usual estimated-parameter price and its 5%
+critical value is a stable 0.66 times the baseline one. That asymmetry is now
+a result in the paper rather than a caveat.
+
+Empirical size at $n = 76$, 3000 replicates, heteroscedastic
+($\kappa_\mathcal{S} = 0.5$) calibrated predictions: `B_pit` 5.8%, `U_pit`
+4.7%, `D_pit` 6.3% against a nominal 5%. The `D_pit` inflation is the
+documented small-$n$ behaviour of the normal approximation; the `B_pit`
+inflation is `task:b-pit-computed-against-adjusted-ranks.md`.
+
+Remaining work split out as
+`task:derive-cdf-of-the-adjusted-u-pit-null.md` — the `U_pit` null is
+currently simulated once per session rather than evaluated from a formula.

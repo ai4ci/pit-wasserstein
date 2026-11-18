@@ -49,7 +49,7 @@ $n=100$ deterministic mid-rank grid, `gamma4` with $\kappa=0.5$, true value 1.
 "Calibrated placement" is $\mu_i = 1/F_W^{-1}(1-q_i)$, which yields exactly
 uniform PITs by construction (`gamma4` is a scale family in `location`).
 
-| case | `U_pit_unadj` | adj: mean | adj: median | mean log bias |
+| case | `B_pit` | adj: mean | adj: median | mean log bias |
 |---|---|---|---|---|
 | `lnorm4`, log-symmetric | 5.1e-17 | 5.1e-17 | 7.9e-17 | -3.3e-18 |
 | `gamma4`, quantile placement | 2.35e-2 | 2.28e-2 | 2.35e-2 | -4.40e-2 |
@@ -82,7 +82,7 @@ The existing examples place predictions at `q<dist>(qs, ...)`, giving
 $u_i = F_W(1/F_W^{-1}(q_i))$, which is uniform only when
 $W \overset{d}{=} 1/W$, i.e. when $\log W$ is symmetric. That holds for `norm`
 and `lnorm4` but not for `gamma4` — the user's construction was genuinely
-miscalibrated (`U_pit_unadj` = 0.0235) independently of the bug above. Any
+miscalibrated (`B_pit` = 0.0235) independently of the bug above. Any
 test or vignette extending to skewed families must use
 $\mu_i = 1/F_W^{-1}(1-q_i)$, or solve $F(x_0;\mu_i) = 1-q_i$ numerically.
 

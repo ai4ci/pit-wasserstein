@@ -24,3 +24,8 @@ generated and such edits will be overwritten.
 Verified 2026-11-16: all `main.tex` citation keys resolve; the remaining
 problem is displayed reference metadata, not missing citations or a failed
 `.bbl` build.
+
+
+## Update 2026-11-18
+
+This should be fixed with a BetterBibtex BibTeX export.

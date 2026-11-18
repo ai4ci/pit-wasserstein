@@ -25,7 +25,7 @@ against.
 Agreed rework, discussed with the user 2026-11-13:
 
 - Swap panel B for the **existing unadjusted PIT-Wasserstein** ($U_{pit,unadj}$,
-  already computed by `pit_w()` — `src:scoring.R#pit_w`'s `U_pit_unadj`
+  already computed by `pit_w()` — `src:scoring.R#pit_w`'s `B_pit`
   return value). This is the metric that already exists in the literature
   ([Zhao et al. (2020)](../reference/zhao-2020-individual-calibration.md),
   [Dheur & Ben Taieb (2023)](../reference/dheur-2023-probabilistic-calibration-study.md)):

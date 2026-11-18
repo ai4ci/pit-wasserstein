@@ -32,3 +32,8 @@ closing it, and update
 [plan:paper-rewrite.md](../plan/paper-rewrite.md)'s rationale to reflect the
 chosen scope — the blocked tasks below should not proceed until this is
 closed.
+
+## Update 2026-11-18
+
+Significance testing and 3 metric family (B_pit, D_pit, U_pit) repositioning 
+make this a full methods paper.

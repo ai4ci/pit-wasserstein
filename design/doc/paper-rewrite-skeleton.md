@@ -20,7 +20,13 @@ and open questions. It is a planning artefact — **not yet written prose**.
 3. _"PIT-Wasserstein: a bias-adjusted, directional metric for dispersion calibration"_
    — compact, introduces the name.
 
+Detection and diagnosis of miscalibrated probabilistic estimators with PIT-Wasserstein.
+Detection and diagnosis of miscalibration with PIT-Wasserstein metrics.
+
+   
 **To decide:** title, one-line abstract (30-50 words).
+
+
 
 ---
 
@@ -467,7 +473,7 @@ Four claims, in order:
    theory rather than illustrating the metric.
 4. **Bias invariance demonstrated on an error nobody designed.** Bias is negative
    throughout ($-0.185 \to -0.088$; prior pull towards $R=2$ plus window lag).
-   `U_pit_unadj` is 0.24–0.30 and nearly flat; adjusted `U_pit` is 0.05–0.10 and
+   `B_pit` is 0.24–0.30 and nearly flat; adjusted `U_pit` is 0.05–0.10 and
    carries all the structure. Almost all raw PIT deviation is location error.
 
 ### Gaps / decisions

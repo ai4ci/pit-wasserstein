@@ -2,7 +2,7 @@
 class: task
 id: duplicate-dheur-bib-entry.md
 title: refs.bib has two entries for Dheur & Ben Taieb (2023)
-status: todo
+status: done
 kind: paperFix
 priority: low
 touches:

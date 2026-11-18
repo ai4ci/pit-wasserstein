@@ -310,7 +310,7 @@ verdict.** Panel D shows a systematic negative bias at every epidemic size
 ($-0.185$ falling to $-0.088$): `EpiEstim`'s $R_t$ sits above the truth,
 plausibly a combination of the Gamma$(2,2)$ prior pulling towards 2 and the
 seven-day window lagging a falling $R_t$. The unadjusted undirected metric
-`U_pit_unadj` sits between 0.24 and 0.30 and is nearly flat, while the
+`B_pit` sits between 0.24 and 0.30 and is nearly flat, while the
 bias-adjusted `U_pit` sits between 0.05 and 0.10 and carries all the
 structure. Almost all of the raw PIT deviation is location error; the
 adjustment removes it and leaves the dispersion signal, which is the
