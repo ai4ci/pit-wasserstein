@@ -10,7 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 4
 )
 ```
 
@@ -23,15 +25,58 @@ fig_dir = here::here("vignettes", "main", "fig")
 set.seed(1001)
 ```
 
-Sticking with normally distributed at the moment we want to see what happens 
-to the U_pit and D_pit if the number of estimates vary, in a low bias, med bias, high bias
-scenario.
+This vignette is the reference for **Figures 2 and 3** of the paper. It asks
+the practical question that follows once the metrics have null distributions:
+**how many predictions do you need before a test can see anything?**
 
-We are doing this to establish whether there is a lower number of estimates 
-needed to get a sensible pitw result. For starters we can look at this 
-in a small range of calibration scenarios.
+Two simulations answer it from different directions.
+
+| | Simulation 1 (Figure 2) | Simulation 2 (Figure 3) |
+|---|---|---|
+| Question | do the metrics separate known failures at realistic $n$? | how does each test's power build with $n$? |
+| Design | $3\times3$ grid of dispersion calibration and bias | 4 named scenarios swept over $n$ |
+| $n$ | 10, 100, 1000 | 10 log-spaced values from 10 to 1000 |
+| Replicates | 100 per cell | 250 per point |
+| Display | boxplots against critical values | median and 95% range against critical value |
+
+Throughout, predictive distributions are normal and the dashed lines are the
+analytical 5% critical values from `vignette("significance-testing")`,
+evaluated at the relevant $n$. A metric above its dashed line is a rejection;
+how far the *bulk* of the distribution sits above it is the power.
+
+The paper describes both figures in more detail. The setup below is the
+specification they refer back to.
+
+# 1. Separation at fixed sample sizes (Figure 2)
+
+The first simulation crosses the two failure modes that the adjustment is
+meant to separate, at three sample sizes.
+
+| Factor | Levels |
+|---|---|
+| dispersion calibration $\sigma_\mathcal{S}/\sigma_\mathcal{E}$ | $2/3$ (overconfident), $1$ (calibrated), $3/2$ (conservative) |
+| bias $\mu_\mathcal{E}$ | $0$ (unbiased), $0.5$ (medium), $1$ (high) |
+| predictions per estimator $n$ | 10, 100, 1000 |
+| replicate estimators | 100 per cell |
+
+Two details matter for interpretation. The **error scale**
+$\sigma_\mathcal{E}$ is itself redrawn log-uniformly on $[\tfrac12, 2]$ for
+each replicate, with the claimed scale set to
+$\sigma_\mathcal{S} = \sigma_\mathcal{E}\times$ calibration — so the
+calibration *ratio* is held at its nominal level while the absolute scale
+varies, and nothing can depend on the units. And
+$\kappa_\mathcal{S} = 0$ throughout, so every prediction from a given
+estimator claims the same width: spread–error decoupling is deliberately
+excluded here and appears only in Simulation 2.
+
+Bias is expressed in units of $\sigma_\mathcal{E}$, so "high" bias is a
+one-standard-deviation displacement — large, but not absurd for a real
+forecaster.
 
 ```{r}
+
+# Simulation setup
+
 bias_limit = 1
 conf_range = 2
 runs = 100
@@ -52,10 +97,7 @@ config = tidyr::crossing(
     sharpness_location = bias_scale * calibration,
     sharpness_scale = variability
   )
-```
 
-
-```{r}
 sim = config %>% generate_simulation()
 scores = sim %>% prediction_scores()
 
@@ -76,16 +118,14 @@ scores = scores %>%
   samples = as.factor(samples)
   )
 
-scores = scores %>% mutate()
 ```
 
 
 ```{r}
 
-
 crit_b = pitw::b_pit_significance(NA, c(10,100,1000))
 
-fig4a = ggplot(scores, aes(y=B_pit, x = confidence, colour= bias, fill = bias))+
+plot1a = ggplot(scores, aes(y=B_pit, x = confidence, colour= bias, fill = bias))+
   geom_boxplot(outliers=FALSE, alpha = 0.2)+
   geom_hline(data = crit_b, aes(yintercept = critical_0.05), linetype="dashed")+
   facet_wrap(~ n_predictions)+
@@ -94,7 +134,7 @@ fig4a = ggplot(scores, aes(y=B_pit, x = confidence, colour= bias, fill = bias))+
 
 crit_d = pitw::d_pit_significance(NA, c(10,100,1000))
 
-fig4b = ggplot(scores, aes(y=D_pit, x = confidence, colour= bias, fill = bias))+
+plot1b = ggplot(scores, aes(y=D_pit, x = confidence, colour= bias, fill = bias))+
   geom_boxplot(outliers=FALSE, alpha = 0.2)+
   geom_hline(data = crit_d, aes(yintercept = critical_0.05), linetype="dashed")+
   geom_hline(data = crit_d, aes(yintercept = -critical_0.05), linetype="dashed")+
@@ -104,7 +144,7 @@ fig4b = ggplot(scores, aes(y=D_pit, x = confidence, colour= bias, fill = bias))+
 
 crit_u = pitw::u_pit_significance(NA, c(10,100,1000))
 
-fig4c = ggplot(scores, aes(y=U_pit, x = confidence, colour= bias, fill = bias))+
+plot1c = ggplot(scores, aes(y=U_pit, x = confidence, colour= bias, fill = bias))+
   geom_boxplot(outliers=FALSE, alpha = 0.2)+
   geom_hline(data = crit_u, aes(yintercept = critical_0.05), linetype="dashed")+
   facet_wrap(~ n_predictions)+
@@ -112,12 +152,10 @@ fig4c = ggplot(scores, aes(y=U_pit, x = confidence, colour= bias, fill = bias))+
   xlab(NULL)
 
 
-fig4 = fig4a+fig4b+fig4c+patchwork::plot_annotation(tag_levels = "A")+patchwork::plot_layout(guides = "collect",axes="collect_x", ncol=1)
-```
+plot1 = plot1a+plot1b+plot1c+patchwork::plot_annotation(tag_levels = "A")+patchwork::plot_layout(guides = "collect",axes="collect_x", ncol=1)
 
-```{r}
 .gg_save_as(
-  fig4,
+  plot1,
   file.path(fig_dir, "fig2-critical-limits"),
   size = std_size$two_third,
   formats = c("pdf", "eps")
@@ -125,23 +163,81 @@ fig4 = fig4a+fig4b+fig4c+patchwork::plot_annotation(tag_levels = "A")+patchwork:
 ```
 
 
+Reading Figure 2, panel by panel. Each panel is one sample size; within it,
+boxes are grouped by true dispersion calibration and coloured by bias.
+
+**Panel A, $B_{pit}$.** The baseline metric responds to both failures at once.
+Boxes rise with bias (colour) *and* away from the calibrated centre group, so
+a rejection is informative only in the weakest sense: something is wrong. At
+$n = 10$ the critical value is high enough that only the grossest failures
+clear it; by $n = 1000$ almost everything does, including combinations that
+are only mildly miscalibrated.
+
+**Panel B, $D_{pit}$.** Two dashed lines, because the directed test is signed
+and two-sided. The colour groups now sit **on top of one another**: bias moves
+the boxes hardly at all, which is the bias invariance of Figure 1 shown as a
+distribution rather than a scatter. What separates the boxes is dispersion
+calibration, and it separates them by *sign* — conservative below zero,
+overconfident above.
+
+**Panel C, $U_{pit}$.** The undirected adjusted metric is also flat in colour,
+and like $B_{pit}$ it is a distance so only the upper critical value applies.
+It separates calibrated from miscalibrated but, unlike panel B, cannot say
+which direction.
+
+The practical message is in the leftmost panel: at $n = 10$ the boxes for
+different calibration levels overlap heavily and sit largely below their
+critical values. **Ten predictions is not enough to diagnose anything but a
+gross failure.** By $n = 100$ the groups are cleanly separated, which is the
+sample size the paper recommends as a working minimum.
+
+For comparison, the two conventional summaries over the same simulation:
+
 ```{r}
 ggplot(scores, aes(y=mean_coverage.0.5, x = confidence, colour= samples, fill = samples))+
   geom_boxplot(outliers=FALSE, alpha = 0.2)+
-  facet_wrap(~ biased)+
+  facet_wrap(~ bias)+
   ylab("mean 50% coverage")
 
 ```
 ```{r}
 ggplot(scores, aes(y=mean_crps, x = confidence, colour= samples, fill = samples))+
   geom_boxplot(outliers=FALSE, alpha = 0.2)+
-  facet_wrap(~ biased)+
+  facet_wrap(~ bias)+
   ylab("mean CRPS")
 
 ```
-# Detailed pit-w against sample size
+Coverage is ordered correctly by dispersion calibration but is insensitive to
+sample size in its central tendency — more data narrows the boxes without
+moving them — and has no reference line to test against. Mean CRPS is ordered
+mainly by bias, as in Figure 1 panel A. Neither supports a decision rule.
+
+# 2. Power against sample size (Figure 3)
+
+The second simulation replaces the grid with four **named scenarios**, each a
+single well-defined failure mode, and sweeps the number of predictions
+continuously. This is the figure to use when choosing $n$.
+
+| Scenario | $\mu_\mathcal{E}$ | $\sigma_\mathcal{S}/\sigma_\mathcal{E}$ | $\kappa_\mathcal{S}$ | Should be detected by |
+|---|---|---|---|---|
+| unbiased; calibrated | 0 | 1 | 0 | nothing — this is the null |
+| biased; calibrated | 1 | 1 | 0 | $B_{pit}$ only |
+| unbiased; overconfident | 0 | $2/3$ | 0 | $D_{pit}$ and $U_{pit}$ |
+| unbiased; calibrated; decoupled | 0 | 1 | 1 | $U_{pit}$, weakly $B_{pit}$ |
+
+Here the error scale is **fixed** at $\sigma_\mathcal{E} = 1$ rather than
+redrawn, so the only thing varying along each curve is $n$. Sample sizes are
+the 10 log-spaced values from 10 to 1000, with 250 replicate estimators at
+each; the lines are medians and the ribbons the central 95% of replicates.
+
+The critical-value curves are evaluated on a finer grid of 100 sample sizes so
+that they render as smooth $1/\sqrt{n}$ decays rather than as segments.
 
 ```{r}
+
+# Second simulation setup
+# N.B. overwrites config and scores from above
+
 bias_limit = 1
 conf_range = 2
 runs = 250
@@ -166,13 +262,9 @@ config = tidyr::crossing(
     `(σₑ/σₛ)` = forcats::as_factor(sprintf("%0.2f",calibration))
   ) %>%
   dplyr::group_by(calibration, `(σₑ/σₛ)`, panel, samples)
-```
 
-
-```{r}
 sim = config %>% generate_simulation()
 scores = sim %>% prediction_scores()
-
 
 crit_b = pitw::b_pit_significance(NA,floor(10^seq(1,3,length.out=100)))
 crit_d = pitw::d_pit_significance(NA,floor(10^seq(1,3,length.out=100)))
@@ -189,7 +281,7 @@ plot_b = scores %>% ungroup() %>% group_by(samples, calibration, `(σₑ/σₛ)`
   q.0.95 = quantile(B_pit, 0.975)
 )
 
-fig5a = ggplot(plot_b, aes(y=q.0.5,ymin=q.0.05,ymax=q.0.95, x = samples))+
+plot2a = ggplot(plot_b, aes(y=q.0.5,ymin=q.0.05,ymax=q.0.95, x = samples))+
   geom_line(mapping=aes(colour=panel))+
   geom_line(data=crit_b, mapping=aes(x=n_predictions, y=critical_0.05), linetype="dashed", inherit.aes = FALSE)+
   geom_ribbon(mapping=aes(fill=panel),alpha=0.2)+
@@ -203,7 +295,7 @@ plot_d = scores %>% ungroup() %>% group_by(samples, calibration, `(σₑ/σₛ)`
   q.0.975 = quantile(D_pit, 0.975)
 )
 
-fig5b = ggplot(plot_d, aes(y=q.0.5,ymin=q.0.025,ymax=q.0.975, x = samples))+
+plot2b = ggplot(plot_d, aes(y=q.0.5,ymin=q.0.025,ymax=q.0.975, x = samples))+
   geom_line(mapping=aes(colour=panel))+
   geom_line(data=crit_d, mapping=aes(x=n_predictions, y=critical_0.05), linetype="dashed", inherit.aes = FALSE)+
   geom_line(data=crit_d, mapping=aes(x=n_predictions, y=-critical_0.05), linetype="dashed", inherit.aes = FALSE)+
@@ -219,7 +311,7 @@ plot_u = scores %>% ungroup() %>% group_by(samples, calibration, `(σₑ/σₛ)`
   q.0.95 = quantile(U_pit, 0.975)
 )
 
-fig5c = ggplot(plot_u, aes(y=q.0.5,ymin=q.0.05,ymax=q.0.95, x = samples))+
+plot2c = ggplot(plot_u, aes(y=q.0.5,ymin=q.0.05,ymax=q.0.95, x = samples))+
   geom_line(mapping=aes(colour=panel))+
   geom_line(data=crit_u, mapping=aes(x=n_predictions, y=critical_0.05), linetype="dashed", inherit.aes = FALSE)+
   geom_ribbon(mapping=aes(fill=panel),alpha=0.2)+
@@ -227,14 +319,46 @@ fig5c = ggplot(plot_u, aes(y=q.0.5,ymin=q.0.05,ymax=q.0.95, x = samples))+
   ylab("Undirected pit-w")+
   .gg_narrow(45)
 
-fig5 = fig5a+fig5b+fig5c+patchwork::plot_annotation(tag_levels = "A")+patchwork::plot_layout(guides = "collect",axes="collect_x", ncol=3)&theme(legend.position = "bottom")
-```
+plot2 = plot2a+plot2b+plot2c+patchwork::plot_annotation(tag_levels = "A")+patchwork::plot_layout(guides = "collect",axes="collect_x", ncol=3)&theme(legend.position = "bottom")
 
-```{r}
 .gg_save_as(
-  fig5,
+  plot2,
   file.path(fig_dir, "fig3-three-part-test"),
   size = std_size$third,
   formats = c("pdf", "eps")
 )
 ```
+
+Reading Figure 3. In each panel the dashed line falls as $1/\sqrt{n}$ — the
+test gets more sensitive with more data — while a curve that stays above it is
+a failure the test detects, and one that tracks below it is a failure that
+test is blind to.
+
+**Panel A, $B_{pit}$.** The null scenario tracks the critical value, as it must.
+The biased scenario sits far above it at every $n$: a one-$\sigma$ bias is
+detected from the smallest samples. The overconfident scenario also separates,
+but later. The decoupled scenario rises above the line only slowly — the
+omnibus test is the *weakest* of the three against spread–error decoupling.
+
+**Panel B, $D_{pit}$.** The biased curve now sits on zero, inside the two
+critical lines, at every sample size: the directed metric does not see a pure
+location error, by construction. Only the overconfident scenario leaves the
+band, and it does so with a definite sign. Note also that the decoupled
+scenario stays within the band — $D_{pit}$ is insensitive to $\kappa$ as well
+as to bias, which is what makes it a clean test of median width.
+
+**Panel C, $U_{pit}$.** The biased curve again sits on the null, confirming
+bias invariance. Both genuine miscalibrations — overconfidence and decoupling —
+separate, and the decoupled scenario separates *earlier here than in panel A*.
+Paying for the tighter adjusted null buys power against shape failures.
+
+Taken together the three panels are the three-part test working as intended:
+the pattern of which curves clear which lines identifies the failure mode,
+rather than merely flagging that one exists. The crossing points also give the
+direct answer to the sample-size question — read off where the scenario of
+interest leaves the dashed line.
+
+Two caveats carried over from `vignette("significance-testing")`: the
+$D_{pit}$ critical value is mildly anti-conservative below $n \approx 50$, so
+the left-hand end of panel B is optimistic; and all of this assumes
+independent predictions.

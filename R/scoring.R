@@ -13,7 +13,7 @@
 #' qs = seq(1, 199, 2) / 200
 #' df = tidyr::crossing(
 #'   true_value = 0,
-#'   location = qnorm(qs, 1, 1),
+#'   location = stats::qnorm(qs, 1, 1),
 #'   scale = c(1 / 2, 1 / 1.5, 1, 1.5, 2),
 #'   dist = "norm",
 #'   link = "identity"
@@ -30,11 +30,11 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
   out = df %>%
     dplyr::group_modify(
       function(d, g, ..) {
-        ln = make.link(g$link)
+        ln = stats::make.link(g$link)
         cdf = rlang::as_function(sprintf("p%s", g$dist))
         inv_cdf = rlang::as_function(sprintf("q%s", g$dist))
 
-        if (length(intersect(c("mean", "sd"), names(formals(pnorm)))) != 2) {
+        if (length(intersect(c("mean", "sd"), names(formals(cdf)))) != 2) {
           stop("the prediction distribution must be parametrised by mean and SD")
         }
 
@@ -43,12 +43,12 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
 
         if (g$adjust == "probit") {
           log_u_i_unadj = cdf(d$true_value, d$location, d$scale, log.p = TRUE)
-          probit_u_i_unadj = qnorm(log_u_i_unadj, log.p = TRUE)
-          probit_bias = median(probit_u_i_unadj)
-          u_i = pnorm(probit_u_i_unadj - probit_bias)
+          probit_u_i_unadj = stats::qnorm(log_u_i_unadj, log.p = TRUE)
+          probit_bias = stats::median(probit_u_i_unadj)
+          u_i = stats::pnorm(probit_u_i_unadj - probit_bias)
           adj_true_value = inv_cdf(u_i)
         } else if (g$adjust == "link") {
-          link_bias = median(ln$linkfun(medians) - ln$linkfun(d$true_value))
+          link_bias = stats::median(ln$linkfun(medians) - ln$linkfun(d$true_value))
           adj_true_value = ln$linkinv(ln$linkfun(d$true_value) + link_bias)
           u_i = cdf(adj_true_value, d$location, d$scale)
         } else {
@@ -158,18 +158,18 @@ pit_w = function(
 
   cdf = rlang::as_function(sprintf("p%s", dist))
   inv_cdf = rlang::as_function(sprintf("q%s", dist))
-  ln = make.link(link)
+  ln = stats::make.link(link)
 
   u_i_unadj = cdf(true_value, location, scale)
 
   if (adjust == "probit") {
     log_u_i_unadj = cdf(true_value, location, scale, log.p = TRUE)
-    probit_u_i_unadj = qnorm(log_u_i_unadj, log.p = TRUE)
-    probit_bias = median(probit_u_i_unadj)
-    u_i = pnorm(probit_u_i_unadj - probit_bias)
+    probit_u_i_unadj = stats::qnorm(log_u_i_unadj, log.p = TRUE)
+    probit_bias = stats::median(probit_u_i_unadj)
+    u_i = stats::pnorm(probit_u_i_unadj - probit_bias)
   } else if (adjust == "link") {
     medians = inv_cdf(0.5, location, scale)
-    link_bias = median(ln$linkfun(medians) - ln$linkfun(true_value))
+    link_bias = stats::median(ln$linkfun(medians) - ln$linkfun(true_value))
     adj_true_value = ln$linkinv(ln$linkfun(true_value) + link_bias)
     u_i = cdf(adj_true_value, location, scale)
   } else {
@@ -211,13 +211,13 @@ pit_w = function(
 #' direct = scoringRules::crps(1:5, tmp$dist, meanlog = tmp$meanlog, sdlog = tmp$sdlog)
 #' testthat::expect_equal(mapped, direct)
 crps_fn_generator = function(dist_name) {
-  reparam_fn = try(
-    rlang::as_function(sprintf(".reparam.%s", dist_name)),
+  refn = try(
+    reparam_fn(dist_name),
     silent = TRUE
   )
 
-  if (!inherits(reparam_fn, "try-error")) {
-    tmp = reparam_fn(NA, NA)
+  if (!inherits(refn, "try-error")) {
+    tmp = refn(NA, NA)
     dist_name_2 = tmp$dist
     param_name = names(tmp)[2:3]
   } else {
@@ -247,7 +247,7 @@ crps_fn_generator = function(dist_name) {
     ))
   }
 
-  if (inherits(reparam_fn, "try-error")) {
+  if (inherits(refn, "try-error")) {
     # direct CRPS
     return(function(true_value, location, scale) {
       crps_args = list(y = true_value, family = dist_name_2)
@@ -258,8 +258,8 @@ crps_fn_generator = function(dist_name) {
   } else {
     # transform then CRPS
     return(function(true_value, location, scale) {
-      tmp = reparam_fn(location, scale)
-      crps_args = c(list(y = true_value, family = dist_name_2), tmp[2:3])
+      tmp = refn(location, scale)
+      crps_args = c(list(y = true_value, family = tmp$dist), tmp[2:3])
       return(rlang::exec(scoringRules::crps.numeric, !!!crps_args))
     })
   }

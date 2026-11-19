@@ -23,6 +23,8 @@ generate_simulation(config = i_sim_config, true_value_fn = NULL)
 
 Any grouping allowed.
 }
+
+\item{true_value_fn}{a function that generates the true values e.g. a random sampler (default \code{`NULL`} [NULL])}
 }
 \value{
 a

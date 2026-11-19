@@ -16,6 +16,8 @@ qlnorm4(p, median = 1, kappa = 1, lower.tail = TRUE, log.p = FALSE)
 \arguments{
 \item{p}{vector of probabilities.}
 
+\item{median}{the median value on the true scale (vectorised)}
+
 \item{kappa}{a coefficient of variation (sd/mean). where 0 is no variability.}
 
 \item{lower.tail}{logical; if \code{TRUE} (default), probabilities are

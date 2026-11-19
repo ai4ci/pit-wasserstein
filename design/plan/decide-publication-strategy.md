@@ -2,7 +2,7 @@
 class: plan
 id: decide-publication-strategy.md
 title: 'Decide: short communication vs full methods paper'
-status: active
+status: done
 rationale: Incremental on existing Wasserstein-PIT work unless the significance test lands; gate scope decisions on the feasibility signal rather than guessing.
 informedBy:
 - reference:wessel-2025-tail-calibration.md
@@ -39,3 +39,28 @@ outcome:
   (`task:implement-bootstrap-test-for-dispersion-calibration.md` — a short
   communication would state the characterisation result and stop, a full
   paper builds and ships the test).
+
+---
+
+## Resolved (2026-11-18) — done
+
+The question is settled: **JMLR**, as a full methods paper rather than a short
+communication. See
+`task:decide-publication-format-short-communication-or-full-paper.md`.
+
+The gate this plan set was whether a usable null distribution existed — a
+short communication if the null turned out to be messy or
+nuisance-dependent, a full paper if it did not. It did not: all three metrics
+have distribution-free nulls, two in closed form
+(`task:derive-analytical-null-distribution-for-pit-w-metrics.md`), which is
+comfortably enough material for a full paper and is now its headline
+contribution rather than a deferred limitation.
+
+The contribution is also larger than the "bias adjustment plus a sign on an
+existing construction" this plan worried about. The null distribution applies
+to the *unadjusted* statistic that Zhao et al. (2020) and Wessel et al. (2025)
+already use and report without one, so the paper gives the existing literature
+a test it does not currently have, and the adjustment then partitions that
+into location and dispersion.
+
+Execution moves to `plan:paper-rewrite.md`.

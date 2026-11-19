@@ -34,13 +34,17 @@ to a known ground truth, predictions are assumed to be distributional and
 associated with a link function that transforms them to linear space.
 }
 \examples{
-qs = seq(1,199,2)/200
+qs = seq(1, 199, 2) / 200
 df = tidyr::crossing(
-    true_value = 0,
-    location = qnorm(qs, 1, 1),
-    scale = c(1/2,1/1.5,1,1.5,2),
-    dist="norm", link="identity") \%>\%
-  dplyr::mutate(calibration=scale) \%>\%
+  true_value = 0,
+  location = stats::qnorm(qs, 1, 1),
+  scale = c(1 / 2, 1 / 1.5, 1, 1.5, 2),
+  dist = "norm",
+  link = "identity"
+) \%>\%
+  dplyr::mutate(calibration = scale) \%>\%
   dplyr::group_by(dist, link, calibration)
-df \%>\% prediction_scores() \%>\% dplyr::glimpse()
+df \%>\%
+  prediction_scores() \%>\%
+  dplyr::glimpse()
 }

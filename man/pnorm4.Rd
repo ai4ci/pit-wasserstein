@@ -23,6 +23,8 @@ pnorm4(q, median = 0, kappa = 1, lower.tail = TRUE, log.p = FALSE)
 \arguments{
 \item{q}{vector of quantiles}
 
+\item{median}{the median value on the true scale (vectorised)}
+
 \item{kappa}{a coefficient of variation (sd/mean). where 0 is no variability.}
 
 \item{lower.tail}{logical; if \code{TRUE} (default), probabilities are

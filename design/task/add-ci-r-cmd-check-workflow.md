@@ -2,7 +2,7 @@
 class: task
 id: add-ci-r-cmd-check-workflow.md
 title: No CI runs R CMD check or the test suite
-status: todo
+status: done
 kind: chore
 priority: medium
 ---
@@ -21,3 +21,19 @@ equivalent), commit the generated workflow, and confirm it passes once
 Note: `.github/` may be read-only in this sandbox depending on
 `.sandbox/readonly` — check with `mount` before assuming this can be done
 from inside a scoder session; it may need doing on the host.
+
+---
+
+## Done (observed 2026-11-18)
+
+`.github/workflows/` now contains a standard `R-CMD-check.yaml` (the
+`r-lib/actions` check-standard workflow, matrix over OS and R version) and a
+`pkgdown.yaml`. The three defects this task was raised to guard against —
+`task:fix-description-placeholder-metadata.md`,
+`task:add-missing-scoringrules-import.md` and
+`task:regenerate-stale-generated-unit-tests.md` — are all closed, so the
+workflow has something that should pass.
+
+Not verified from inside the sandbox: whether the workflow has actually run
+green on GitHub. If the first run fails, raise the failure as its own issue
+rather than reopening this one.

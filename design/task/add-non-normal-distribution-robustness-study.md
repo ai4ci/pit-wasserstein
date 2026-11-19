@@ -2,12 +2,13 @@
 class: task
 id: add-non-normal-distribution-robustness-study.md
 title: Use the existing non-normal distribution capability to test bias-adjustment robustness
-status: todo
+status: done
 kind: feature
 priority: high
 touches:
 - src:simulation.R
 - src:scoring.R#pit_w
+- vignette:model-misspecification.Rmd
 ---
 The capability to simulate non-normal distributions already exists and is
 unused. `generate_simulation()` (`src:simulation.R`) takes `bias_dist`,
@@ -35,3 +36,53 @@ it (in which case: pre-existing per AGENTS.md, raise as a separate issue, do
 not fix inline).
 
 Can proceed regardless of the short-communication-vs-full-paper decision.
+
+---
+
+## Outcome (2026-11-18)
+
+Done, as `vignette:model-misspecification.Rmd`. The study was framed as
+**model misspecification** rather than as a general non-normal sweep: the
+predictive family is wrong while the median and coefficient of variation are
+right, which isolates shape from everything else.
+
+Construction: `lnorm4` and `gamma4` are scale families parametrised by median
+and CV, so drawing a multiplicative error $w_i \sim \mathcal{T}(1,\kappa)$ and
+placing the forecast at $\ell_i = x/w_i$ makes a forecaster reporting
+$\mathcal{T}(\ell_i,\kappa)$ exactly calibrated by construction. Reporting any
+other family at the same median and CV is wrong in shape and nothing else.
+
+### Findings
+
+1. **A pure family mismatch is detected**, from about $\kappa = 0.4$ upward.
+   Below that the families are close enough that nothing fires, correctly.
+2. **A tail-weight mismatch is indistinguishable from a width error.**
+   Swapping gamma for log-normal at matched median and CV gives
+   $U_{pit} \approx |D_{pit}|$, exactly as a pure width error does. Honest
+   negative result: the metrics report the *realised* dispersion error, and a
+   forecaster can realise an over-wide interval either by stating one or by
+   choosing too heavy a tail. No PIT-based diagnostic can separate those,
+   because the PIT values are identical.
+3. **A skew mismatch has its own signature.** Reporting a symmetric family for
+   a skewed quantity gives $D_{pit} \approx 0$ with large $U_{pit}$ — ratios
+   of 3–20 against 1.00 for a width error. This is the "right width, wrong
+   shape" row of the three-part test, now with a named cause.
+4. **The claim this task was raised to verify holds.** The median-based bias
+   adjustment is exactly bias-invariant under skewed errors: across a
+   multiplicative bias of 1 to 2, $B_{pit}$ climbs from 0.006 to 0.28 while
+   $U_{pit}$ and $D_{pit}$ are flat — for every reported family, including the
+   misspecified ones. Invariance is not disturbed by the family being wrong at
+   the same time, which matters because misspecification and bias are exactly
+   the pair that co-occur in practice.
+
+Finding 2 gives the paper a usable diagnostic table and finding 3 gives it a
+concrete interpretation for the $U_{pit} \gg |D_{pit}|$ case, which until now
+was described only as "some residual shape departure".
+
+### Raised while doing this
+
+`task:qgamma4-not-the-inverse-of-pgamma4.md` — `qgamma4()` reparametrised with
+`kappa / median` where the rest of the family uses `kappa`, so `gamma4`
+quantiles were wrong away from the median. Pre-existing. **Since fixed by the
+user with tests**, and the vignette's workaround removed, so every number in
+it is now exact.

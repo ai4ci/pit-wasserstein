@@ -10,7 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 4
 )
 ```
 
@@ -178,8 +180,11 @@ results = scenarios %>% dplyr::group_modify(function(d,g,...) {
   
   tmp = d %>% 
     filter(obs>0) %>% 
-    inner_join(ee$R %>% 
-                 select(time = t_end, mean=`Mean(R)`, sd = `Std(R)`), by = "time")
+    inner_join(
+      ee$R %>% select(time = t_end, mean=`Mean(R)`, sd = `Std(R)`), 
+      by = "time"
+    )
+  
   return(tmp)
   
 })
@@ -206,81 +211,114 @@ scores = results %>% dplyr::transmute(
   calibration=NA_real_) %>%
   group_by(max_obs, N, pObs, dist, link, calibration, run) %>%
   prediction_scores(threshold = 1) 
+
+
+plotdata = scores %>% ungroup() %>% mutate(
+  H0_B_pit = b_pit_significance(B_pit = B_pit, n_predictions = n_predictions) %>% pull(p_value) > 0.05,
+  H0_U_pit = u_pit_significance(U_pit = U_pit, n_predictions = n_predictions) %>% pull(p_value) > 0.05,
+  H0_D_pit = d_pit_significance(D_pit = D_pit, n_predictions = n_predictions) %>% pull(p_value) > 0.05,
+  `P(obs)`=as.factor(pObs)
+)
 ```
 
 ## 4. Results
 
 ```{r}
 
-plotdata = scores %>% mutate(`P(obs)`=as.factor(pObs))
-
-p5a = ggplot(plotdata, aes(x=max_obs, colour = `P(obs)`,y=D_pit))+
+p5a = ggplot(plotdata, aes(x=max_obs,y=bias))+
   geom_point()+
-  geom_smooth(se=FALSE,method="loess", span=0.8)+
-  scale_x_log10()+
-  xlab("peak observed case count")+
-  ylab("directed pit-w")
-  
-
-p5b = ggplot(plotdata, aes(x=max_obs, colour = `P(obs)`,y=U_pit))+
-  geom_point()+
-  geom_smooth(se=FALSE,method="loess", span=0.8)+
-  scale_x_log10()+
-  xlab("peak observed case count")+
-  ylab("undirected pit-w")
-
-p5c = ggplot(plotdata, aes(x=max_obs, colour = `P(obs)`,y=mean_crps))+
-  geom_point()+
-  geom_smooth(se=FALSE,method="loess", span=0.8)+
-  scale_x_log10()+
-  xlab("peak observed case count")+
-  ylab("mean CRPS")
-
-p5d = ggplot(plotdata, aes(x=max_obs, colour = `P(obs)`,y=bias))+
-  geom_point()+
-  geom_smooth(se=FALSE,method="loess", span=0.8)+
+  geom_smooth(se=FALSE,method="loess", span=0.8, colour="black")+
   scale_x_log10()+
   xlab("peak observed case count")+
   ylab("bias")
 
+p5b = ggplot(plotdata, aes(x=max_obs, colour = H0_B_pit,y=B_pit))+
+  geom_point()+
+  geom_smooth(se=FALSE,method="loess", span=0.8, colour="black")+
+  scale_x_log10()+
+  xlab("peak observed case count")+
+  ylab("baseline pit-w")+
+  scale_color_manual(values=list("TRUE"="blue","FALSE"="red"), guide=NULL)
+
+p5c = ggplot(plotdata, aes(x=max_obs, colour = H0_D_pit, y=D_pit))+
+  geom_point()+
+  geom_smooth(se=FALSE,method="loess", span=0.8, colour="black")+
+  scale_x_log10()+
+  xlab("peak observed case count")+
+  ylab("directed pit-w")+
+  scale_color_manual(values=list("TRUE"="blue","FALSE"="red"), guide=NULL)
+
+p5d = ggplot(plotdata, aes(x=max_obs, colour = H0_U_pit,y=U_pit))+
+  geom_point()+
+  geom_smooth(se=FALSE,method="loess", span=0.8, colour="black")+
+  scale_x_log10()+
+  xlab("peak observed case count")+
+  ylab("undirected pit-w")+
+  scale_color_manual(values=list("TRUE"="blue","FALSE"="red"), guide=NULL)
+
+# p5c = ggplot(plotdata, aes(x=max_obs, colour = `P(obs)`,y=mean_crps))+
+#   geom_point()+
+#   geom_smooth(se=FALSE,method="loess", span=0.8)+
+#   scale_x_log10()+
+#   xlab("peak observed case count")+
+#   ylab("mean CRPS")
+
+
+
 p5 = p5a+p5b+p5c+p5d+patchwork::plot_layout(guides="collect",axes="collect")+
   patchwork::plot_annotation(tag_level="A")
 
-p5
+.gg_save_as(
+  p5,
+  file.path(fig_dir, "fig4-epiestim-by-epi-size"),
+  size = std_size$two_third,
+  formats = c("pdf", "eps")
+)
 
 ```
 
 ### Interpretation
 
-**$D^*_{pit}$ changes sign, and $U^*_{pit}$ is U-shaped.** Panel A shows the
+**Bias is present throughout and does not contaminate the dispersion
+verdict.** Panel A shows a systematic negative bias at every epidemic size
+($-0.185$ falling to $-0.088$): `EpiEstim`'s $R_t$ sits above the truth,
+plausibly a combination of the Gamma$(2,2)$ prior pulling towards 2 and the
+seven-day window lagging a falling $R_t$. 
+
+In panel B baseline PITS value metric
+`B_pit` sits between 0.24 and 0.30 and is nearly flat. Almost all of the baseline PIT 
+deviation is location error; the adjustment (panels C&D) removes it and leaves 
+the dispersion signal, which is the invariance property claimed for the metrics.
+
+**$D^*_{pit}$ changes sign, and $U^*_{pit}$ is U-shaped.** Panel C shows the
 directed metric rising monotonically with epidemic size and crossing zero at a
 peak of roughly 56 observed cases: mean $D^*_{pit} \approx -0.079$ in the
 smallest epidemics, $+0.089$ in the largest. Negative values are
 under-confidence and positive values over-confidence, so `EpiEstim`'s stated
 uncertainty is too wide when counts are small and too narrow when they are
-large. Panel B shows the undirected metric bottoming out at a peak of around
+large. Panel D shows the undirected metric bottoming out at a peak of around
 47 cases and rising in both directions, independently locating the same sweet
 spot. The two metrics are computed from different functionals of the same PIT
 values, and they agree; this is the two-part diagnostic doing what it is meant
 to do on data where nobody told it the answer.
 
-**CRPS runs the other way.** Panel C falls monotonically from 0.183 to 0.087
-(correlation $-0.89$ with $\log_{10}$ peak cases). Read without care it says
-that the bigger the epidemic, the better the forecast. What it is actually
-measuring is sharpness: in a large epidemic the posterior is narrow, so the
-score is small even as calibration deteriorates. $D^*_{pit}$ is monotone in
-the opposite direction (correlation $+0.91$) and is the only metric in the
-panel that identifies the large-epidemic forecasts as the mis-calibrated ones.
-This is the central argument of the paper, made on a real estimator rather
-than a constructed example: a proper score and a dispersion diagnostic can
-rank the same forecaster in opposite directions, and they are answering
-different questions.
+<!-- **CRPS runs the other way.** Panel C falls monotonically from 0.183 to 0.087 -->
+<!-- (correlation $-0.89$ with $\log_{10}$ peak cases). Read without care it says -->
+<!-- that the bigger the epidemic, the better the forecast. What it is actually -->
+<!-- measuring is sharpness: in a large epidemic the posterior is narrow, so the -->
+<!-- score is small even as calibration deteriorates. $D^*_{pit}$ is monotone in -->
+<!-- the opposite direction (correlation $+0.91$) and is the only metric in the -->
+<!-- panel that identifies the large-epidemic forecasts as the mis-calibrated ones. -->
+<!-- This is the central argument of the paper, made on a real estimator rather -->
+<!-- than a constructed example: a proper score and a dispersion diagnostic can -->
+<!-- rank the same forecaster in opposite directions, and they are answering -->
+<!-- different questions. -->
 
-Coverage corroborates the PIT-Wasserstein reading and not the CRPS one.
-Nominal 95% intervals cover 91% of true values in the smallest epidemics and
-only 51% in the largest; nominal 50% intervals fall from 0.44 to 0.29. The
-estimator is getting worse by the only criterion that asks whether its stated
-uncertainty is honest.
+<!-- Coverage corroborates the PIT-Wasserstein reading and not the CRPS one. -->
+<!-- Nominal 95% intervals cover 91% of true values in the smallest epidemics and -->
+<!-- only 51% in the largest; nominal 50% intervals fall from 0.44 to 0.29. The -->
+<!-- estimator is getting worse by the only criterion that asks whether its stated -->
+<!-- uncertainty is honest. -->
 
 **The effect sizes are large against the analytical null.** With $n$ scored
 predictions per scenario, the null distributions derived in
@@ -305,17 +343,7 @@ calibrated. Note that these are analytical critical values, not a simulated
 reference table: the real-data example exercises the theory rather than merely
 illustrating the metric.
 
-**Bias is present throughout and does not contaminate the dispersion
-verdict.** Panel D shows a systematic negative bias at every epidemic size
-($-0.185$ falling to $-0.088$): `EpiEstim`'s $R_t$ sits above the truth,
-plausibly a combination of the Gamma$(2,2)$ prior pulling towards 2 and the
-seven-day window lagging a falling $R_t$. The unadjusted undirected metric
-`B_pit` sits between 0.24 and 0.30 and is nearly flat, while the
-bias-adjusted `U_pit` sits between 0.05 and 0.10 and carries all the
-structure. Almost all of the raw PIT deviation is location error; the
-adjustment removes it and leaves the dispersion signal, which is the
-invariance property claimed for the metrics, demonstrated here on an error
-nobody designed.
+
 
 ### Caveats
 
@@ -326,13 +354,3 @@ likelihood. Disentangling those would need a prior and window-width
 sensitivity sweep and is out of scope here. `pObs` is fixed at 0.5, so the
 `P(obs)` colour aesthetic currently has a single level.
 
-```{r}
-
-.gg_save_as(
-  p5,
-  file.path(fig_dir, "fig5-epiestim-by-epi-size"),
-  size = std_size$two_third,
-  formats = c("pdf", "eps")
-)
-
-```

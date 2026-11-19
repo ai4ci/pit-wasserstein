@@ -281,6 +281,7 @@ rexpgrowthI0 = function(I0, r, t_end, t_start = 0) {
 #' @param prob.0.5 the median probability (vectorised)
 #' @param kappa a coefficient of variation (sd/mean). where 0 is no variability.
 #' @param mean the mean value on the true scale (vectorised)
+#' @param median the median value on the true scale (vectorised)
 #' @param sd the standard deviation on the true scale (vectorised)
 #' @param ... passed onto named functions
 #'
@@ -302,13 +303,11 @@ NULL
 #' @examples
 #' tmp_fn = reparam_fn("lnorm2")
 #' tmp_fn(mean = 1, sd = 2)
-#' rlang::exec()
 reparam_fn = function(dist_name) {
-  tmp = try(
-    rlang::as_function(sprintf(".reparam.%s", dist_name)),
-    silent = TRUE
-  )
-  if (inherits(tmp, "try-error")) stop("reparametrisation not supported: ", dist_name)
+  mapper_name = sprintf(".reparam.%s", dist_name)
+  found = exists(mapper_name, envir = asNamespace("pitw"), mode = "function")
+  if (!found) stop("reparametrisation not supported: ", dist_name)
+  tmp = get(mapper_name, envir = asNamespace("pitw"), mode = "function")
   return(tmp)
 }
 
@@ -355,8 +354,8 @@ reparam_fn = function(dist_name) {
 
   return(list(
     dist = "beta",
-    alpha = ((1 - p) / (kappa2^2 * p) - 1) * p,
-    beta = ((1 - p) / (kappa2^2 * p) - 1) * (1 - p)
+    shape1 = ((1 - p) / (kappa2^2 * p) - 1) * p,
+    shape2 = ((1 - p) / (kappa2^2 * p) - 1) * (1 - p)
   ))
 }
 
@@ -471,11 +470,54 @@ reparam_fn = function(dist_name) {
   var = sd^2
   return(list(
     dist = "nbinom",
-    size = mean^2 / (var - mean), # if shape < 1 then is concave
+    size = mean^2 / (var - mean),
     prob = mean / var
   ))
 }
 
+#' @unit
+#' .test_dist("logitnorm", 0, 0.1)
+#' .test_dist("logitnorm2", 0.75, 0.2)
+#' .test_dist("beta2", 0.75, 0.2)
+#' .test_dist("norm4", 1, 0.1)
+#' .test_dist("lnorm2", 2, 0.1)
+#' .test_dist("lnorm4", 2, 0.1) # has to be narrow for tolerance to work
+#' .test_dist("gamma2", 2, 0.1)
+#' .test_dist("gamma4", 2, 0.1)
+#' .test_dist("cgamma", 2, 0.1)
+.test_dist = function(dist, ...) {
+  rfn = rlang::as_function(sprintf("r%s", dist))
+  pfn = rlang::as_function(sprintf("p%s", dist))
+  qfn = rlang::as_function(sprintf("q%s", dist))
+  dfn = rlang::as_function(sprintf("d%s", dist))
+
+  ps = seq(0, 1, 0.1)
+  qs = qfn(p = ps, ...)
+  test_ps = pfn(q = qs, ...)
+
+  testthat::expect_equal(ps, test_ps, info = dist)
+
+  rs = rfn(100000, ...)
+  fn = function(x) x * dfn(x, ...)
+
+  mean_analytic = stats::integrate(fn, min(qs, na.rm = TRUE), max(qs, na.rm = TRUE))
+  mean_analytic = mean_analytic$value
+  mean_sample = mean(rs)
+
+  testthat::expect_equal(
+    mean_analytic,
+    mean_sample,
+    tolerance = 0.01,
+    info = dist
+  )
+
+  testthat::expect_equal(
+    stats::median(rs),
+    qdist(dist, 0.5, ...),
+    tolerance = 0.1,
+    info = dist
+  )
+}
 
 #' Random sample from a named distribution
 #'
@@ -496,8 +538,8 @@ rdist = function(dist, n, ...) {
     }
     return(dist_fn(n, ...))
   } else {
-    param = head(rlang::list2(...), 2)
-    dots = tail(rlang::list2(...), -2)
+    param = utils::head(rlang::list2(...), 2)
+    dots = utils::tail(rlang::list2(...), -2)
     tmp = rlang::exec(reparam_fn, !!!param)
     dist_fn = try(rlang::as_function(sprintf("r%s", tmp$dist)), silent = TRUE)
     args = c(list(n = n), tmp[2:3], dots)
@@ -524,8 +566,8 @@ ddist = function(dist, x, ...) {
     }
     return(dist_fn(x, ...))
   } else {
-    param = head(rlang::list2(...), 2)
-    dots = tail(rlang::list2(...), -2)
+    param = utils::head(rlang::list2(...), 2)
+    dots = utils::tail(rlang::list2(...), -2)
     tmp = rlang::exec(reparam_fn, !!!param)
     dist_fn = try(rlang::as_function(sprintf("d%s", tmp$dist)), silent = TRUE)
     args = c(list(x = x), tmp[2:3], dots)
@@ -552,8 +594,8 @@ pdist = function(dist, q, ...) {
     }
     return(dist_fn(q, ...))
   } else {
-    param = head(rlang::list2(...), 2)
-    dots = tail(rlang::list2(...), -2)
+    param = utils::head(rlang::list2(...), 2)
+    dots = utils::tail(rlang::list2(...), -2)
     tmp = rlang::exec(reparam_fn, !!!param)
     dist_fn = try(rlang::as_function(sprintf("p%s", tmp$dist)), silent = TRUE)
     args = c(list(q = q), tmp[2:3], dots)
@@ -580,8 +622,8 @@ qdist = function(dist, p, ...) {
     }
     return(dist_fn(p, ...))
   } else {
-    param = head(rlang::list2(...), 2)
-    dots = tail(rlang::list2(...), -2)
+    param = utils::head(rlang::list2(...), 2)
+    dots = utils::tail(rlang::list2(...), -2)
     tmp = rlang::exec(reparam_fn, !!!param)
     dist_fn = try(rlang::as_function(sprintf("q%s", tmp$dist)), silent = TRUE)
     args = c(list(p = p), tmp[2:3], dots)
@@ -810,7 +852,7 @@ rbeta2 = function(n, prob, kappa) {
     dplyr::case_when(
       prob == 1 | prob == 0 ~ prob,
       kappa == 0 ~ prob,
-      TRUE ~ stats::rbeta(n, params$alpha, params$beta)
+      TRUE ~ stats::rbeta(n, params$shape1, params$shape2)
     )
   )
 }
@@ -830,7 +872,7 @@ dbeta2 = function(x, prob, kappa, log = FALSE) {
     dplyr::case_when(
       prob == 1 | prob == 0 ~ ifelse(x < prob, 0, 1),
       kappa == 0 ~ ifelse(x < prob, 0, 1),
-      TRUE ~ stats::dbeta(x, params$alpha, params$beta, log = log)
+      TRUE ~ stats::dbeta(x, params$shape1, params$shape2, log = log)
     )
   )
 }
@@ -853,8 +895,8 @@ pbeta2 = function(q, prob, kappa, lower.tail = TRUE, log.p = FALSE) {
       TRUE ~
         stats::pbeta(
           q,
-          params$alpha,
-          params$beta,
+          params$shape1,
+          params$shape2,
           lower.tail = lower.tail,
           log.p = log.p
         )
@@ -880,8 +922,8 @@ qbeta2 = function(p, prob, kappa, lower.tail = TRUE, log.p = FALSE) {
       TRUE ~
         stats::qbeta(
           p,
-          params$alpha,
-          params$beta,
+          params$shape1,
+          params$shape2,
           lower.tail = lower.tail,
           log.p = log.p
         )
@@ -898,7 +940,6 @@ qbeta2 = function(p, prob, kappa, lower.tail = TRUE, log.p = FALSE) {
 #'
 #' @export
 #' @concept distributions
-#'
 dnorm4 = function(x, median = 0, kappa = 1, log = FALSE) {
   params = .reparam.norm4(median, kappa)
   stats::dnorm(x, mean = params$mean, sd = params$sd, log = log)
@@ -975,7 +1016,12 @@ rnorm4 = function(n, median = 0, kappa = 1) {
 #' dlnorm2(seq(0, 4, 0.25), 2, 1)
 dlnorm2 = function(x, mean = 1, sd = sqrt(exp(1) - 1), log = FALSE) {
   params = .reparam.lnorm2(mean, sd)
-  stats::dlnorm(x, meanlog = params$mu, sdlog = params$sigma, log = log)
+  stats::dlnorm(
+    x,
+    meanlog = params$meanlog,
+    sdlog = params$sdlog,
+    log = log
+  )
 }
 
 #' @inherit stats::plnorm
@@ -996,8 +1042,8 @@ plnorm2 = function(
   params = .reparam.lnorm2(mean, sd)
   stats::plnorm(
     q,
-    meanlog = params$mu,
-    sdlog = params$sigma,
+    meanlog = params$meanlog,
+    sdlog = params$sdlog,
     lower.tail = lower.tail,
     log.p = log.p
   )
@@ -1369,7 +1415,7 @@ qgamma4 = function(
   lower.tail = TRUE,
   log.p = FALSE
 ) {
-  params = .reparam.gamma4(median, kappa / median)
+  params = .reparam.gamma4(median, kappa)
   return(
     stats::qgamma(
       p,

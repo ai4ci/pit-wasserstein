@@ -33,7 +33,7 @@ test_that("p_l1_bridge unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/significance.R"), c(102, 1, 102+1, 1))
+    srcref = srcref(srcfile("../../R/significance.R"), c(106, 1, 106+1, 1))
   )
 })
 
@@ -85,7 +85,7 @@ test_that("u_pit_significance unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/significance.R"), c(340, 1, 340+1, 1))
+    srcref = srcref(srcfile("../../R/significance.R"), c(344, 1, 344+1, 1))
   )
 })
 
@@ -126,7 +126,7 @@ test_that("d_pit_significance unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/significance.R"), c(409, 1, 409+1, 1))
+    srcref = srcref(srcfile("../../R/significance.R"), c(413, 1, 413+1, 1))
   )
 })
 
@@ -176,7 +176,7 @@ test_that("b_pit_significance unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/significance.R"), c(196, 1, 196+1, 1))
+    srcref = srcref(srcfile("../../R/significance.R"), c(200, 1, 200+1, 1))
   )
 })
 

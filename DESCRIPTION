@@ -49,7 +49,13 @@ Imports:
     utils
 Suggests:
     deSolve,
-    EpiEstim
+    EpiEstim,
+    devtools,
+    forcats,
+    here,
+    patchwork,
+    tidyverse
 Remotes: ai4ci/interfacer
 Config/Needs/build: terminological/pkgtools
 VignetteBuilder: knitr
+Config/testthat/edition: 3

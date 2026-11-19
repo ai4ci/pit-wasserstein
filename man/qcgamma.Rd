@@ -9,6 +9,8 @@ qcgamma(p, median, kappa = 1/median, lower.tail = TRUE, log.p = FALSE)
 \arguments{
 \item{p}{vector of probabilities}
 
+\item{median}{the median value on the true scale (vectorised)}
+
 \item{kappa}{a coefficient of variation (sd/mean). where 0 is no variability.}
 
 \item{lower.tail}{logical; if TRUE (default), probabilities are \code{P[X<=x]}

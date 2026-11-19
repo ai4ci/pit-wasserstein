@@ -68,7 +68,11 @@
     .l1_bridge_cache$zeros = vapply(
       cross,
       function(i) {
-        uniroot(.airy_ai_prime_neg, c(grid[i], grid[i + 1]), tol = .Machine$double.eps^0.75)$root
+        stats::uniroot(
+          .airy_ai_prime_neg,
+          c(grid[i], grid[i + 1]),
+          tol = .Machine$double.eps^0.75
+        )$root
       },
       numeric(1)
     )
@@ -152,7 +156,7 @@ q_l1_bridge = function(p, terms = 30L) {
       if (prob >= 1) {
         return(Inf)
       }
-      uniroot(
+      stats::uniroot(
         function(l) p_l1_bridge(l, terms) - prob,
         c(1e-6, 10),
         tol = .Machine$double.eps^0.5
@@ -254,12 +258,12 @@ b_pit_significance = function(B_pit, n_predictions) {
   key = sprintf("null_%d_%d", reps, m)
   if (is.null(.l1_bridge_cache[[key]])) {
     t = seq_len(m) / m
-    kappa = dnorm(qnorm(t)) / dnorm(0)
+    kappa = stats::dnorm(stats::qnorm(t)) / stats::dnorm(0)
     chunk = 500L
     draws = unlist(lapply(
       seq_len(ceiling(reps / chunk)),
       function(.) {
-        incr = matrix(rnorm(chunk * m, sd = sqrt(1 / m)), chunk, m)
+        incr = matrix(stats::rnorm(chunk * m, sd = sqrt(1 / m)), chunk, m)
         wiener = t(apply(incr, 1, cumsum))
         bridge = wiener - outer(wiener[, m], t)
         rowMeans(abs(bridge - outer(bridge[, m %/% 2L], kappa)))
@@ -298,7 +302,7 @@ b_pit_significance = function(B_pit, n_predictions) {
       if (v <= cut) {
         return((1 + sum(null >= v)) / (reps + 1))
       }
-      min(1, exp(sum(coef(fit) * c(1, v^2))))
+      min(1, exp(sum(stats::coef(fit) * c(1, v^2))))
     },
     numeric(1)
   )
@@ -438,9 +442,9 @@ d_pit_significance = function(
 
   p_value = switch(
     alternative,
-    two.sided = 2 * pnorm(-abs(z)),
-    overconfident = pnorm(z, lower.tail = FALSE),
-    underconfident = pnorm(z)
+    two.sided = 2 * stats::pnorm(-abs(z)),
+    overconfident = stats::pnorm(z, lower.tail = FALSE),
+    underconfident = stats::pnorm(z)
   )
 
   dplyr::tibble(
@@ -448,7 +452,7 @@ d_pit_significance = function(
     n_predictions = n_predictions,
     statistic = z,
     se = se,
-    critical_0.05 = qnorm(if (alternative == "two.sided") 0.975 else 0.95) * se,
+    critical_0.05 = stats::qnorm(if (alternative == "two.sided") 0.975 else 0.95) * se,
     direction = dplyr::case_when(
       D_pit > 0 ~ "overconfident",
       D_pit < 0 ~ "underconfident",

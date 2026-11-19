@@ -3,47 +3,6 @@
 # ----------------------------------------------------------------------
 library(pitw)
 
-# unit test start: prediction_scores ----
-
-test_that("prediction_scores unit test", {
-
-  # Automatically generated test case from roxygen @unit tag
-  # Do not edit here - follow the link to the source file.
-  # or navigate to topic with <F2>
-  F2 = prediction_scores
-
-
-  testthat::expect_no_error(withCallingHandlers(
-    {
-      qs = seq(1, 199, 2) / 200
-      df = tidyr::crossing(
-        true_value = 0,
-        location = qnorm(qs, 1, 1),
-        scale = c(1 / 2, 1 / 1.5, 1, 1.5, 2),
-        dist = "norm",
-        link = "identity"
-      ) %>%
-        dplyr::mutate(calibration = scale) %>%
-        dplyr::group_by(dist, link, calibration)
-      df %>%
-        prediction_scores() %>%
-        view()
-    },
-    warning = function(e) {
-      message("Warning issued: ", e$message)
-      invokeRestart("muffleWarning")
-    }
-  ))
-
-  # generates a failure if the overall test is failing with a link to the
-  # source of the unit test:
-  testthat::expect(rlang::caller_env(n = 2)$ok,
-    failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/scoring.R"), c(12, 1, 12+1, 1))
-  )
-})
-
-# unit test end: prediction_scores ----
 # unit test start: pit_w ----
 
 test_that("pit_w unit test", {
@@ -94,7 +53,7 @@ test_that("pit_w unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/scoring.R"), c(130, 1, 130+1, 1))
+    srcref = srcref(srcfile("../../R/scoring.R"), c(134, 1, 134+1, 1))
   )
 })
 
@@ -124,7 +83,7 @@ test_that("crps_fn_generator unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/scoring.R"), c(203, 1, 203+1, 1))
+    srcref = srcref(srcfile("../../R/scoring.R"), c(207, 1, 207+1, 1))
   )
 })
 

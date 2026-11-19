@@ -29,6 +29,8 @@ otherwise \code{P[X>x]}.}
 
 \item{mean}{the mean value on the true scale (vectorised)}
 
+\item{median}{the median value on the true scale (vectorised)}
+
 \item{sd}{the standard deviation on the true scale (vectorised)}
 
 \item{...}{passed onto named functions}

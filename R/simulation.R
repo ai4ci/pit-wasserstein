@@ -8,6 +8,8 @@
 #' `mean = bias` and `sd = sharpness`)
 #'
 #' @iparam config the simulation configuration
+#' @param true_value_fn a function that generates the true values e.g. a random sampler
+#' @export
 #'
 #' @returns a
 #' @examples
@@ -44,9 +46,8 @@ generate_simulation = function(config = i_sim_config, true_value_fn = NULL) {
     }) %>%
     dplyr::rename(dist = estimator_dist)
 
-  interfacer::ireturn(tmp, i_comparison)
+  interfacer::ireturn(tmp, i_comparison, .fix = TRUE)
 }
-
 
 
 #' Uniform predictions for testing
@@ -88,6 +89,6 @@ calibrated_locations = function(qfn, median, kappa, n = 100) {
 calibrated_locations_general = function(pfn, median, kappa, n = 100, interval = c(1e-8, 1e8)) {
   qs = seq(1, 2 * n - 1, 2) / (2 * n)
   vapply(qs, function(q) {
-    uniroot(function(mu) pfn(median, mu, kappa) - (1 - q), interval)$root
+    stats::uniroot(function(mu) pfn(median, mu, kappa) - (1 - q), interval)$root
   }, numeric(1))
 }

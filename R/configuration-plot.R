@@ -364,7 +364,7 @@ configuration_plot = function(config = i_sim_plot, xlim = c(NA, NA), labels = TR
   if (length(grps) > 0) {
     if (length(grps) == 2) {
       tmp = tmp + ggplot2::facet_grid(
-        as.formula(sprintf("%s ~ %s", grps[1], grps[2])),
+        stats::as.formula(sprintf("%s ~ %s", grps[1], grps[2])),
         ...
       )
     } else {

@@ -9,6 +9,8 @@ dcgamma(x, median, kappa = 1/median, log = FALSE)
 \arguments{
 \item{x}{vector of quantiles}
 
+\item{median}{the median value on the true scale (vectorised)}
+
 \item{kappa}{a coefficient of variation (sd/mean). where 0 is no variability.}
 
 \item{log}{logical; if TRUE, probabilities p are given as log(p).}

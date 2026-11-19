@@ -12,10 +12,8 @@ by `loom render` from `design/document-model.mmd`.
 
 | uri | status |
 | --- | --- |
-| [Decide: short communication vs full methods paper](../plan/decide-publication-strategy.md) | active |
 | [Significance test for H0: estimator is dispersion-calibrated](../plan/dispersion-calibration-significance-test.md) | active |
 | [Rewrite the appendix as a standalone short paper](../plan/paper-rewrite.md) | active |
-| [Make the package build and check cleanly for r-universe](../plan/r-universe-release-readiness.md) | active |
 <!-- loom view: activePlans end -->
 
 ## Open tasks
@@ -24,15 +22,11 @@ by `loom render` from `design/document-model.mmd`.
 
 | uri | status | priority |
 | --- | --- | --- |
-| [Use the existing non-normal distribution capability to test bias-adjustment robustness](../task/add-non-normal-distribution-robustness-study.md) | todo | high |
 | [Clarify standard calibration versus the bias-adjusted PIT diagnostic](../task/clarify-bias-adjusted-pit-diagnostic.md) | todo | high |
 | [Document the three-part PIT-Wasserstein test decomposition in the paper](../task/document-three-part-test-decomposition.md) | todo | high |
 | [Integrate JMLR LaTeX style file for the paper](../task/integrate-jmlr-latex-style.md) | todo | high |
 | [Reframe the introduction as a mathematical methods paper, not an educational piece](../task/reframe-introduction-as-mathematical-methods-paper.md) | todo | high |
-| [No CI runs R CMD check or the test suite](../task/add-ci-r-cmd-check-workflow.md) | todo | medium |
 | [Find or tabulate a c.d.f. for the bias-adjusted U_pit null](../task/derive-cdf-of-the-adjusted-u-pit-null.md) | todo | medium |
-| [Reframe the four figure vignettes as supplementary materials](../task/reframe-vignettes-as-supplementary-materials.md) | todo | medium |
-| [State the asymptotic D*_pit question precisely as future work](../task/document-asymptotic-theory-as-future-work.md) | todo | low |
 <!-- loom view: openTasks end -->
 
 ## References

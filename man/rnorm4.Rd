@@ -24,6 +24,8 @@ rnorm4(n, median = 0, kappa = 1)
 \item{n}{number of observations. If \code{length(n) > 1}, the length
     is taken to be the number required.}
 
+\item{median}{the median value on the true scale (vectorised)}
+
 \item{kappa}{a coefficient of variation (sd/mean). where 0 is no variability.}
 }
 \value{

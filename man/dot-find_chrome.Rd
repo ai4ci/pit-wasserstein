@@ -29,6 +29,7 @@ of failure. Must assume that calls to chrome may fail.
 \if{html}{\out{<div class="sourceCode">}}\preformatted{
 
 # no test possible: this will be skipped
+testthat::skip_on_cran()
 try(.find_chrome())
 }\if{html}{\out{</div>}}
 }

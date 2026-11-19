@@ -19,5 +19,4 @@ Get a converter that maps an unusual parametrisation to a canonical one.
 \examples{
 tmp_fn = reparam_fn("lnorm2")
 tmp_fn(mean = 1, sd = 2)
-rlang::exec()
 }

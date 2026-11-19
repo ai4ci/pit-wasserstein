@@ -2,7 +2,7 @@
 class: plan
 id: r-universe-release-readiness.md
 title: Make the package build and check cleanly for r-universe
-status: active
+status: done
 rationale: Package is functionally complete but under-documented, with a stale test suite; not destined for CRAN, only r-universe (already registered elsewhere).
 spawns:
 - task:fix-description-placeholder-metadata.md
@@ -23,3 +23,17 @@ projects each field's inline description into the generated `.Rd` for every
 function that uses one (confirmed via `man/prediction_scores.Rd`, which lists
 `true_value`, `location`, `scale`, etc. with their `iface` descriptions). That
 is self-documenting by construction.
+
+---
+
+## Complete (2026-11-18) — done
+
+All four spawned tasks are closed: the `DESCRIPTION` placeholder metadata, the
+missing `scoringRules` import, the stale generated unit tests, and the
+`R-CMD-check` GitHub Actions workflow, which now exists alongside a `pkgdown`
+workflow.
+
+Not verified from inside the sandbox: that the workflow has actually run green
+on GitHub, and that the r-universe build picks the package up. Both are
+host-side checks. If either fails, raise it as a new issue rather than
+reopening this plan — the readiness work it scoped is done.

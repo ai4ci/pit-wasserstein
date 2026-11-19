@@ -36,6 +36,8 @@ Create a the same size as the SVG file using chrome or chromium
 \if{html}{\out{<div class="sourceCode">}}\preformatted{
 
 
+testthat::skip_on_cran()
+
 tryCatch(.find_chrome(), error = function(e) testthat::skip())
 
 plot = ggplot2::ggplot(ggplot2::diamonds, ggplot2::aes(x=carat,y=price,color = color))+

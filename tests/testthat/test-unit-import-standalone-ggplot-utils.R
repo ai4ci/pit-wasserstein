@@ -141,14 +141,14 @@ test_that(".gg_used_fonts unit test", {
         ggplot2::diamonds,
         ggplot2::aes(x = carat, y = price, color = color)
       ) +
-        ggplot2::theme_minimal(base_family = check_font("Roboto")) +
+        ggplot2::theme_minimal(base_family = .gg_substitute_fonts("Roboto")) +
         ggplot2::geom_point() +
         ggplot2::annotate(
           "label",
           x = 2,
           y = 10000,
           label = "Hello \u2014 world",
-          family = check_font("Kings")
+          family = .gg_substitute_fonts("Kings")
         ) +
         ggplot2::labs(tag = "A") +
         ggplot2::xlab("Carat\u2082") +
@@ -260,7 +260,7 @@ test_that(".gg_scale_y_logit unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/import-standalone-ggplot-utils.R"), c(533, 1, 533+1, 1))
+    srcref = srcref(srcfile("../../R/import-standalone-ggplot-utils.R"), c(536, 1, 536+1, 1))
   )
 })
 
@@ -280,7 +280,7 @@ test_that(".gg_scale_y_percent unit test", {
       tibble::tibble(pvalue = c(0.001, 0.05, 0.1), fold_change = 1:3) %>%
         ggplot2::ggplot(ggplot2::aes(fold_change, pvalue)) +
         ggplot2::geom_point() +
-        scale_y_percent()
+        .gg_scale_y_percent()
     },
     warning = function(e) {
       message("Warning issued: ", e$message)
@@ -292,7 +292,7 @@ test_that(".gg_scale_y_percent unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/import-standalone-ggplot-utils.R"), c(572, 1, 572+1, 1))
+    srcref = srcref(srcfile("../../R/import-standalone-ggplot-utils.R"), c(575, 1, 575+1, 1))
   )
 })
 
@@ -340,7 +340,7 @@ test_that(".gg_layer unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/import-standalone-ggplot-utils.R"), c(649, 1, 649+1, 1))
+    srcref = srcref(srcfile("../../R/import-standalone-ggplot-utils.R"), c(652, 1, 652+1, 1))
   )
 })
 

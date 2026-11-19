@@ -25,14 +25,16 @@ specific file location in an input directory.
 \if{html}{\out{<div class="sourceCode">}}\preformatted{
 
 inp = .inputter(tempdir())
+uniq = as.integer(Sys.time())
+file_fn = function(i) return(sprintf("test_\%d_\%s.txt",uniq, as.character(i) ))
 for (i in 1:10) {
-  fs::file_touch(fs::path(tempdir(), sprintf("test_\%d.txt",i)))
+  fs::file_touch(fs::path(tempdir(), file_fn(i)))
 }
 
-testthat::expect_true(fs::file_exists(inp("test_2.txt")))
-testthat::expect_error(inp("test_0.txt"))
+testthat::expect_true(fs::file_exists(inp(file_fn(2))))
+testthat::expect_error(inp(file_fn(0)))
 
-testthat::expect_equal(length(inp(glob="*.txt")),10)
+testthat::expect_equal(length(inp(glob=paste0("*/",file_fn("*")))),10)
 
 }\if{html}{\out{</div>}}
 }

@@ -9,6 +9,8 @@ rcgamma(n, median, kappa = 1/median)
 \arguments{
 \item{n}{number of observations}
 
+\item{median}{the median value on the true scale (vectorised)}
+
 \item{kappa}{a coefficient of variation (sd/mean). where 0 is no variability.}
 }
 \value{

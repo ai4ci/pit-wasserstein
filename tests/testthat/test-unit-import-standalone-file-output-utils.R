@@ -45,6 +45,7 @@ test_that(".find_chrome unit test", {
   testthat::expect_no_error(withCallingHandlers(
     {
       # no test possible: this will be skipped
+      testthat::skip_on_cran()
       try(.find_chrome())
     },
     warning = function(e) {
@@ -57,7 +58,7 @@ test_that(".find_chrome unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(131, 1, 131+1, 1))
+    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(133, 1, 133+1, 1))
   )
 })
 
@@ -72,6 +73,8 @@ test_that(".print_svg_with_chrome unit test", {
   F2 = .print_svg_with_chrome
 
 
+  testthat::skip_on_cran()
+  
   tryCatch(.find_chrome(), error = function(e) testthat::skip())
   
   plot = ggplot2::ggplot(
@@ -105,7 +108,7 @@ test_that(".print_svg_with_chrome unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(195, 1, 195+1, 1))
+    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(198, 1, 198+1, 1))
   )
 })
 
@@ -120,6 +123,8 @@ test_that(".print_html_with_chrome unit test", {
   F2 = .print_html_with_chrome
 
 
+  testthat::skip_on_cran()
+  
   tryCatch(.find_chrome(), error = function(e) testthat::skip())
   
   hux = iris %>%
@@ -134,18 +139,16 @@ test_that(".print_html_with_chrome unit test", {
       maxHeight = std_size$A4$height
     )
   })
+  
   # browseURL(tmp)
-  
   # exact binary copy may depend on versions of chrome etc:
-  
-  
   # The resulting pdf has fonts embedded & is multipage.
 
   # generates a failure if the overall test is failing with a link to the
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(294, 1, 294+1, 1))
+    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(310, 1, 310+1, 1))
   )
 })
 
@@ -162,6 +165,7 @@ test_that(".convert_pdf_to_pngs unit test", {
 
   testthat::expect_no_error(withCallingHandlers(
     {
+      testthat::skip_on_cran()
       hux = iris %>%
         huxtable::as_hux() %>%
         huxtable::theme_mondrian(font = "Arial")
@@ -183,7 +187,7 @@ test_that(".convert_pdf_to_pngs unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(386, 1, 386+1, 1))
+    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(413, 1, 413+1, 1))
   )
 })
 
@@ -237,7 +241,7 @@ test_that(".gg_save_as unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(542, 1, 542+1, 1))
+    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(575, 1, 575+1, 1))
   )
 })
 
@@ -274,7 +278,7 @@ test_that(".hux_save_as unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(863, 1, 863+1, 1))
+    srcref = srcref(srcfile("../../R/import-standalone-file-output-utils.R"), c(896, 1, 896+1, 1))
   )
 })
 

@@ -1,3 +1,11 @@
 ^LICENSE\.md$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.github$
+^AGENTS.md$
+^design$
+^jarl.toml$
+^\.lintr$
+^\.mcp.json$
+^\.agents$
+^\.sandbox$

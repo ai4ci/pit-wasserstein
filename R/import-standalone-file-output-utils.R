@@ -89,9 +89,9 @@ std_size = list(
     return(fs::path_abs(tmp))
   }
   # command line with a file parameter
-  cmdArgs <- commandArgs(trailingOnly = FALSE)
-  needle <- "--file="
-  match <- grep(needle, cmdArgs)
+  cmdArgs = commandArgs(trailingOnly = FALSE)
+  needle = "--file="
+  match = grep(needle, cmdArgs)
   if (length(match) > 0) {
     # Rscript
     return(fs::path_abs(sub(needle, "", cmdArgs[match])))
@@ -103,7 +103,9 @@ std_size = list(
           return(fs::path_abs(sys.frames()[[1]]$ofile))
         }
       },
-      error = function(e) return(fs::path_abs(getwd()))
+      error = function(e) {
+        return(fs::path_abs(getwd()))
+      }
     )
   }
   warning("not running in a script.", call. = FALSE)
@@ -130,6 +132,7 @@ std_size = list(
 #' @concept output
 #' @unit
 #' # no test possible: this will be skipped
+#' testthat::skip_on_cran()
 #' try(.find_chrome())
 .find_chrome = function() {
   switch(
@@ -138,15 +141,15 @@ std_size = list(
       res = tryCatch(
         {
           # unlist(utils::readRegistry('MSEdgeHTM\shell\open\command', 'HCR'))
-          unlist(utils::readRegistry('ChromeHTML\\shell\\open\\command', 'HCR'))
+          unlist(utils::readRegistry("ChromeHTML\\shell\\open\\command", "HCR"))
         },
-        error = function(e) ''
+        error = function(e) ""
       )
       res = unlist(strsplit(res, '"'))
       res = utils::head(res[file.exists(res)], 1)
       if (length(res) != 1) {
         stop(
-          'Cannot find Google Chrome automatically from the Windows Registry Hive. ',
+          "Cannot find Google Chrome automatically from the Windows Registry Hive. ",
           "Please pass the full path of chrome.exe to the 'browser' argument ",
           "or to the environment variable 'PAGEDOWN_CHROME'."
         )
@@ -154,23 +157,23 @@ std_size = list(
       res
     },
     unix = if (unname(Sys.info()["sysname"] == "Darwin")) {
-      '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-      #TODO check this exists
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+      # TODO check this exists
     } else {
       for (i in c(
-        'google-chrome',
-        'chromium-browser',
-        'chromium',
-        'google-chrome-stable'
+        "google-chrome",
+        "chromium-browser",
+        "chromium",
+        "google-chrome-stable"
       )) {
-        if ((res <- Sys.which(i)) != '') break
+        if ((res = Sys.which(i)) != "") break
       }
-      if (res == '') {
-        stop('Cannot find Chromium or Google Chrome')
+      if (res == "") {
+        stop("Cannot find Chromium or Google Chrome")
       }
       res
     },
-    stop('Your platform is not supported')
+    stop("Your platform is not supported")
   )
 }
 
@@ -193,6 +196,8 @@ std_size = list(
 #' @keywords internal
 #' @concept output
 #' @unit
+#'
+#' testthat::skip_on_cran()
 #'
 #' tryCatch(.find_chrome(), error = function(e) testthat::skip())
 #'
@@ -224,6 +229,15 @@ std_size = list(
   if (!fs::file_exists(svgFile)) {
     stop("SVG file does not exist: ", svgFile)
   }
+
+  # 1. Create an isolated temp folder strictly inside R's session tempdir()
+  chrome_dir = tempfile("chrome_print_", tmpdir = tempdir())
+  dir.create(chrome_dir, recursive = TRUE)
+  on.exit(
+    unlink(chrome_dir, recursive = TRUE, force = TRUE),
+    add = TRUE
+  )
+
   tmp_html = tempfile(fileext = ".html")
   html = sprintf(
     "
@@ -264,6 +278,8 @@ window.onload = init;
       "--headless",
       "--disable-gpu",
       "--no-pdf-header-footer",
+      paste0("--user-data-dir=", file.path(chrome_dir, "profile")),
+      paste0("--disk-cache-dir=", file.path(chrome_dir, "cache")),
       sprintf("--print-to-pdf=%s", pdfFile),
       tmp_html
     ),
@@ -293,6 +309,8 @@ window.onload = init;
 #'
 #' @unit
 #'
+#' testthat::skip_on_cran()
+#'
 #' tryCatch(.find_chrome(), error = function(e) testthat::skip())
 #'
 #' hux = iris %>% huxtable::as_hux() %>% huxtable::theme_mondrian(font="Roboto")
@@ -301,11 +319,9 @@ window.onload = init;
 #' testthat::expect_no_error({
 #'   tmp = .print_html_with_chrome(html,maxWidth = 5,maxHeight = std_size$A4$height)
 #' })
+#'
 #' # browseURL(tmp)
-#'
 #' # exact binary copy may depend on versions of chrome etc:
-#'
-#'
 #' # The resulting pdf has fonts embedded & is multipage.
 .print_html_with_chrome = function(
   htmlFragment,
@@ -353,6 +369,15 @@ window.onload = init;
     htmlFragment
   )
   readr::write_file(html, tmp_html)
+
+  # Create an isolated temp folder strictly inside R's session tempdir()
+  chrome_dir = tempfile("chrome_print_", tmpdir = tempdir())
+  dir.create(chrome_dir, recursive = TRUE)
+  on.exit(
+    unlink(chrome_dir, recursive = TRUE, force = TRUE),
+    add = TRUE
+  )
+
   out = system2(
     chromeBinary,
     # args=c("--headless", "--disable-gpu", "--no-pdf-header-footer", sprintf("--print-to-pdf=%s",pdfFile),tmp_html),
@@ -360,6 +385,8 @@ window.onload = init;
       "--headless",
       "--no-pdf-header-footer",
       "--disable-gpu",
+      paste0("--user-data-dir=", file.path(chrome_dir, "profile")),
+      paste0("--disk-cache-dir=", file.path(chrome_dir, "cache")),
       sprintf("--print-to-pdf=%s", pdfFile),
       tmp_html
     ),
@@ -384,6 +411,7 @@ window.onload = init;
 #' @concept output
 #'
 #' @unit
+#' testthat::skip_on_cran()
 #' hux = iris %>% huxtable::as_hux() %>% huxtable::theme_mondrian(font="Arial")
 #' html = hux %>% huxtable::to_html()
 #' tmp = .print_html_with_chrome(html,maxWidth = std_size$A4$width,maxHeight = std_size$A4$height)
@@ -394,7 +422,12 @@ window.onload = init;
     fs::path_ext_remove() %>%
     paste0(sprintf("_%03d", 1:pages)) %>%
     fs::path_ext_set("png")
-  pdftools::pdf_convert(pdfFile, filenames = out, dpi = 300, verbose = FALSE)
+  pdftools::pdf_convert(
+    pdfFile,
+    filenames = out,
+    dpi = 300,
+    verbose = FALSE
+  )
   return(out)
 }
 
@@ -499,7 +532,7 @@ window.onload = init;
 #' @concept output
 #' @return true or false
 .is_viewer_available = function() {
-  viewer <- getOption("viewer")
+  viewer = getOption("viewer")
   !is.null(viewer)
 }
 
@@ -647,7 +680,7 @@ window.onload = init;
   }
 
   if ("eps" %in% formats) {
-    rsvg::rsvg_eps(svg_loc, withExt("eps")) #, css = web_fonts)
+    rsvg::rsvg_eps(svg_loc, withExt("eps")) # , css = web_fonts)
 
     #   cairops = optional_fn("Cairo :: CairoPS",alt = stop("Please install package `Cairo` for ps output"))
     #   ggplot2::ggsave(
@@ -931,7 +964,10 @@ knit_print.rendered_plot = function(x, options, ...) {
     lapply(matched, function(x) try(unlink(x)))
   }
 
-  fonts_used = hux %>% huxtable::font() %>% as.vector() %>% unique()
+  fonts_used = hux %>%
+    huxtable::font() %>%
+    as.vector() %>%
+    unique()
   non_local_fonts = fonts_used[
     !fonts_used %in% systemfonts::system_fonts()$family
   ]
@@ -946,21 +982,21 @@ knit_print.rendered_plot = function(x, options, ...) {
     # browser()
     pageSize =
       if (maxWidth >= 21 * 2 / 2.54) {
-        #A3 landscape
+        # A3 landscape
         officer::page_size(
           width = 29.7 / 2.54,
           height = 21 * 2 / 2.54,
           orient = "landscape"
         )
       } else if (maxWidth >= 29.7 / 2.54) {
-        #A3 portrait
+        # A3 portrait
         officer::page_size(
           width = 29.7 / 2.54,
           height = 21 * 2 / 2.54,
           orient = "portrait"
         )
       } else if (maxWidth >= 21 / 2.54) {
-        #A4 landscape
+        # A4 landscape
         officer::page_size(
           width = 21 / 2.54,
           height = 29.7 / 2.54,
@@ -972,7 +1008,7 @@ knit_print.rendered_plot = function(x, options, ...) {
           height = 29.7 / 2.54,
           orient = "portrait"
         )
-      } #A4 portrait
+      } # A4 portrait
 
     marginSize = (pageSize$width - maxWidth) / 2
 
@@ -992,7 +1028,9 @@ knit_print.rendered_plot = function(x, options, ...) {
           type = "continuous"
         )
       )
-    ft = hux %>% huxtable::as_flextable() %>% flextable::autofit(add_h = 0)
+    ft = hux %>%
+      huxtable::as_flextable() %>%
+      flextable::autofit(add_h = 0)
     for (i in 1:ncol(hux)) {
       ft = ft %>%
         flextable::width(
@@ -1004,15 +1042,15 @@ knit_print.rendered_plot = function(x, options, ...) {
     # flextable::fit_to_width(maxWidth)
     if (!is.null(ft$caption$value)) {
       if (utils::packageVersion("flextable") >= "0.5.5") {
-        doc <- officer::body_add_par(
+        doc = officer::body_add_par(
           doc,
           ft$caption$value,
           style = "table title"
         )
       }
     }
-    doc <- flextable::body_add_flextable(doc, ft)
-    doc <- officer::body_add_par(doc, " ")
+    doc = flextable::body_add_flextable(doc, ft)
+    doc = officer::body_add_par(doc, " ")
     print(doc, target = withExt("docx"))
     out$docx = withExt("docx")
   }
@@ -1064,7 +1102,7 @@ knit_print.rendered_plot = function(x, options, ...) {
     }
 
     if (any(c("pdf", "png") %in% formats)) {
-      tmp = c("pdf", "png")[c("pdf", "png") %in% formats]
+      tmp = intersect(c("pdf", "png"), formats)
       unlink(withExt("pdf"))
       pdfConverter(
         html,
@@ -1076,9 +1114,9 @@ knit_print.rendered_plot = function(x, options, ...) {
         if ("pdf" %in% tmp) {
           out$pdf = withExt("pdf")
         }
-        if ("png" %in% formats) {
+        if ("png" %in% tmp) {
           pngs = .convert_pdf_to_pngs(withExt("pdf"))
-          if ("png" %in% tmp) out$png = unname(matchedFiles("png"))
+          out$png = pngs
         }
       }
     }

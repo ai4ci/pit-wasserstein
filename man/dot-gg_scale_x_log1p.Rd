@@ -7,6 +7,8 @@
 .gg_scale_x_log1p(..., n = 5, base = 10, sf = 2)
 }
 \arguments{
+\item{...}{Other arguments passed on to \verb{scale_(x|y)_continuous()}}
+
 \item{n}{the number of major breaks (default \code{`5`} [numeric])}
 
 \item{base}{the base for the logarithm (default \code{`10`} [numeric])}

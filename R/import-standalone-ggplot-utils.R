@@ -33,7 +33,7 @@
 #' @param pts label size in points
 #' @return a ggplot size aesthetic for labels
 .gg_label_size = function(pts) {
-  return(pts / ggplot2::.pt) #/(96/72))
+  return(pts / ggplot2::.pt) # /(96/72))
 }
 
 #' Hide the x axis of a plot
@@ -199,7 +199,7 @@
       legend.text = ggplot2::element_text(size = baseSize * 0.75),
       legend.key.size = ggplot2::unit(0.4, "lines"),
       legend.box.margin = ggplot2::margin(),
-      legend.margin = ggplot2::margin(t = 0, unit = 'cm'),
+      legend.margin = ggplot2::margin(t = 0, unit = "cm"),
       legend.justification = "left",
       legend.box.just = "left",
       # transparent background
@@ -237,7 +237,7 @@
   font = .gg_substitute_fonts(font)
   # get all ggplot2 geoms
   try(attachNamespace("ggplot2"), silent = TRUE)
-  geoms = ls(pattern = '^geom_', envir = as.environment('package:ggplot2')) %>%
+  geoms = ls(pattern = "^geom_", envir = as.environment("package:ggplot2")) %>%
     stringr::str_remove("geom_")
   for (geom in geoms) {
     try(
@@ -371,9 +371,9 @@
 #' @noRd
 #' @unit
 #' plot = ggplot2::ggplot(ggplot2::diamonds, ggplot2::aes(x=carat,y=price,color = color))+
-#'   ggplot2::theme_minimal(base_family=check_font("Roboto"))+
+#'   ggplot2::theme_minimal(base_family=.gg_substitute_fonts("Roboto"))+
 #'   ggplot2::geom_point()+
-#'   ggplot2::annotate("label",x=2,y=10000,label="Hello \u2014 world", family=check_font("Kings"))+
+#'   ggplot2::annotate("label",x=2,y=10000,label="Hello \u2014 world", family=.gg_substitute_fonts("Kings"))+
 #'   ggplot2::labs(tag = "A")+
 #'   ggplot2::xlab("Carat\u2082")+
 #'   ggplot2::ylab("price\u2265")
@@ -434,7 +434,10 @@
   n_default = n
   tmp_fn = scales::extended_breaks(n = n)
   breaks_fn = function(x, n = n_default) {
-    x %>% trans() %>% tmp_fn(n = n) %>% inv()
+    x %>%
+      trans() %>%
+      tmp_fn(n = n) %>%
+      inv()
   }
 
   scales::new_transform(
@@ -574,7 +577,7 @@
 #' tibble::tibble(pvalue = c(0.001, 0.05, 0.1), fold_change = 1:3) %>%
 #'  ggplot2::ggplot(ggplot2::aes(fold_change , pvalue)) +
 #'  ggplot2::geom_point() +
-#'  scale_y_percent()
+#'  .gg_scale_y_percent()
 .gg_scale_y_percent = function(..., sf = 2) {
   return(ggplot2::scale_y_continuous(
     labels = ~ sprintf("%.*g%%", sf, .x * 100),

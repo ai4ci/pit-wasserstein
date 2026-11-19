@@ -8,8 +8,6 @@
 }
 \arguments{
 \item{x}{the rendered_plot}
-
-\item{...}{not used}
 }
 \value{
 nothing - used for side effects
