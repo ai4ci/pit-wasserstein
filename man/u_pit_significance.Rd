@@ -17,11 +17,10 @@ from, as returned by \code{\link[=prediction_scores]{prediction_scores()}}}
 a dataframe with one row per input value and columns:
 \itemize{
 \item \code{U_pit}, \code{n_predictions} — as supplied
-\item \code{statistic} — \eqn{\sqrt{n}\,U_{pit}}, the quantity with a fixed null
-\item \code{expected} — the null mean of \code{U_pit}
-\item \code{critical_0.05} — the one-sided 5\% critical value of \code{U_pit}
-\item \code{p_value} — the probability of a \code{U_pit} at least this large under the
-location-free null
+\item \code{statistic} — the scaled metric, \eqn{\sqrt{n}\,U_{pit}}
+\item \code{expected} — the reference mean of \code{U_pit}
+\item \code{critical_0.05} — the one-sided 5\% reference critical value
+\item \code{p_value} — the approximate upper-tail probability under the scaled reference distribution
 }
 }
 \description{
@@ -33,13 +32,16 @@ skew, tail weight, or a mixture of dispersion errors — and not that the
 forecasts are merely off-centre. One-sided, as \code{U_pit} is a distance.
 }
 \details{
-Because the adjustment estimates a parameter from the same data, the null is
-\strong{not} the baseline \eqn{\int_0^1|B^\circ|} of \code{\link[=b_pit_significance]{b_pit_significance()}}: it is
-the bridge with the estimated direction projected out (see \code{.u_pit_null}),
-giving a 5\% critical value about \code{0.66} times the baseline one at every \code{n}.
-Using the baseline null here would be badly conservative. The adjusted null
-is still distribution-free — it depends on \code{n} and nothing else — but has no
-published c.d.f., so it is simulated once per session and cached.
+The reference distribution is the integrated absolute Brownian bridge with
+the effect of estimating the median location shift removed. The derivation
+uses independent Gaussian forecasts with a common scale on the link scale.
+In that model, median link-scale and median probit adjustments coincide.
+The reference may differ for other predictive families or varying forecast
+scales under link-scale adjustment.
+
+The test simulates and caches the limiting reference and extrapolates the
+upper tail beyond its estimated 99th percentile. The resulting p-values and
+critical values are large-sample approximations at finite \eqn{n}.
 
 \code{U_pit} says nothing about the \emph{direction} of a dispersion error; pair it
 with \code{\link[=d_pit_significance]{d_pit_significance()}}, which does.

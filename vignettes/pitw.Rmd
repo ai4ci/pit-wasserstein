@@ -1,0 +1,64 @@
+---
+title: "Getting started with pitw"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with pitw}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+`pitw` compares a set of continuous predictive distributions with the values
+they were meant to predict. For example, given forecasts of a hospital admission
+rate and the corresponding observed rates, we can check whether the predictive
+distributions tend to be too narrow or too wide after accounting for a common
+location bias.
+
+For each observation, the probability integral transform (PIT) gives the
+proportion of its predictive distribution below the observed value. For
+calibrated continuous predictions these proportions should be uniform between
+zero and one. The package summarises departures from uniformity in three ways.
+
+| Score | Interpretation |
+| --- | --- |
+| `B_pit` | Overall departure from uniformity in the original PIT values. Bias, spread and distribution shape can all contribute. |
+| `U_pit` | Departure that remains after estimating and adjusting for one common location shift. |
+| `D_pit` | Direction of the remaining spread discrepancy. Positive values indicate overconfidence and negative values indicate underconfidence. |
+
+## Score a set of forecasts
+
+We use 100 reference quantiles of a standard normal distribution as example
+observations. Each forecast is normal with mean 0.5 and standard deviation 0.7,
+so the forecasts are displaced and too narrow by construction.
+
+```{r score-forecasts}
+observed <- stats::qnorm(stats::ppoints(100))
+
+pitw::pit_w(true_value = observed, location = 0.5, scale = 0.7)
+```
+
+The positive `D_pit` shows that the forecasts are too narrow after adjustment
+for the common shift. This example illustrates the scores. The significance
+tests use large-sample reference distributions and assume independent
+predictions, which matters when forecasts or estimates use overlapping data.
+
+`pit_w()` scores one set of predictions. Use `prediction_scores()` to score
+several sets in a grouped data frame and compare the PIT scores with coverage,
+interval width and the continuous ranked probability score (CRPS).
+
+## Read the vignettes in order
+
+1. [PIT histograms and forecast calibration](introduction-to-pit.html). Use
+   simulated forecasts to see how location bias and predictive spread change
+   the histogram.
+2. [The three PIT-Wasserstein scores](pit-w-metrics.html). See how the scores
+   are calculated and how they behave alongside coverage and CRPS.
+3. [Scoring reproduction number estimates from EpiEstim](sir-epiestim-example.html).
+   Compare estimates with known $R_t$ across simulated epidemics of different
+   sizes.
+4. [Significance testing](significance-testing.html). See how to use the
+   reference distributions and which assumptions matter for interpretation.
+5. [Sample size and power](sample-sizes-and-power.html). Compare how the scores
+   separate known differences as the number of predictions increases.
+6. [Predictive distribution shape](model-misspecification.html). See what
+   happens when forecasts use a different distributional family, including
+   cases where width and tail differences produce similar scores.

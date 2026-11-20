@@ -22,11 +22,17 @@ by `loom render` from `design/document-model.mmd`.
 
 | uri | status | priority |
 | --- | --- | --- |
+| [Revisit the EpiEstim reference values and inference with overlapping windows](../task/check-epiestim-vignette-inference.md) | todo | high |
 | [Clarify standard calibration versus the bias-adjusted PIT diagnostic](../task/clarify-bias-adjusted-pit-diagnostic.md) | todo | high |
+| [Package documentation describes limiting PIT-Wasserstein tests as exact](../task/clarify-pit-test-reference-approximations.md) | todo | high |
 | [Document the three-part PIT-Wasserstein test decomposition in the paper](../task/document-three-part-test-decomposition.md) | todo | high |
 | [Integrate JMLR LaTeX style file for the paper](../task/integrate-jmlr-latex-style.md) | todo | high |
+| [Qualify vignette claims about what PIT departures identify](../task/qualify-vignette-diagnostic-interpretation.md) | todo | high |
 | [Reframe the introduction as a mathematical methods paper, not an educational piece](../task/reframe-introduction-as-mathematical-methods-paper.md) | todo | high |
+| [Reconcile vignette metric explanations with the formulas and figures](../task/correct-metrics-vignette-interpretation.md) | todo | medium |
+| [Correct the sample-size vignette descriptions of the plots and power](../task/correct-power-vignette-interpretation.md) | todo | medium |
 | [Find or tabulate a c.d.f. for the bias-adjusted U_pit null](../task/derive-cdf-of-the-adjusted-u-pit-null.md) | todo | medium |
+| [Huxtable PDF export unit test fails in scoder](../task/hux-pdf-export-test-fails-in-scoder.md) | todo | medium |
 <!-- loom view: openTasks end -->
 
 ## References

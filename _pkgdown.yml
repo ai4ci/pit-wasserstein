@@ -1,0 +1,18 @@
+url: https://ai4ci.github.io/pit-wasserstein/
+template:
+  bootstrap: 5
+  math-rendering: mathjax
+reference:
+- title: PIT-W scoring
+- contents:
+  - has_concept("scores")
+- title: Simulations
+- contents:
+  - has_concept("simulations")
+- title: Reparameterised and non-standard distributions
+- contents:
+  - has_concept("distributions")
+- title: Others
+- contents:
+  - lacks_concepts(c("scores","simulations","distributions"))
+

@@ -17,11 +17,10 @@ from, as returned by \code{\link[=prediction_scores]{prediction_scores()}}}
 a dataframe with one row per input value and columns:
 \itemize{
 \item \code{B_pit}, \code{n_predictions} — as supplied
-\item \code{statistic} — \eqn{\sqrt{n}\,B_{pit}}, the quantity with a fixed null
-\item \code{expected} — the null mean of \code{B_pit}, \eqn{\sqrt{2\pi}/(8\sqrt{n})}
-\item \code{critical_0.05} — the one-sided 5\% critical value of \code{B_pit}
-\item \code{p_value} — the probability of a \code{B_pit} at least this large under full
-probabilistic calibration
+\item \code{statistic} — the scaled metric, \eqn{\sqrt{n}\,B_{pit}}
+\item \code{expected} — the reference mean, \eqn{\sqrt{2\pi}/(8\sqrt{n})}
+\item \code{critical_0.05} — the one-sided 5\% reference critical value
+\item \code{p_value} — the upper-tail probability under the scaled reference distribution
 }
 }
 \description{
@@ -34,8 +33,8 @@ distance, so only large values are evidence against calibration.
 \details{
 Under that null \eqn{\sqrt{n}\,B_{pit}} converges to \eqn{\int_0^1|B^\circ|},
 the integrated absolute Brownian bridge, whose c.d.f. is \code{\link[=p_l1_bridge]{p_l1_bridge()}}.
-Nothing is estimated from the data, so the null is exact and fully
-analytical.
+The test evaluates the limit's analytical CDF numerically. The resulting
+p-values and critical values are large-sample approximations at finite \eqn{n}.
 
 \code{B_pit} rejects when \emph{anything} is wrong and says nothing about what. Use it
 as the omnibus first stage, then \code{\link[=d_pit_significance]{d_pit_significance()}} to test dispersion

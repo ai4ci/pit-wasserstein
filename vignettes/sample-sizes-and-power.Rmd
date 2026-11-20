@@ -25,32 +25,29 @@ fig_dir = here::here("vignettes", "main", "fig")
 set.seed(1001)
 ```
 
-This vignette is the reference for **Figures 2 and 3** of the paper. It asks
-the practical question that follows once the metrics have null distributions:
-**how many predictions do you need before a test can see anything?**
-
-Two simulations answer it from different directions.
+We compared the PIT-Wasserstein scores at 10, 100 and 1,000 predictions
+per estimator, then varied sample size across four prespecified scenarios.
+These simulations show how sample size affects our ability to distinguish
+calibrated forecasts from the departures represented in Figures 2 and 3.
 
 | | Simulation 1 (Figure 2) | Simulation 2 (Figure 3) |
 |---|---|---|
-| Question | do the metrics separate known failures at realistic $n$? | how does each test's power build with $n$? |
+| Question | How well do the scores separate scenarios at three sample sizes? | How do the scores and rejection thresholds change with sample size? |
 | Design | $3\times3$ grid of dispersion calibration and bias | 4 named scenarios swept over $n$ |
 | $n$ | 10, 100, 1000 | 10 log-spaced values from 10 to 1000 |
 | Replicates | 100 per cell | 250 per point |
 | Display | boxplots against critical values | median and 95% range against critical value |
 
-Throughout, predictive distributions are normal and the dashed lines are the
-analytical 5% critical values from `vignette("significance-testing")`,
-evaluated at the relevant $n$. A metric above its dashed line is a rejection;
-how far the *bulk* of the distribution sits above it is the power.
-
-The paper describes both figures in more detail. The setup below is the
-specification they refer back to.
+All predictive distributions are normal. The dashed lines mark the nominal
+5% rejection thresholds from the [significance vignette](significance-testing.html)
+at each sample size. The boxplots and ribbons show how the scores vary
+between replicates. The proportion of replicates beyond the relevant
+threshold gives the rejection rate for that scenario.
 
 # 1. Separation at fixed sample sizes (Figure 2)
 
-The first simulation crosses the two failure modes that the adjustment is
-meant to separate, at three sample sizes.
+The first simulation varies location bias and the ratio of reported spread
+to error spread at three sample sizes.
 
 | Factor | Levels |
 |---|---|
@@ -59,19 +56,15 @@ meant to separate, at three sample sizes.
 | predictions per estimator $n$ | 10, 100, 1000 |
 | replicate estimators | 100 per cell |
 
-Two details matter for interpretation. The **error scale**
-$\sigma_\mathcal{E}$ is itself redrawn log-uniformly on $[\tfrac12, 2]$ for
-each replicate, with the claimed scale set to
-$\sigma_\mathcal{S} = \sigma_\mathcal{E}\times$ calibration — so the
-calibration *ratio* is held at its nominal level while the absolute scale
-varies, and nothing can depend on the units. And
-$\kappa_\mathcal{S} = 0$ throughout, so every prediction from a given
-estimator claims the same width: spread–error decoupling is deliberately
-excluded here and appears only in Simulation 2.
+We draw the error scale $\sigma_\mathcal{E}$ log-uniformly on
+$[\tfrac12, 2]$ for each replicate and set the reported spread to
+$\sigma_\mathcal{S} = \sigma_\mathcal{E}\times$ calibration. The absolute
+scale varies while the spread ratio stays at its assigned level. All
+predictions from an estimator report the same spread
+($\kappa_\mathcal{S} = 0$).
 
-Bias is expressed in units of $\sigma_\mathcal{E}$, so "high" bias is a
-one-standard-deviation displacement — large, but not absurd for a real
-forecaster.
+Bias is expressed in units of $\sigma_\mathcal{E}$. A high bias displaces
+the predictive distribution by one error standard deviation.
 
 ```{r}
 
@@ -163,33 +156,21 @@ plot1 = plot1a+plot1b+plot1c+patchwork::plot_annotation(tag_levels = "A")+patchw
 ```
 
 
-Reading Figure 2, panel by panel. Each panel is one sample size; within it,
-boxes are grouped by true dispersion calibration and coloured by bias.
+Figure 2 has one panel for each score. Within each panel, the columns show
+the three sample sizes and the colours identify the bias levels.
 
-**Panel A, $B_{pit}$.** The baseline metric responds to both failures at once.
-Boxes rise with bias (colour) *and* away from the calibrated centre group, so
-a rejection is informative only in the weakest sense: something is wrong. At
-$n = 10$ the critical value is high enough that only the grossest failures
-clear it; by $n = 1000$ almost everything does, including combinations that
-are only mildly miscalibrated.
+$B_{pit}$ increased with bias and with departures from a spread ratio of
+one (panel A). At a given spread ratio, the distributions of $D_{pit}$ were
+similar across bias levels (panel B). The conservative scenarios gave
+negative scores and the overconfident scenarios gave positive scores.
+$U_{pit}$ also varied little across bias levels and increased away from a
+ratio of one (panel C).
 
-**Panel B, $D_{pit}$.** Two dashed lines, because the directed test is signed
-and two-sided. The colour groups now sit **on top of one another**: bias moves
-the boxes hardly at all, which is the bias invariance of Figure 1 shown as a
-distribution rather than a scatter. What separates the boxes is dispersion
-calibration, and it separates them by *sign* — conservative below zero,
-overconfident above.
-
-**Panel C, $U_{pit}$.** The undirected adjusted metric is also flat in colour,
-and like $B_{pit}$ it is a distance so only the upper critical value applies.
-It separates calibrated from miscalibrated but, unlike panel B, cannot say
-which direction.
-
-The practical message is in the leftmost panel: at $n = 10$ the boxes for
-different calibration levels overlap heavily and sit largely below their
-critical values. **Ten predictions is not enough to diagnose anything but a
-gross failure.** By $n = 100$ the groups are cleanly separated, which is the
-sample size the paper recommends as a working minimum.
+At 10 predictions, the simulated groups overlapped and most boxes lay
+below their upper rejection thresholds or within the two-sided bounds.
+The groups were more clearly separated at 100 predictions in this design.
+When planning an evaluation, consider the departure of interest and how
+many independent predictions are available.
 
 For comparison, the two conventional summaries over the same simulation:
 
@@ -214,9 +195,9 @@ mainly by bias, as in Figure 1 panel A. Neither supports a decision rule.
 
 # 2. Power against sample size (Figure 3)
 
-The second simulation replaces the grid with four **named scenarios**, each a
-single well-defined failure mode, and sweeps the number of predictions
-continuously. This is the figure to use when choosing $n$.
+The second simulation varies sample size in four scenarios. In the
+spread–error decoupling scenario, reported uncertainty varies independently
+of the errors even though the typical spread has the correct scale.
 
 | Scenario | $\mu_\mathcal{E}$ | $\sigma_\mathcal{S}/\sigma_\mathcal{E}$ | $\kappa_\mathcal{S}$ | Should be detected by |
 |---|---|---|---|---|
@@ -329,34 +310,21 @@ plot2 = plot2a+plot2b+plot2c+patchwork::plot_annotation(tag_levels = "A")+patchw
 )
 ```
 
-Reading Figure 3. In each panel the dashed line falls as $1/\sqrt{n}$ — the
-test gets more sensitive with more data — while a curve that stays above it is
-a failure the test detects, and one that tracks below it is a failure that
-test is blind to.
+In Figure 3, the dashed lines give the rejection thresholds and fall
+in magnitude as $1/\sqrt{n}$. The solid lines give the median score in
+each scenario.
 
-**Panel A, $B_{pit}$.** The null scenario tracks the critical value, as it must.
-The biased scenario sits far above it at every $n$: a one-$\sigma$ bias is
-detected from the smallest samples. The overconfident scenario also separates,
-but later. The decoupled scenario rises above the line only slowly — the
-omnibus test is the *weakest* of the three against spread–error decoupling.
+The median $B_{pit}$ for a bias of one error standard deviation was above
+the threshold at every sample size studied (panel A). The overconfident
+scenario separated at larger sample sizes.
 
-**Panel B, $D_{pit}$.** The biased curve now sits on zero, inside the two
-critical lines, at every sample size: the directed metric does not see a pure
-location error, by construction. Only the overconfident scenario leaves the
-band, and it does so with a definite sign. Note also that the decoupled
-scenario stays within the band — $D_{pit}$ is insensitive to $\kappa$ as well
-as to bias, which is what makes it a clean test of median width.
+The median $D_{pit}$ for pure location bias stayed close to zero (panel B).
+The overconfident scenario crossed the upper threshold. The median for
+spread–error decoupling stayed within the two thresholds.
 
-**Panel C, $U_{pit}$.** The biased curve again sits on the null, confirming
-bias invariance. Both genuine miscalibrations — overconfidence and decoupling —
-separate, and the decoupled scenario separates *earlier here than in panel A*.
-Paying for the tighter adjusted null buys power against shape failures.
-
-Taken together the three panels are the three-part test working as intended:
-the pattern of which curves clear which lines identifies the failure mode,
-rather than merely flagging that one exists. The crossing points also give the
-direct answer to the sample-size question — read off where the scenario of
-interest leaves the dashed line.
+The median $U_{pit}$ for spread–error decoupling crossed its threshold at
+a smaller sample size than the median $B_{pit}$ did (panels C and A).
+The crossing points describe the median curves for these scenarios.
 
 Two caveats carried over from `vignette("significance-testing")`: the
 $D_{pit}$ critical value is mildly anti-conservative below $n \approx 50$, so

@@ -23,30 +23,32 @@ library(tidyverse)
 set.seed(101)
 ```
 
-This vignette derives null distributions for the three PIT-Wasserstein
-metrics, so that an observed value can be reported with a $p$-value rather
-than only as a point estimate.
+Each test compares a PIT-Wasserstein score with the values expected under
+its reference model. The scores measure departures of the probability
+integral transform (PIT) values from uniformity. The reference
+distributions are large-sample approximations and assume independent PIT
+values. Estimates from overlapping windows can share observations, as in
+the [EpiEstim example](sir-epiestim-example.html).
 
-The short version: **these are Kolmogorov–Smirnov tests with a different
-norm.** If that sentence is already enough, Section 1 explains it and Sections
-3–5 give the three nulls. Every analytical claim is checked against simulation
-in the chunk that follows it; the simulation is the evidence, the algebra is
-the explanation.
+The [worked example](#in-practice) uses 120 normal forecasts with a common
+location bias and reported standard deviations smaller than the spread of
+the errors. We score the forecasts with `pit_w()` and pass each score and
+the number of predictions to its significance function. The signs and
+$p$-values describe different aspects of the same set of forecasts.
 
-## 1. Why a Brownian bridge?
+## 1. The reference distribution for uniform PIT values
 
-This is the part that is least intuitive, so it is worth going slowly. Nothing
-in this section is specific to our metrics — it is the standard theory behind
-the Kolmogorov–Smirnov test, and our metrics are a variant of it.
+We compare the cumulative distribution of the PIT values with that of a
+uniform distribution. The Brownian bridge describes how this difference
+varies across repeated samples of independent uniform PIT values as the
+sample size increases.
 
 ### 1a. The empirical process
 
-Suppose a forecaster is perfectly calibrated. Then its PIT values
-$u_i = F_i(x_i)$ are $n$ independent draws from $\mathrm{Uniform}(0,1)$.
-Whatever the predictive distributions were — normal, gamma, wildly
-heteroscedastic — the PIT transform has thrown all of that away. We are left
-with the single, universal question: *does this sample of $n$ numbers look
-uniform?*
+Under the baseline reference model, the PIT values $u_i = F_i(x_i)$ are
+$n$ independent draws from $\mathrm{Uniform}(0,1)$. The comparison uses
+these values, which are on a common scale even when the predictive
+distributions differ.
 
 Form the empirical CDF $F_n(t) = \frac1n\#\{u_i \le t\}$ and compare it to the
 CDF it should have, which is $F(t) = t$. The **empirical process** is the
@@ -56,24 +58,19 @@ $$
 \alpha_n(t) = \sqrt{n}\left(F_n(t) - t\right)
 $$
 
-Three facts about this object, each easy to believe:
+The scaled difference has three properties.
 
 1. **At any fixed $t$**, $nF_n(t) \sim \mathrm{Binomial}(n, t)$, so
    $\alpha_n(t)$ has mean $0$ and variance $t(1-t)$, and by the CLT it is
    asymptotically normal.
 2. **At two points** $s < t$, the covariance works out as
    $s(1-t) = s\wedge t - st$.
-3. **At the ends**, $\alpha_n(0) = \alpha_n(1) = 0$ exactly — the empirical CDF
-   is pinned to 0 and 1 at the edges, whatever the sample.
+3. **At the ends**, $\alpha_n(0) = \alpha_n(1) = 0$ exactly, because the
+   empirical CDF is pinned to 0 and 1 at the edges, whatever the sample.
 
-A Gaussian process with mean zero, covariance $s\wedge t - st$ and tied down at
-both ends *is* the standard Brownian bridge $B^\circ$. That is all the
-Brownian bridge is here: the limiting shape of the gap between the empirical
-CDF of the PIT values and the diagonal. It is Brownian motion conditioned to
-return to zero at $t = 1$, and the "conditioned to return" is fact 3 — the
-empirical CDF has nowhere else to end up.
-
-So:
+The standard Brownian bridge $B^\circ$ is a Gaussian process with mean
+zero, covariance $s\wedge t - st$ and value zero at both endpoints.
+Donsker's theorem gives the limit of the scaled difference.
 
 $$
 \alpha_n \;\Rightarrow\; B^\circ \qquad \text{(Donsker's theorem)}
@@ -99,11 +96,11 @@ The path gets rougher as $n$ grows but its *vertical scale does not change*:
 that is the $\sqrt n$ doing its job. The limiting object is the same in all
 three panels.
 
-### 1b. Every goodness-of-fit statistic is a norm on this process
+### 1b. Comparing goodness-of-fit statistics
 
-Once you accept that the gap converges to $B^\circ$, every classical
-goodness-of-fit test is just a choice of how to summarise a function into one
-number — and the continuous mapping theorem hands you the limit for free:
+Several goodness-of-fit tests summarise the difference between these
+cumulative distributions. Their reference distributions use the corresponding
+summary of $B^\circ$.
 
 | Test | Statistic | Limit |
 |---|---|---|
@@ -113,17 +110,14 @@ number — and the continuous mapping theorem hands you the limit for free:
 | **PIT-Wasserstein** | $\int\lvert\alpha_n\rvert$ | $\int_0^1\lvert B^\circ\rvert$ |
 
 KS takes the worst single point ($L^\infty$). Cramér–von Mises takes the mean
-square ($L^2$). **Ours takes the mean absolute gap — the $L^1$ norm — which is
+square ($L^2$). **Ours takes the mean absolute gap (the $L^1$ norm), which is
 the area between the empirical CDF and the diagonal.** That area is exactly
 the 1-Wasserstein distance between the PIT distribution and the uniform, which
 is why the metric is called what it is.
 
-So the metric is not exotic. It sits in the same family as the tests everyone
-already trusts, and it has a null for exactly the same reason they do. The
-practical differences are the familiar $L^1$-versus-$L^\infty$ ones: ours uses
-the whole discrepancy rather than its worst point, so it is less sensitive to
-a single outlying prediction and more sensitive to a small bias sustained
-across the whole range.
+Using the whole difference gives weight to small departures that persist
+across the PIT range. The Kolmogorov–Smirnov statistic uses the largest
+vertical difference.
 
 ```{r norms, fig.width = 6, fig.height = 3.2}
 # The same empirical process summarised three ways.
@@ -139,18 +133,12 @@ tibble(t = u, Fn = seq_along(u) / 60) |>
   theme_minimal()
 ```
 
-### 1c. Where the analogy keeps paying
+### 1c. The effect of estimating a location shift
 
-Two further places where "it is a KS test" is the right instinct, both of
-which we will use:
-
-- **Distribution-free.** The null depends on $n$ and on nothing else — not on
-  the predictive family, not on the units, not on the heteroscedasticity. Same
-  reason as KS: the PIT transform has already removed all of it.
-- **Estimating a parameter changes the null.** If you estimate something from
-  the same data before testing, the KS critical values are wrong and you need
-  Lilliefors' table instead. Our bias adjustment is exactly that step, and it
-  has exactly that consequence — see Section 5.
+For the baseline score, the reference is determined by the number of
+independent uniform PIT values. Estimating a location shift from the same
+forecasts affects the adjusted PIT values and changes their reference
+distribution. Section 5 describes this for the undirected adjusted score.
 
 ## 2. The three metrics, and the three hypotheses
 
@@ -184,7 +172,7 @@ $B$ for *baseline*: it is the omnibus test, directly analogous to KS, and the
 other two refine it. $B_{pit}, U_{pit} \in [0,\tfrac12]$ and
 $D_{pit} \in [-\tfrac14,\tfrac14]$, positive for an over-confident estimator.
 
-The nulls are nested — each is strictly weaker than the one before — so the
+The nulls are nested (each is strictly weaker than the one before), so the
 three read as a diagnosis rather than as three separate tests. Section 7
 tabulates how.
 
@@ -256,11 +244,10 @@ map_dfr(c(25L, 50L, 100L, 400L), function(n) {
 Both $\sqrt n\,\mathbb{E}B$ and $\sqrt n\,q_{0.95}$ are flat in $n$, confirming
 the scaling, and the test holds its nominal size.
 
-Note a trap worth recording: Takács (1993) gives series for the $L^1$ norm of
-**Brownian motion**, not of the bridge, and does not apply here. The bridge
-case is Johnson & Killeen.
+Takács (1993) gives series for the $L^1$ norm of Brownian motion. For the
+Brownian bridge we use the result of Johnson and Killeen (1983).
 
-## 4. The null of `D_pit`: exactly Gaussian
+## 4. The Gaussian limit of `D_pit`
 
 Writing $w(t) = \mathrm{sgn}(\tfrac12 - t)$, the signed metric is a **linear**
 functional of the same process,
@@ -279,10 +266,10 @@ $$
  = \frac{1}{48}
 $$
 
-giving the simplest null of the three:
+The test therefore uses this large-sample reference:
 
 $$
-D_{pit} \;\sim\; \mathcal{N}\!\left(0,\;\frac{1}{48n}\right)
+D_{pit} \;\approx\; \mathcal{N}\!\left(0,\;\frac{1}{48n}\right)
 $$
 
 This is where the $L^1$ family stops looking like KS: there is no signed
@@ -324,25 +311,19 @@ map_dfr(c(10L, 25L, 50L, 100L, 400L), function(n) {
 ```
 
 The variance constant is attained essentially exactly from $n = 25$. The size
-is mildly inflated at very small $n$ — the normal approximation to a sum of
-order statistics converges from above — so for $n \lesssim 50$ the closed-form
+is mildly inflated at very small $n$, because the normal approximation to a sum of
+order statistics converges from above, so for $n \lesssim 50$ the closed-form
 critical value should be treated as approximate.
 
-## 5. The null of `U_pit`: the Lilliefors step
+## 5. The reference distribution for adjusted PIT values
 
-$U_{pit}$ is the *same statistic* as $B_{pit}$, applied to adjusted PIT
-values. It is tempting to reuse Section 3's critical value. That is wrong, and
-wrong in a way that has a well-known precedent.
+We estimate the location shift from the same forecasts that we score.
+In the common-scale Gaussian model, the reference distribution for
+$U_{pit}$ accounts for this estimate. The same principle motivates the
+Lilliefors correction for the Kolmogorov–Smirnov test of normality after
+estimating the mean and variance from the sample.
 
-If you test normality with KS after estimating the mean and variance from the
-same data, the KS table over-states the critical value badly, because you have
-fitted the distribution to the sample and the fitted CDF hugs the data more
-closely than the true one would. Lilliefors' correction is a *different* table
-for the *same* statistic. Our bias adjustment estimates one location parameter
-from the same data, and the consequence is identical.
-
-What happens geometrically is that the adjustment removes one direction from
-the limiting bridge. Perturbing the location by $\delta$ moves each PIT value
+Perturbing the location by $\delta$ moves each PIT value
 by $\varphi(\Phi^{-1}(t))\delta$ to first order, and the median centring pins
 the process at $t = \tfrac12$, so the limit is the bridge with that direction
 projected out:
@@ -353,9 +334,11 @@ $$
   \qquad \kappa(t) = \frac{\varphi(\Phi^{-1}(t))}{\varphi(0)}
 $$
 
-This has no published CDF, so `u_pit_significance()` simulates the limit
-process once per session and caches it. It is still distribution-free — it
-depends on $n$ and nothing else — which is the property that matters.
+`u_pit_significance()` simulates and caches this limit process. The
+sensitivity above is for a common-scale Gaussian location model. In that
+model the limiting reference for $\sqrt n\,U_{pit}$ is fixed. Under link-scale
+adjustment, a different predictive family or varying forecast scales can
+change the effect of estimating the location shift.
 
 ```{r u-null-limit}
 # The limit process of section 5, compared to the unprojected bridge.
@@ -397,7 +380,7 @@ pmap_dfr(crossing(n = c(25L, 76L, 400L), kappa = c(0, 0.5)),
 
 Two things to take from that table. The 5% critical value for $U_{pit}$ is a
 stable **two thirds** of the one for $B_{pit}$, at every $n$ and at both
-levels of heteroscedasticity — the stability across $\kappa$ is the evidence
+levels of heteroscedasticity, and the stability across $\kappa$ is the evidence
 that the adjusted null is still distribution-free. And using Section 3's
 critical value for $U_{pit}$ would be badly conservative: at $n = 76$, a
 $U_{pit}$ of $0.05$ carries $p = 0.165$ against the baseline null and
@@ -422,8 +405,8 @@ and there is a real constraint here worth stating.
 
 ### 6a. Not in PIT space
 
-A natural idea is to adjust in PIT space — subtracting a centring statistic
-from $\Phi^{-1}(u_i)$ — since an adjustment that is a function of the $u_i$
+A natural idea is to adjust in PIT space, by subtracting a centring statistic
+from $\Phi^{-1}(u_i)$, but an adjustment that is a function of the $u_i$
 alone is automatically distribution-free. It does not work.
 
 Bias is a location error in $x$-space. An $x$-space shift $\delta$ becomes a
@@ -485,9 +468,9 @@ pmap_dfr(crossing(n = c(100L, 400L), bias = c(0, 1), kappa = c(0, 0.5, 2)),
   mutate(theory = 1 / 48)
 ```
 
-With $\kappa = 0$ the null survives the adjustment exactly, with or without
-bias: $n\mathrm{Var}(D)$ stays at $1/48$ and the test holds nominal size.
-Bias-invariance costs nothing here.
+With $\kappa = 0$, the location adjustment cancels to first order in the
+Gaussian limit. In the simulation, $n\mathrm{Var}(D)$ stays near $1/48$ and
+the rejection rate is close to nominal with or without a common bias.
 
 With $\kappa > 0$ the variance inflates and does not shrink with $n$, so it is
 an asymptotic effect rather than a small-sample artefact. The next section
@@ -519,7 +502,7 @@ PIT uniformity, which in this simulation family requires the dispersion ratio
 $c = 1$ *and* $\kappa = 0$.
 
 It is worth being precise about what $\kappa > 0$ represents. The failure is
-not heterogeneity of $\sigma_i$ as such — if the stated uncertainty varied *in
+not heterogeneity of $\sigma_i$ as such, because if the stated uncertainty varied *in
 step with* the realised per-prediction error the PIT values would be uniform
 and the estimator perfectly calibrated, which is what a good heteroscedastic
 model achieves. Here $\sigma_i$ varies *independently* of the realised error,
@@ -545,8 +528,8 @@ pmap_dfr(crossing(c_cal = c(0.5, 0.8, 1, 1.25, 2), kappa = c(0, 0.5, 1, 2)),
   print(width = Inf)
 ```
 
-$\mathbb{E}[D_{pit}]$ is zero at $c = 1$ for **every** $\kappa$ — the root does
-not move — whereas $\mathbb{E}[U_{pit}]$ at $c = 1$ rises steadily with
+$\mathbb{E}[D_{pit}]$ is zero at $c = 1$ for **every** $\kappa$, because the root
+does not move, whereas $\mathbb{E}[U_{pit}]$ at $c = 1$ rises steadily with
 $\kappa$. The mechanism is that a lognormal scale mixture is *leptokurtic*:
 excess mass at the edges **and** at the centre with a deficit in between, so
 the PIT histogram under $\kappa > 0$ is W-shaped rather than U-shaped.
@@ -587,7 +570,7 @@ which gives the read-down:
 | not rejected | — | — | calibrated |
 | rejected | not rejected | not rejected | pure location error (bias) |
 | — | rejected | rejected | dispersion error; sign of $D_{pit}$ gives the direction |
-| — | not rejected | rejected | right median width, wrong shape — skew, tails, or spread–error decoupling |
+| — | not rejected | rejected | right median width, wrong shape (skew, tails, or spread–error decoupling) |
 | rejected | rejected | rejected | location *and* dispersion error |
 
 Note the row that is easy to get wrong: a genuine dispersion error moves
@@ -603,10 +586,14 @@ error is no longer something you need the test to notice.
 Two cautions. The three statistics come from the same PIT values and are not
 independent, so this is a read-down from a single rejection and not three
 tests each at the 5% level. And the shape row is evidence of *some* residual
-departure — a wrong distributional family or tail misspecification would also
-land there — rather than an identification of $\kappa$.
+departure, because a wrong distributional family or tail misspecification would also
+land there, rather than an identification of $\kappa$.
 
 ## 9. In practice
+
+We simulate 120 observations from normal distributions with means 0.8
+above their forecast means. Each forecast reports a standard deviation of
+one, while the standard deviation of the simulated errors is 1.4.
 
 ```{r practice}
 set.seed(2024)
@@ -624,18 +611,11 @@ bind_rows(
 )
 ```
 
-$B_{pit}$ rejects overwhelmingly, so something is wrong. $D_{pit}$ rejects and
-is positive, so the predictive distributions are too narrow. $U_{pit}$ rejects
-too, which — per the table above — is what a width error looks like rather
-than an additional finding. The diagnosis is a biased, over-confident
-forecaster of the right distributional family, which is how the data were
-generated.
-
-It is worth noticing how much larger $B_{pit}$ is than the other two here
-($0.227$ against $0.035$ and $0.037$). That gap *is* the location error: the
-bias contributes almost all of the raw PIT departure, and the adjustment
-strips it out so that the remaining two statistics can speak about width and
-shape alone.
+All three tests reject in this example. The positive $D_{pit}$ is
+consistent with the reported spread being too narrow. We know the bias
+and the distributional family from the simulation design. The baseline
+score was $0.227$. The adjusted scores were $0.035$ for $D_{pit}$ and
+$0.037$ for $U_{pit}$.
 
 `prediction_scores()` additionally reports `n_predictions`, so the three tests
 can be applied directly to a table of scored forecasters.
@@ -643,23 +623,21 @@ can be applied directly to a table of scored forecasters.
 ## 10. Caveats
 
 **Independence.** Every null here rests on the PIT values being independent.
-$n$ is the number of *independent* predictions. Overlapping forecast windows —
-rolling $R_t$ estimates, multi-horizon forecasts from one model run — violate
+$n$ is the number of *independent* predictions. Overlapping forecast windows,
+such as rolling $R_t$ estimates or multi-horizon forecasts from one model run, violate
 this and inflate apparent significance. There is no correction built in; the
 honest options are to thin to non-overlapping predictions or to treat the
 $p$-values as optimistic.
 
-**Small $n$.** The $D_{pit}$ normal approximation is mildly anti-conservative
-below $n \approx 50$ (empirical size around 8% at $n = 10$). The two
-$L^1$ tests are better behaved because their reference distributions are not
-asymptotic normal approximations, but all three assume the limit has been
-reached.
+**Small $n$.** All three tests use limiting reference distributions. In the
+simulated Gaussian setting, the $D_{pit}$ normal approximation is mildly
+anti-conservative below $n \approx 50$ (empirical size around 8% at $n = 10$).
 
 **Skewed predictive families.** Constructing a *calibrated* example outside
 log-symmetric families needs care, independently of any of the above. For a
 scale family $X = \mu W$ with $\mathrm{median}(W) = 1$, placing predictions at
 $\mu_i = F_W^{-1}(q_i)$ gives $u_i = F_W(x_0/\mu_i)$, which is uniform only if
-$W \overset{d}{=} 1/W$ — true for `lnorm4`, false for `gamma4`. The correct
+$W \overset{d}{=} 1/W$, which is true for `lnorm4` but false for `gamma4`. The correct
 placement solves $F(x_0;\mu_i) = 1 - q_i$:
 
 ```{r calibrated-locations}
@@ -686,12 +664,12 @@ asks the unconditional question and does not estimate anything from the sample.
   norm, where Kolmogorov–Smirnov is $L^\infty$.
 * $\sqrt n\,B_{pit} \Rightarrow \int_0^1|B^\circ|$, with an explicit CDF from
   Johnson & Killeen (1983): a 5% critical value of $0.5821/\sqrt n$.
-* $D_{pit} \sim \mathcal{N}(0, 1/48n)$ exactly, attained from $n \approx 25$.
-  Only an integral statistic admits a signed variant like this.
+* $\sqrt n\,D_{pit} \Rightarrow \mathcal{N}(0, 1/48)$ under the stated
+  assumptions. The finite-sample test uses this limit as an approximation.
 * The bias adjustment estimates a parameter from the same data, so $U_{pit}$
-  needs its own null — the **Lilliefors step**. Its critical value is two
-  thirds of $B_{pit}$'s. The adjustment is free for $D_{pit}$, which is
-  already orthogonal to a location shift.
+  needs its own null, which is the **Lilliefors step**. Its critical value is two
+  thirds of $B_{pit}$'s in the Gaussian reference model. In that model the
+  location adjustment cancels to first order for $D_{pit}$.
 * The adjustment must live in the link scale, not in PIT space, or
   bias-invariance under heteroscedasticity is lost.
 * $H_0$ is PIT uniformity, which is stronger than "the median width is

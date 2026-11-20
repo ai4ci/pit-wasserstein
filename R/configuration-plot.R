@@ -4,6 +4,7 @@
 #' @param xlim limits on the x-axis
 #' @param labels include labels on graphs - too cluttered on mulitple panels
 #' @param ... addtionally passed on to
+#' @concept simulations
 #'
 #' @returns a ggplot
 #' @export

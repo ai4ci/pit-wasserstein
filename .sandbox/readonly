@@ -19,3 +19,13 @@ $HOME/.Rprofile
 $HOME/.local/bin/loom
 $HOME/.bun
 $HOME/Git/loom-cli
+
+# zotero cli for agents without a plugin
+$HOME/.local/bin/zotero-cli
+$HOME/.local/share/uv/tools/zotero-mcp-server
+$HOME/.local/share/uv/python
+
+# Related projects which could potentially have relevance
+$HOME/Git/ggoutbreak
+$HOME/Git/ggoutbreak-methods
+$HOME/Git/tidyabc

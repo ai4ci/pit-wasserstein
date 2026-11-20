@@ -13,7 +13,7 @@ The paper defines three metrics for assessing probabilistic estimators and
 differentiating between, bias, dispersion miscalibration, and skill-spread
 decoupling.
 
-### Baseline PIT-Wasserstein ($U^*_{pit}$)
+### Baseline PIT-Wasserstein ($B_{pit}$)
 
 $$B_{pit} = \frac{1}{n}\sum_{i=1}^n{|u_i - rank_i|}$$
 
@@ -36,15 +36,15 @@ Where $rank_i = (i-0.5)/n$ and $u_{i,adj}$ are the bias-adjusted PIT values.
 
 ### Directed PIT-Wasserstein ($D^*_{pit}$)
 
-$$D_{pit} = \frac{1}{n}\sum_{i=1}^n{(u_{i,adj} - rank_i) \times \sgn(0.5-rank_i)}$$
+$$D_{pit} = \frac{1}{n}\sum_{i=1}^n{(rank_i - u_{i,adj}) \times \operatorname{sgn}(0.5-rank_i)}$$
 
 - **Range:** [-0.25, +0.25]
 - **Direction:** Positive = overconfident (U-shaped PIT histogram); Negative =
   conservative (dome-shaped).
 
-All three metrics are accompanied by significance tests which answer the 
-question, given an estimator and a known set of true values is there any evidence
-of bias or miscalibration.
+All three metrics have significance tests based on large-sample reference
+distributions for independent PIT values. The adjusted tests use reference laws
+derived for the Gaussian location model.
 
 ---
 

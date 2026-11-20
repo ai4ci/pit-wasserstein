@@ -10,6 +10,7 @@
 #' @iparam config the simulation configuration
 #' @param true_value_fn a function that generates the true values e.g. a random sampler
 #' @export
+#' @concept simulations
 #'
 #' @returns a
 #' @examples
@@ -64,6 +65,7 @@ generate_simulation = function(config = i_sim_config, true_value_fn = NULL) {
 #' to uniform PIT values.
 #'
 #' @export
+#' @concept simulations
 #'
 #' @examples
 #' loc = calibrated_locations(qfn = qgamma4, median = 1, kappa = 0.5)
@@ -86,6 +88,7 @@ calibrated_locations = function(qfn, median, kappa, n = 100) {
 #' @returns a set of locations for a distribution family that map directly
 #' to uniform PIT values.
 #' @export
+#' @concept simulations
 calibrated_locations_general = function(pfn, median, kappa, n = 100, interval = c(1e-8, 1e8)) {
   qs = seq(1, 2 * n - 1, 2) / (2 * n)
   vapply(qs, function(q) {

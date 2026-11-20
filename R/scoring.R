@@ -9,6 +9,7 @@
 #' @param threshold If given calculates the threshold misclassification probability
 #' @returns a dataframe. columns depend on `summarise`
 #' @export
+#' @concept scores
 #' @examples
 #' qs = seq(1, 199, 2) / 200
 #' df = tidyr::crossing(
@@ -46,7 +47,7 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
           probit_u_i_unadj = stats::qnorm(log_u_i_unadj, log.p = TRUE)
           probit_bias = stats::median(probit_u_i_unadj)
           u_i = stats::pnorm(probit_u_i_unadj - probit_bias)
-          adj_true_value = inv_cdf(u_i)
+          adj_true_value = inv_cdf(u_i, d$location, d$scale)
         } else if (g$adjust == "link") {
           link_bias = stats::median(ln$linkfun(medians) - ln$linkfun(d$true_value))
           adj_true_value = ln$linkinv(ln$linkfun(d$true_value) + link_bias)
@@ -130,6 +131,7 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
 #' * `D_pit` a directed pit-wasserstein
 #' * `B_pit` raw unadjusted undrected pit-wasserstein
 #' @export
+#' @concept scores
 #'
 #' @unit
 #'
@@ -203,6 +205,7 @@ pit_w = function(
 #' @returns a function which takes 3 parameters: true_value, location, and scale
 #' and returns a CRPS for them.
 #' @export
+#' @concept scores
 #'
 #' @unit
 #' fn=crps_fn_generator("lnorm4")

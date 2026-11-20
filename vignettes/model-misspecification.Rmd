@@ -22,31 +22,22 @@ library(tidyverse)
 set.seed(1001)
 ```
 
-Everything else in this package asks whether a forecaster's stated uncertainty
-is the right *size*. This vignette asks a different question: what happens when
-it is the right size but the wrong *shape*?
+We fixed the median and coefficient of variation of the predictive
+distributions and varied the distributional family. This lets us examine
+how the scores respond when a forecast uses a different shape from the
+one that generated the observations. For example, a normal forecast for
+a positive, skewed rate can have the same median and coefficient of
+variation as a lognormal forecast.
 
-A forecaster that reports a normal distribution for a quantity whose errors are
-log-normal is not miscalibrated in the dispersion sense — its median is right
-and its interval widths are right on average. It is **misspecified**: it has
-assumed the wrong distributional family. Positive, skewed quantities such as
-incidence, $R_t$ or any rate are routinely reported with symmetric intervals,
-so this is a common failure in practice and not a contrived one.
+We also compare these scores with those from changing the reported width
+within one family. Finally, we examine how the scores change when we apply
+a common location bias to forecasts with skewed errors.
 
-The questions are:
+# 1. Matching the median and coefficient of variation
 
-1. Do the metrics detect a pure family mismatch at all?
-2. Can they tell it apart from a genuine dispersion error?
-3. Does the bias adjustment still work when the error distribution is skewed?
-   The adjustment is median-based, which *should* make it robust to asymmetry,
-   but that has been an argument rather than a result.
-
-# 1. Constructing a pure shape mismatch
-
-To isolate shape we must hold everything else fixed, which the package's
-four-parameter families make straightforward: `norm4`, `lnorm4` and `gamma4`
-are all parametrised by a **median** and a **coefficient of variation**
-$\kappa$. Matching both leaves only the shape to differ.
+The `norm4`, `lnorm4` and `gamma4` families are parametrised by a
+median and a coefficient of variation $\kappa$. We use those two
+parameters to match forecasts across families.
 
 The construction uses the fact that `lnorm4` and `gamma4` are scale families.
 Draw a multiplicative error $w_i \sim \mathcal{T}(\text{median}=1, \kappa)$
@@ -72,9 +63,8 @@ misspecified <- function(truth, report, kappa, kappa_reported = kappa,
 }
 ```
 
-The whole argument rests on the three families agreeing about what a median
-and a coefficient of variation mean, so it is worth confirming that each one
-inverts correctly before relying on any of it:
+We check that each family's quantile function and cumulative distribution
+function invert one another at the tested probabilities.
 
 ```{r roundtrip}
 map_dfr(c("gamma4", "lnorm4", "norm4"), function(f) {
@@ -84,9 +74,10 @@ map_dfr(c("gamma4", "lnorm4", "norm4"), function(f) {
 })
 ```
 
-A quick sanity check that the construction does what it claims — reporting the
-true family should score at the null level, which at $n = 2000$ is a $B_{pit}$
-of about `r round(sqrt(2 * pi) / 8 / sqrt(2000), 4)`:
+When the forecast uses the generating family, the reference mean for
+$B_{pit}$ at $n = 2000$ is about
+`r round(sqrt(2 * pi) / 8 / sqrt(2000), 4)`. We compare this value with
+the simulated scores.
 
 ```{r sanity}
 map_dfr(c(0.3, 0.6, 1.0), function(k) {
@@ -95,11 +86,11 @@ map_dfr(c(0.3, 0.6, 1.0), function(k) {
   transmute(kappa, B_pit, U_pit, D_pit)
 ```
 
-# 2. Three kinds of mismatch
+# 2. Scores by predictive family
 
-We sweep $\kappa$ from 0.01 (nearly symmetric, where all three families almost
-coincide) to 0.8 (strongly skewed, where they do not), for two true families
-and three reported ones. Twenty replicate estimators per point.
+We vary $\kappa$ from 0.01 to 0.8. At the lower end the three families
+have similar shapes. We use two generating families and three reported
+families, with 20 replicate estimators for each combination.
 
 ```{r sweep}
 grid <- crossing(
@@ -146,33 +137,21 @@ summ |>
        y = NULL, colour = "reported as", linetype = NULL)
 ```
 
-Three things to read off.
+The scores for mismatched families began to cross the reference thresholds
+around $\kappa = 0.4$ in these simulations. At $\kappa = 0.2$, the scores
+shown remained within the thresholds.
 
-**The metrics do detect it.** Every misspecified curve leaves its critical
-value, and does so at a $\kappa$ of around 0.4 — well inside the range of real
-skewed quantities. At $\kappa = 0.2$ the families are close enough that nothing
-fires, correctly: a mismatch that makes no practical difference is not
-reported as one.
+The sign of $D_{pit}$ changed when we exchanged the gamma and lognormal
+families. When we reported normal forecasts for either of the two skewed
+generating families, $D_{pit}$ stayed near zero while $U_{pit}$ increased.
+Departures on opposing sides of the distribution can cancel in the directed
+score while still contributing to the undirected score.
 
-**The direction of the gamma/log-normal mismatch is signed and
-interpretable.** Reporting log-normal when the truth is gamma gives a
-*positive* $D_{pit}$; reporting gamma when the truth is log-normal gives a
-*negative* one. The log-normal has the heavier right tail, so using it where it
-does not belong puts too much mass in the tail — conservative — and the metric
-says so with a sign.
+# 3. Comparing changes in shape and width
 
-**Reporting a normal behaves differently.** $D_{pit}$ stays near zero for both
-true families, while $U_{pit}$ rises steeply. That is the "right width, wrong
-shape" signature from the three-part test, and it is exactly what should
-happen: a symmetric distribution fitted to a skewed one is too light on one
-side and too heavy on the other, and those two errors cancel in the signed
-metric.
-
-# 3. Telling shape from width
-
-That last observation generalises into a usable diagnostic. Compare the
-undirected and directed metrics as a ratio, $U_{pit}/|D_{pit}|$, against a
-reference: a forecaster with the **right family but the wrong width**.
+We compare $U_{pit}/|D_{pit}|$ for mismatched families with the same
+ratio for forecasts whose reported width differs within the generating
+family.
 
 ```{r ratio}
 width_error <- crossing(kappa_reported = c(0.4, 0.5, 0.75, 0.9), rep = 1:20) |>
@@ -210,14 +189,10 @@ exactly, because stating intervals uniformly too narrow pushes the PIT values
 toward both ends in a way that the signed weight accumulates rather than
 cancels.
 
-A **tail-weight mismatch also sits on the diagonal.** Swapping gamma for
-log-normal at matched median and $\kappa$ is, as far as the PIT values are
-concerned, indistinguishable from getting the width wrong. This is an honest
-negative result and worth stating plainly: the metrics measure dispersion
-calibration *as realised*, and a forecaster can achieve the realised effect of
-an over-wide interval either by stating one or by choosing a family with too
-heavy a tail. No PIT-based diagnostic can separate those, because the PIT
-values are identical.
+In these simulations, the tail-weight differences produced a pattern of
+scores similar to that from changing the reported width. The gamma and
+lognormal comparisons at matched median and $\kappa$ also sit close to the
+diagonal.
 
 A **skew mismatch sits well above the diagonal**, with ratios of 3–20. Fitting
 a symmetric family to a skewed one produces a departure the signed metric
@@ -232,12 +207,12 @@ a concrete cause attached:
 | $U_{pit} \gg \lvert D_{pit}\rvert$ | asymmetry mismatch — a symmetric family fitted to a skewed quantity |
 | only $B_{pit}$ significant | location error, family and width fine |
 
-# 4. Does the bias adjustment survive asymmetry?
+# 4. Bias adjustment with skewed errors
 
-The adjustment estimates a single link-scale shift using a **median**, which
-should make it robust to skew where a mean-based estimator would not be. With
-a log link, a bias is a multiplicative factor, so we scale every forecast by
-$b$ and watch what happens.
+The adjustment uses the median to estimate a common shift on the link
+scale. With a log link, multiplying each forecast by $b$ applies a
+common location shift. We vary $b$ to see how the scores respond when the
+errors are skewed.
 
 ```{r bias-invariance}
 bias_sweep <- crossing(
@@ -266,17 +241,9 @@ bias_sweep |>
   labs(x = "multiplicative bias", y = NULL, colour = NULL, fill = NULL)
 ```
 
-$B_{pit}$ climbs steeply with the bias, as it must — the forecasts really are
-displaced. $U_{pit}$ and $D_{pit}$ are **flat**: the same values at a bias of 2
-as at no bias at all, for every reported family including the misspecified
-ones.
-
-So the claim holds. The median-based adjustment is bias-invariant under skewed
-error distributions, not only under the symmetric ones the main validation uses,
-and the invariance is not disturbed by the family being wrong at the same time.
-That matters because misspecification and bias are exactly the pair you expect
-to co-occur in practice: a model that has the wrong family for a skewed
-quantity is also likely to be systematically off-centre.
+$B_{pit}$ increased with the size of the location shift. The two adjusted
+scores were unchanged across the values of $b$ studied, including $b = 2$,
+for all the reported families in this simulation.
 
 # 5. Summary and caveats
 

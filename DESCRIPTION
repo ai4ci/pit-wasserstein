@@ -8,8 +8,8 @@ Description: Implements the PIT-Wasserstein family of metrics for diagnosing
     dispersion miscalibration in probabilistic estimators. The package provides
     three nested metrics—B_pit (baseline), U_pit (bias-adjusted undirected), and
     D_pit (bias-adjusted signed, detecting overconfidence vs. underconfidence)—each
-    with an exact or numerically-exact distribution-free null hypothesis test
-    depending only on the number of predictions. Also provides batch scoring,
+    with a significance test based on a large-sample reference distribution
+    for independent predictions. Also provides batch scoring,
     CRPS calculation, simulation helpers, and diagnostic visualisation tools.
 License: MIT + file LICENSE
 Config/roxygen2/version: 8.1.1

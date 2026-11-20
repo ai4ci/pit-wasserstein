@@ -25,22 +25,17 @@ fig_dir = here::here("vignettes", "main", "fig")
 set.seed(1001)
 ```
 
-This vignette is the reference for **Figure 1** of the paper. It sets out the
-simulation in enough detail to be reproduced, defines the three
-PIT-Wasserstein metrics briefly, and reads the four panels. The paper states
-the same material compactly in its methods section and refers back here for
-the full specification.
-
-If you are new to calibration or to the probability integral transform, read
-`vignette("introduction-to-pit")` first. For the null distributions and
-$p$-values, see `vignette("significance-testing")`.
+We simulated sets of forecasts with known location bias and predictive spread
+to examine how the three PIT-Wasserstein scores distinguish these sources of
+miscalibration, and compared the scores with the continuous ranked probability
+score (CRPS) and interval coverage. The simulations provide the results in
+Figure 1 of the paper.
 
 # 1. The simulation
 
-The difficulty in evaluating a calibration metric is that real forecasters do
-not come with their miscalibration written on the label. So we simulate
-estimators whose failure mode we fix by construction, and ask what each metric
-reports.
+We compare the scores across a range of ratios of reported spread to error
+spread, $\sigma_\mathcal{S}/\sigma_\mathcal{E}$. A ratio below one represents
+overconfidence and a ratio above one represents underconfidence.
 
 ## 1.1 The error-function model
 
@@ -49,8 +44,8 @@ structure introduced in `vignette("introduction-to-pit")`:
 
 | Component | Symbol | Role |
 |---|---|---|
-| error distribution | $\mathcal{E} \sim \mathcal{N}(\mu_\mathcal{E}, \sigma_\mathcal{E})$ | how far the estimator's central estimate lands from the truth |
-| spread distribution | $\mathcal{S} \sim \mathrm{LogNormal}(\sigma_\mathcal{S}, \kappa_\mathcal{S})$ | what uncertainty the estimator *claims* |
+| error distribution | $\mathcal{E} \sim \mathcal{N}(\mu_\mathcal{E}, \sigma_\mathcal{E})$ | Difference between the central estimate and the reference value |
+| spread distribution | $\mathcal{S} \sim \mathrm{LogNormal}(\sigma_\mathcal{S}, \kappa_\mathcal{S})$ | Uncertainty reported for each prediction |
 
 For each of the estimator's predictions $i$ we draw a true value $x_i$, an
 error $e_i \sim \mathcal{E}$ and a claimed uncertainty $s_i \sim \mathcal{S}$,
@@ -60,21 +55,17 @@ $$
 \hat{X}_i \;\sim\; \mathcal{N}\!\left(x_i + e_i,\; s_i\right)
 $$
 
-Three parameters therefore control everything, and they are independent:
+The simulations vary three aspects of the forecasts.
 
 - $\mu_\mathcal{E}$ — **bias**. The systematic displacement of the central
   estimate. Zero means unbiased.
-- $\sigma_\mathcal{S}/\sigma_\mathcal{E}$ — **dispersion calibration**, written
-  `calibration` in the code and plotted on every x-axis below. This is the
-  ratio of the uncertainty the estimator *claims* to the uncertainty it
-  actually *has*. One is perfect; below one is over-confident; above one is
-  conservative.
-- $\kappa_\mathcal{S}$ — **spread–error decoupling**, labelled "CI variation"
-  in the figures. The coefficient of variation of the claimed uncertainty.
-  Zero means every prediction claims the same width. Larger values mean the
-  stated uncertainty varies from prediction to prediction *without tracking
-  the realised error*, which is miscalibration even when the average width is
-  right.
+- $\sigma_\mathcal{S}/\sigma_\mathcal{E}$ gives the spread ratio, labelled
+  `calibration` in the code and used on the horizontal axes.
+- $\kappa_\mathcal{S}$ is the coefficient of variation of the reported
+  uncertainty, labelled “CI variation” in the figures. At zero, every
+  prediction reports the same spread. At larger values, reported spread
+  varies independently of the errors, a form of miscalibration we call
+  **spread–error decoupling**.
 
 The spread distribution is lognormal (`lnorm4`, parametrised by median and
 coefficient of variation) because a claimed uncertainty must be positive and
@@ -82,9 +73,10 @@ because it makes $\kappa_\mathcal{S}$ scale-free.
 
 ## 1.2 The parameter sweep
 
-We simulate **1000 estimators**, each making **1000 predictions**, with the
-three parameters drawn independently so that the whole space is covered rather
-than a grid of special cases:
+We simulate 1,000 estimators, each making 1,000 predictions. We draw the
+bias, error scale, typical reported spread and variation in reported spread
+once per estimator, and a reference value, a location error and a
+reported spread for each prediction.
 
 | Parameter | Drawn as | Range |
 |---|---|---|
@@ -94,15 +86,11 @@ than a grid of special cases:
 | claimed scale $\sigma_\mathcal{S}$ | $\log$-uniform | $[\tfrac12, 2]$ |
 | decoupling $\kappa_\mathcal{S}$ | $\mathrm{Uniform}(0, 2)$ | per estimator |
 
-Drawing $\sigma_\mathcal{S}$ and $\sigma_\mathcal{E}$ independently and
-log-uniformly gives a dispersion calibration ratio spanning $[\tfrac14, 4]$,
-symmetric on the log scale — which matters, because an estimator twice too
-wide and one twice too narrow are equally wrong and the metric should say so.
-
-Crucially, **bias is drawn independently of dispersion calibration**. Each
-point in the figures is an estimator with its own arbitrary combination of the
-three, so if a metric conflates bias with dispersion error it will show up as
-vertical scatter coloured by bias.
+The independent log-uniform draws of $\sigma_\mathcal{S}$ and
+$\sigma_\mathcal{E}$ give ratios from $\tfrac14$ to 4. The log scale places a
+ratio of $\tfrac12$ the same distance from one as a ratio of 2. We draw bias
+independently of the ratio so that we can compare scores at similar ratios
+for estimators with different biases.
 
 ```{r}
 bias_limit = 1
@@ -177,11 +165,10 @@ coverage probabilities.
 
 # 3. Figure 1
 
-The four panels plot each of the 1000 estimators against its true dispersion
-calibration $\sigma_\mathcal{S}/\sigma_\mathcal{E}$ on a log x-axis, with the
-vertical line at 1 marking perfect calibration. A metric that measures
-dispersion calibration should form a tight, monotone curve about that line;
-scatter is the metric responding to something else.
+Each panel plots one score for all 1,000 estimators against the spread
+ratio $\sigma_\mathcal{S}/\sigma_\mathcal{E}$ on a log scale. The
+vertical line marks a ratio of one, where the typical reported spread
+matches the spread of the errors.
 
 ```{r}
 # estimator SD/error SD:
@@ -382,62 +369,31 @@ plot_metrics = patchwork::wrap_plots(
 )
 ```
 
-**Panel B, Mean CRPS** The CRPS is a *proper score* and the standard summary of 
-probabilistic forecast quality. Points are coloured by absolute bias.
+Mean CRPS was lowest near a spread ratio of one among estimators with little
+bias. At similar spread ratios, the larger values generally came from
+estimators with greater absolute bias. The baseline PIT-Wasserstein score
+$B_{pit}$ also increased with bias and away from a spread ratio of one
+(panel B).
 
-It does respond to dispersion calibration — the lower envelope of the cloud
-has a minimum near 1 — but the response is swamped. For any given value on
-the x-axis the CRPS varies by a factor of several, ordered almost entirely by
-**colour**: the dark points (unbiased) sit low and the light points (badly
-biased) sit high. CRPS is dominated by accuracy, which is what a proper score
-is for. Two estimators with identical dispersion calibration score very
-differently if one is biased, and an unbiased over-confident estimator can
-outscore a well-dispersed biased one.
+The adjusted score $U_{pit}$ was lowest near a spread ratio of one (panel C).
+At similar ratios, $U_{pit}$ tended to be higher when reported uncertainty
+varied more independently of error, as measured by $\kappa_\mathcal{S}$.
 
-This is the gap the rest of the figure addresses. CRPS answers "which
-forecaster is better?"; none of these panels is trying to answer that. They
-ask "*how* is this forecaster wrong?", which a single proper score cannot be
-expected to decompose.
+The directed score $D_{pit}$ crossed zero near a spread ratio of one (panel
+D). Negative values indicate conservative forecasts and positive values
+indicate overconfident forecasts. The crossing was similar across values of
+$\kappa_\mathcal{S}$, and the curve was approximately symmetric about it on
+the log scale.
 
-Reading the three PIT-Wasserstein panels together:
+$D_{pit}$ indicates the direction of the spread discrepancy. $U_{pit}$ also
+responds to departures that cancel in the signed score. The
+[significance vignette](significance-testing.html) describes how to compare
+their values with reference distributions.
 
-**Panel B, $B_{pit}$** (coloured by absolute bias) has the same V shape
-but, like CRPS, is stratified by colour: bias inflates it. $B_{pit}$ is the
-honest omnibus statistic — it answers "is anything wrong?" and a location
-error genuinely is something wrong — but it cannot tell you *what*.
+## 3.5 Comparison with interval coverage
 
-**Panel C, $U_{pit}$** (coloured by CI variation aka skill-spread decoupling) is 
-the same statistic after the bias adjustment. The colour stratification is gone:
-the points collapse onto a tight V with its minimum at 1. **This is the central
-claim of the paper made as a picture** — the same estimators, the same arbitrary
-biases, and the metric now responds to dispersion calibration alone. What
-vertical spread remains is ordered by the colour scale, i.e. by
-$\kappa_\mathcal{S}$: spread–error decoupling lifts the floor of the V above
-zero, correctly, because an estimator whose stated uncertainty varies without
-tracking its error is not calibrated however good its average width.
-
-**Panel D, $D_{pit}$** (coloured by CI variation)  is the signed version, and it crosses zero —
-monotonically — at exactly the point of perfect calibration. Negative is
-conservative, positive is over-confident, so the sign names the failure rather
-than merely detecting it. Two further properties are visible: the root does
-not move with $\kappa_\mathcal{S}$ (the colours are mixed where the curve
-crosses zero, unlike in panel C), and the curve is close to symmetric about
-the crossing on the log scale.
-
-Together C and D are complementary rather than redundant: $D_{pit}$ locates
-and signs a width error, $U_{pit}$ picks up shape departures that $D_{pit}$
-cancels away. `vignette("significance-testing")` turns that pairing into a
-formal procedure.
-
-The one-line summary: **colour stratification in panels A and B reflects bias
-, and in C and D reflects spread-skill decoupling.** That is the bias invariance 
-the adjustment buys, and it is what makes the adjusted metrics diagnostic 
-rather than merely descriptive.
-
-## 3.5 An aside: coverage probability
-
-The obvious alternative diagnostic is to ask how often the truth falls inside
-a stated interval. For comparison:
+We also calculated how often the reference value fell inside the reported
+intervals.
 
 ```{r}
 
@@ -494,10 +450,7 @@ ggplot(
   xlab("estimator SD/error SD")
 ```
 
-Coverage is monotone in dispersion calibration and has the right sign, so it
-is a usable diagnostic. Two things limit it. It saturates — the curve flattens
-at both ends, so it discriminates poorly among badly miscalibrated or biased
-estimators — and it is a single binary summary at one nominal level, throwing
-away everything the rest of the predictive distribution says. The
-PIT-Wasserstein metrics use the whole distribution and do not saturate.
+Coverage increased with the spread ratio and changed little at the extremes
+shown here. Each coverage estimate describes one interval level. The
+PIT-Wasserstein scores use information from across the predictive distribution.
 

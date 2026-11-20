@@ -238,7 +238,7 @@ rexpgrowth = function(n, r, t_end, t_start = 0) {
 #' Randomly sample incident times in an exponentially growing process with initial case load
 #'
 #' @param I0 the expected number of cases observed in the first day
-#' @param r and exponential growth rate (per unit time)
+#' @param r an exponential growth rate (per unit time)
 #' @param t_end the end of the observation period
 #' @param t_start the start of the observation period
 #'
@@ -299,6 +299,7 @@ NULL
 #' @returns a function that takes 2 parameters of the original distrbition and
 #' returns a list with the parameters and name of the canonical distribution.
 #' @export
+#' @concept distributions
 #'
 #' @examples
 #' tmp_fn = reparam_fn("lnorm2")
