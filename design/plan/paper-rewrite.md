@@ -1,9 +1,9 @@
 ---
 class: plan
 id: paper-rewrite.md
-title: Rewrite the appendix as a standalone short paper
+title: Rewrite the appendix as a standalone methods paper
 status: active
-rationale: The repo was converted to an R package; the paper and its design records need to follow.
+rationale: The agreed JMLR scope covers the original PIT distance, the two location-adjusted diagnostics and their sampling references.
 spawns:
 - task:readme-describes-pre-package-layout.md
 - task:clarify-bias-adjusted-pit-diagnostic.md
@@ -48,3 +48,5 @@ is dispersion-calibrated) is **not** part of this plan. It is
 blocked on the terminology fix here, because the null hypothesis the test
 targets needs "dispersion calibration" nailed down as a distinct, well
 defined quantity first.
+
+The new [manuscript](../../vignettes/main/rewrite/main.tex) follows the [outline](../doc/paper-rewrite-skeleton.md), uses the four supplied figures and links the six supplementary studies. It includes reproducible median-adjusted rejection rates and explicitly restricts the sampling references. The remaining JMLR task covers the full typesetting check.

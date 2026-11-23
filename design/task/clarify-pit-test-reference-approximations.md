@@ -21,3 +21,5 @@ DESCRIPTION calls the three tests exact or numerically exact. The baseline code 
 Updated DESCRIPTION, the checked-in help pages, and the significance vignette to describe the three limiting references and the common-scale Gaussian setting for the adjusted tests. The roxygen comments in R/significance.R still need the same wording before regenerating the help pages.
 
 The vignette review found a remaining statement in the baseline test section of the significance vignette that the function returns an exact p-value. Align that passage and the scope of the adjusted-reference discussion with the large-sample model and assumptions.
+
+Several simulation chunks in the significance vignette, including the rejection-rate comparison, centre errors with rowMeans(e). The package and the adjusted reference in the paper use sample medians. Reconcile these calculations before presenting them as validation of the implemented adjusted tests. The paper includes the code for its median-adjusted comparison.

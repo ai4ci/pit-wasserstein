@@ -2,7 +2,7 @@
 class: task
 id: document-three-part-test-decomposition.md
 title: 'Document the three-part PIT-Wasserstein test decomposition in the paper'
-status: todo
+status: done
 kind: paperFix
 priority: high
 touches:
@@ -10,6 +10,7 @@ touches:
 - paper:main.tex
 - vignette:pit-w-metrics.Rmd
 - vignette:significance-testing.Rmd
+- paper:rewrite/main.tex
 blocks:
 - task:implement-bootstrap-test-for-dispersion-calibration.md
 ---
@@ -126,3 +127,5 @@ The three-part diagnostic is implemented in `src:significance.R` as the
 The paper (`vignettes/main/main.tex`) still describes only two metrics and
 lacks the B_pit → D_pit → U_pit diagnostic sequence. This task covers writing
 that section into the paper.
+
+Completed in the standalone [rewrite](../../vignettes/main/rewrite/main.tex). The manuscript gives the three limiting references and uses a median-adjusted simulation to show what different rejection patterns support. A pure width error can produce three rejections. The paper reports marginal tests without treating them as an error-controlled classification procedure.

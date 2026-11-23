@@ -2,45 +2,70 @@
 \providecommand\hyper@newdestlabel[2]{}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
-\bibstyle{unsrturl}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Background}{1}{section.1}\protected@file@percent }
-\citation{anderson1996,bosse2024,bosse2023,brocker2008,gneiting2007}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Panel A: A slightly biased conservative estimator generates probabilistic predictions for any given true values (blue line), based on data (not shown). The estimator has an inherent propensity for error (Panel B) which is slightly greater than the true value (blue line) - the estimator may be regarded as biased. The estimator also generates a measure of uncertainty of the probabilistic prediction (thin grey bars: 95\% CI and thick gery bars: IQR). Over many predictions the distribution of this uncertainty is a measure of estimator sharpness (Panel C). The sharpness ideally matches the spread of the estimator's error function (red line). If, as is shown here, the estimators sharpness is larger than the error function spread then any single prediction is likely to be conservative. This is the result of a mis-calibrated and conservative estimator. The ratio of the error function standard deviation and the median of the estimator spread distribution (sharpness) is the true value of the dispersion calibration.}}{2}{figure.1}\protected@file@percent }
-\newlabel{fig:1}{{1}{2}{Panel A: A slightly biased conservative estimator generates probabilistic predictions for any given true values (blue line), based on data (not shown). The estimator has an inherent propensity for error (Panel B) which is slightly greater than the true value (blue line) - the estimator may be regarded as biased. The estimator also generates a measure of uncertainty of the probabilistic prediction (thin grey bars: 95\% CI and thick gery bars: IQR). Over many predictions the distribution of this uncertainty is a measure of estimator sharpness (Panel C). The sharpness ideally matches the spread of the estimator's error function (red line). If, as is shown here, the estimators sharpness is larger than the error function spread then any single prediction is likely to be conservative. This is the result of a mis-calibrated and conservative estimator. The ratio of the error function standard deviation and the median of the estimator spread distribution (sharpness) is the true value of the dispersion calibration}{figure.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Methods}{2}{section.2}\protected@file@percent }
-\citation{gneiting2007,david1948}
-\citation{brockwell2007}
-\newlabel{eq:crps}{{{1}}{3}{Methods}{AMS.1}{}}
-\newlabel{eq:bias}{{{2}}{3}{Methods}{AMS.2}{}}
-\newlabel{eq:ubias}{{{3}}{3}{Methods}{AMS.3}{}}
-\newlabel{eq:sharp}{{{4}}{3}{Methods}{AMS.4}{}}
-\citation{hamill2001,anderson1996}
+\bibstyle{plainnat}
+\citation{degroot1983,gneiting2007}
+\citation{dawid1984,diebold1998}
+\citation{hamill2001}
 \citation{panaretos2019}
-\newlabel{eq:cover}{{{5}}{4}{Methods}{AMS.5}{}}
-\newlabel{eq:pit2}{{{6}}{4}{Methods}{AMS.6}{}}
-\newlabel{eq:pit3}{{{7}}{4}{Methods}{AMS.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Validation}{4}{subsection.2.1}\protected@file@percent }
-\newlabel{eq:valid}{{{8}}{5}{Validation}{AMS.8}{}}
-\newlabel{eq:valid2}{{{9}}{5}{Validation}{AMS.9}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Results and Discussion}{5}{subsection.2.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Curated parameters for 9 simulated estimators with fixed sharpness and variable calibration and bias.}}{6}{table.1}\protected@file@percent }
-\newlabel{tab:1}{{1}{6}{Curated parameters for 9 simulated estimators with fixed sharpness and variable calibration and bias}{table.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces PIT histograms from 10000 simulated predictions from 9 simulated estimators with curated parameters, as given in Table~\ref {tab:1}. Typical U and dome shaped patterns are seen as a result of mis-calibration, and skew as a result of estimator bias}}{6}{figure.2}\protected@file@percent }
-\newlabel{fig:2}{{2}{6}{PIT histograms from 10000 simulated predictions from 9 simulated estimators with curated parameters, as given in Table~\ref {tab:1}. Typical U and dome shaped patterns are seen as a result of mis-calibration, and skew as a result of estimator bias}{figure.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Comparison of four estimator metrics for 1000 random simulated estimators, consisting of 10000 synthetic predications, as it relates to the theoretical calibration of the estimator on the X-axes. Panel A shows the mean CRPS, panel B the 50\% coverage probability. Panels C and D show adjusted and directed PIT-Wasserstein metrics, as described earlier in this paper, which are designed to give a measure of calibration that is independent of estimator bias and sharpness.}}{7}{figure.3}\protected@file@percent }
-\newlabel{fig:3}{{3}{7}{Comparison of four estimator metrics for 1000 random simulated estimators, consisting of 10000 synthetic predications, as it relates to the theoretical calibration of the estimator on the X-axes. Panel A shows the mean CRPS, panel B the 50\% coverage probability. Panels C and D show adjusted and directed PIT-Wasserstein metrics, as described earlier in this paper, which are designed to give a measure of calibration that is independent of estimator bias and sharpness}{figure.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces The relationship between bias, sample size and directed pit-Wasserstein. In A we show the directed PIT-Wasserstein metric in 9 experiments each with 10, 100, or 1000 synthetic predictions from estimators with zero, medium and high bias estimators, and with conservative (estimator SD / error SD = 1.5), appropriate, or over-confident (estimator SD/error SD = 2/3))}}{8}{figure.4}\protected@file@percent }
-\newlabel{fig:4}{{4}{8}{The relationship between bias, sample size and directed pit-Wasserstein. In A we show the directed PIT-Wasserstein metric in 9 experiments each with 10, 100, or 1000 synthetic predictions from estimators with zero, medium and high bias estimators, and with conservative (estimator SD / error SD = 1.5), appropriate, or over-confident (estimator SD/error SD = 2/3))}{figure.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Conclusion}{8}{section.3}\protected@file@percent }
+\citation{zhao2020}
+\citation{wessel2025}
+\citation{kuleshov2018,dheur2023}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Measuring departures from PIT uniformity}{2}{section.2}\protected@file@percent }
+\newlabel{sec:metrics}{{2}{2}{}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}The original and location-adjusted predictions}{2}{subsection.2.1}\protected@file@percent }
+\newlabel{eq:adjust}{{1}{2}{}{equation.1}{}}
+\newlabel{eq:unsigned}{{2}{2}{}{equation.2}{}}
+\newlabel{eq:directed}{{3}{2}{}{equation.3}{}}
+\citation{wessel2025}
+\citation{bhattacharya2021}
+\citation{johnson-killeen-1983}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Direction and magnitude}{3}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Sampling references for independent predictions}{3}{section.3}\protected@file@percent }
+\newlabel{sec:null}{{3}{3}{}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Baseline distance}{3}{subsection.3.1}\protected@file@percent }
+\newlabel{eq:baseline-limit}{{4}{3}{}{equation.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Estimating location from the evaluation sample}{4}{subsection.3.2}\protected@file@percent }
+\newlabel{eq:adjusted-limit}{{5}{4}{}{equation.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}The directed statistic}{4}{subsection.3.3}\protected@file@percent }
+\newlabel{eq:directed-limit}{{6}{4}{}{equation.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Simulation results}{5}{section.4}\protected@file@percent }
+\newlabel{sec:simulation}{{4}{5}{}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Bias, reported spread and error spread}{5}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Sample size and rejection rates}{5}{subsection.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Scores for 1,000 simulated estimators against the ratio of typical reported standard deviation to error standard deviation. Each point summarises 1,000 forecasts. Colour shows absolute bias for mean CRPS (A) and baseline distance (B), and the coefficient of variation of reported spread for the adjusted unsigned (C) and directed (D) statistics. A ratio below one denotes overconfidence in the typical width.}}{6}{figure.1}\protected@file@percent }
+\newlabel{fig:metrics}{{1}{6}{Scores for 1,000 simulated estimators against the ratio of typical reported standard deviation to error standard deviation. Each point summarises 1,000 forecasts. Colour shows absolute bias for mean CRPS (A) and baseline distance (B), and the coefficient of variation of reported spread for the adjusted unsigned (C) and directed (D) statistics. A ratio below one denotes overconfidence in the typical width}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Sampling variation by reported width, location bias and number of independent predictions. Rows give the baseline (A), directed (B) and adjusted unsigned (C) statistics. Columns give sample size. Boxes summarise 100 replicates for each combination. Dashed lines are marginal 5\% large-sample rejection thresholds.}}{7}{figure.2}\protected@file@percent }
+\newlabel{fig:limits}{{2}{7}{Sampling variation by reported width, location bias and number of independent predictions. Rows give the baseline (A), directed (B) and adjusted unsigned (C) statistics. Columns give sample size. Boxes summarise 100 replicates for each combination. Dashed lines are marginal 5\% large-sample rejection thresholds}{figure.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Baseline (A), directed (B) and adjusted unsigned (C) statistics over ten sample sizes. Each solid line is the median of 250 replicate estimators and shading covers their central 95\%. The four scenarios are correct forecasts, a common location shift, overconfidence, and a correctly centred forecast with independently varying reported spread. Dashed lines give the reference thresholds.}}{8}{figure.3}\protected@file@percent }
+\newlabel{fig:curves}{{3}{8}{Baseline (A), directed (B) and adjusted unsigned (C) statistics over ten sample sizes. Each solid line is the median of 250 replicate estimators and shading covers their central 95\%. The four scenarios are correct forecasts, a common location shift, overconfidence, and a correctly centred forecast with independently varying reported spread. Dashed lines give the reference thresholds}{figure.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Predictive family and interpretation of the three scores}{8}{subsection.4.3}\protected@file@percent }
+\citation{cori2013}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Marginal rejection percentages at the 5\% level in 2,000 replicate sets of 200 independent Gaussian predictions per scenario. The error standard deviation was one. Each replicate used its own sample median shift. The largest Monte Carlo standard error of a percentage in the table is 1.1 percentage points.}}{9}{table.1}\protected@file@percent }
+\newlabel{tab:power}{{1}{9}{Marginal rejection percentages at the 5\% level in 2,000 replicate sets of 200 independent Gaussian predictions per scenario. The error standard deviation was one. Each replicate used its own sample median shift. The largest Monte Carlo standard error of a percentage in the table is 1.1 percentage points}{table.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Estimating the reproduction number in simulated epidemics}{9}{section.5}\protected@file@percent }
+\newlabel{sec:epi}{{5}{9}{}{section.5}{}}
+\citation{gneiting2023}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Discussion}{10}{section.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces EpiEstim estimates scored against the simulated reproduction number. Each point is one epidemic and the horizontal axis gives peak observed daily cases among scored days. Panels show mean reference minus predictive median (A), baseline distance (B), directed statistic (C) and adjusted unsigned distance (D). Black lines are local regression smooths. In B--D, red indicates rejection at the nominal 5\% level under independence and blue indicates non-rejection. Overlapping windows invalidate that significance comparison. We interpret the scores and smooths descriptively.}}{11}{figure.4}\protected@file@percent }
+\newlabel{fig:epi}{{4}{11}{EpiEstim estimates scored against the simulated reproduction number. Each point is one epidemic and the horizontal axis gives peak observed daily cases among scored days. Panels show mean reference minus predictive median (A), baseline distance (B), directed statistic (C) and adjusted unsigned distance (D). Black lines are local regression smooths. In B--D, red indicates rejection at the nominal 5\% level under independence and blue indicates non-rejection. Overlapping windows invalidate that significance comparison. We interpret the scores and smooths descriptively}{figure.4}{}}
+\citation{brockwell2007}
+\citation{johnson-killeen-1983}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Numerical evaluation of the tests}{12}{appendix.A}\protected@file@percent }
 \bibdata{refs}
-\bibcite{anderson1996}{{1}{}{{}}{{}}}
-\bibcite{bosse2024}{{2}{}{{}}{{}}}
-\bibcite{bosse2023}{{3}{}{{}}{{}}}
-\bibcite{brocker2008}{{4}{}{{}}{{}}}
-\bibcite{gneiting2007}{{5}{}{{}}{{}}}
-\bibcite{david1948}{{6}{}{{}}{{}}}
-\bibcite{brockwell2007}{{7}{}{{}}{{}}}
-\bibcite{hamill2001}{{8}{}{{}}{{}}}
-\bibcite{panaretos2019}{{9}{}{{}}{{}}}
-\providecommand\NAT@force@numbers{}\NAT@force@numbers
-\gdef \@abspage@last{10}
+\bibcite{bhattacharya2021}{{1}{2021}{{Bhattacharya and Waymire}}{{}}}
+\bibcite{brockwell2007}{{2}{2007}{{Brockwell}}{{}}}
+\bibcite{cori2013}{{3}{2013}{{Cori et~al.}}{{Cori, Ferguson, Fraser, and Cauchemez}}}
+\bibcite{dawid1984}{{4}{1984}{{Dawid}}{{}}}
+\bibcite{degroot1983}{{5}{1983}{{Degroot and Fienberg}}{{}}}
+\bibcite{dheur2023}{{6}{2023}{{Dheur and Taieb}}{{}}}
+\bibcite{diebold1998}{{7}{1998}{{Diebold et~al.}}{{Diebold, Gunther, and Tay}}}
+\bibcite{gneiting2023}{{8}{2023}{{Gneiting and Resin}}{{}}}
+\bibcite{gneiting2007}{{9}{2007}{{Gneiting et~al.}}{{Gneiting, Balabdaoui, and Raftery}}}
+\bibcite{hamill2001}{{10}{2001}{{Hamill}}{{}}}
+\bibcite{johnson-killeen-1983}{{11}{1983}{{Johnson and Killeen}}{{}}}
+\bibcite{kuleshov2018}{{12}{2018}{{Kuleshov et~al.}}{{Kuleshov, Fenner, and Ermon}}}
+\bibcite{panaretos2019}{{13}{2019}{{Panaretos and Zemel}}{{}}}
+\bibcite{wessel2025}{{14}{2025}{{Wessel et~al.}}{{Wessel, Schillinger, Kwasniok, and Allen}}}
+\bibcite{zhao2020}{{15}{2020}{{Zhao et~al.}}{{Zhao, Ma, and Ermon}}}
+\gdef \@abspage@last{14}

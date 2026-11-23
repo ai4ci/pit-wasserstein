@@ -1,273 +1,507 @@
-\documentclass[a4paper, 12pt, twoside]{article}
-    % General document formatting
-    \usepackage[a4paper,
-            left=20mm, right=20mm,
-			top=20mm, bottom=20mm]{geometry}
-    \usepackage[parfill]{parskip}
-    \usepackage[utf8]{inputenc}
-
-    % Related to math
-    \usepackage{amsmath,amssymb,amsfonts,amsthm}
-    \usepackage{mathtools}
-    \newcounter{tagno}
-    \setcounter{tagno}{0}
-    \newcommand{\mytag}[1]{\tag{\thetagno} \label{#1} \stepcounter{tagno}}
-
-    \usepackage{authblk}
-    \title{Metrics for evaluating the quality of probabilistic estimators}
-    \author[1,2]{Robert Challen}
-    \author[1,2]{Amber Palmer}
-    \author[1,2]{Leon Danon}
-    \affil[1]{AI4CI, University of Bristol, Bristol, UK.}
-    \affil[2]{Department of Engineering Mathematics, University of Bristol, Bristol, UK.}
-    \date{}                     %% if you don't need date to appear
-    \setcounter{Maxaffil}{0}
-    \renewcommand\Affilfont{\itshape\small}
-
-    % keep figures in same section
-    \usepackage{placeins}
-    \let\Oldsection\section
-    \renewcommand{\section}{\FloatBarrier\Oldsection}
-    \let\Oldsubsection\subsection
-    \renewcommand{\subsection}{\FloatBarrier\Oldsubsection}
-    \let\Oldsubsubsection\subsubsection
-    \renewcommand{\subsubsection}{\FloatBarrier\Oldsubsubsection}
-    \DeclareMathOperator{\sgn}{sgn}
-
-    % for \ie \eg
-    \usepackage{xspace}
-    \newcommand*{\eg}{e.g.\@\xspace}
-    \newcommand*{\ie}{i.e.\@\xspace}
-    \newcommand*{\nb}{N.b.\@\xspace}
-
-    \usepackage{booktabs}
-    \usepackage{multirow}
-    \usepackage[table,xcdraw]{xcolor}
-
-    % cite package, to clean up citations in the main text. Do not remove.
-%     \usepackage{cite}
-%     \bibliographystyle{plain}
-    \usepackage[hidelinks]{hyperref}
-    \usepackage[numbers]{natbib}
-    \bibliographystyle{unsrturl}
+\documentclass[twoside,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,booktabs}
+\usepackage[preprint]{jmlr2e}
+\ShortHeadings{Diagnosing miscalibration with PIT-Wasserstein metrics}{Challen, Palmer and Danon}
+\firstpageno{1}
+\newcommand{\Bpit}{B_{\mathrm{pit}}}
+\newcommand{\Dpit}{D_{\mathrm{pit}}}
+\newcommand{\Upit}{U_{\mathrm{pit}}}
+\newcommand{\vignette}[2]{\href{https://ai4ci.github.io/pit-wasserstein/articles/#1.html}{#2}}
+\DeclareMathOperator{\med}{median}
+\DeclareMathOperator{\sgn}{sgn}
 
 \begin{document}
-
+\title{Diagnosing miscalibration in probabilistic estimates with PIT-Wasserstein metrics}
+\author{\name Robert Challen, Amber Palmer and Leon Danon\\
+\addr AI4CI and Department of Engineering Mathematics, University of Bristol, Bristol, UK}
 \maketitle
 
-\section{Background}
+\begin{abstract}
+When a prediction interval misses its target, the estimate may be poorly centred, too narrow,
+or both. The Wasserstein distance between the distribution of probability integral transforms
+(PITs) and the uniform distribution summarises the discrepancy across a set of predictions. We
+derive a large-sample reference for the baseline distance and compare it with two statistics
+calculated after estimating a common location shift. One measures the remaining departure
+across quantiles. The other gives its direction, with positive values indicating
+overconfidence. For independent Gaussian errors of common scale, estimating location changes
+the reference distribution of the unsigned statistic but leaves the first-order variance of
+the directed statistic unchanged. In simulated epidemics, EpiEstim estimates of the
+reproduction number improved on the continuous ranked probability score as case counts
+increased. Over the same range, coverage of nominal 95\% intervals fell from 90\% to 51\%, and
+the directed statistic changed from negative to positive. Reporting these quantities together
+distinguishes a gain in overall accuracy from a deterioration in interval coverage.
+\end{abstract}
 
-This paper describes the use of metrics to characterise probabilistic estimators. We define an estimator as an algorithm that uses observed data to make many probabilistic predictions of real world variables, such as predicting the time course of disease incidence from observed case data. Each prediction is typically expressed as a parameterised probability distribution or as a set of quantiles, or in rare cases as a probability distribution function. For the purpose of this discussion we will assume we know the true value of the variables we are trying to predict, either from simulation, or from a held out or delayed set of observations. We wish to measure the quality of the probabilistic estimator, by comparing the set of true values with their their associated predictions.
+\begin{keywords}
+probabilistic calibration, probability integral transform, Wasserstein distance, forecast
+evaluation, reproduction number
+\end{keywords}
 
-% TODO: rephrase lookg at replacing calibration with disersion calibration thoughout & explain the difference
+\section{Introduction}
 
-A probabilistic estimator has three aspects which determine its utility. Firstly it can have a bias, where the value of the predictions may be systematically higher or lower than the true values. Secondly it will have an sharpness which describes on average how precise each individual prediction will be. Thirdly a probabilistic estimator will have a calibration, which describes whether, on average, prediction uncertainty is representative of the variable nature of prediction bias. A poorly calibrated estimator may produce estimates that are imprecise (too conservative) or over-precise (over-confident), leading in the first instance to predictions that are always right but uninformative, and in the second instance to predictions that may be misleading.
+Estimates of an epidemic reproduction number are often reported with an interval. As case
+counts increase, narrower intervals may be warranted, but their width alone tells us little
+about whether they cover the true value. Sharpness is a property of the predictive
+distribution, measured for example by its interquartile range. Calibration concerns the
+agreement between the predictive probabilities and the frequencies observed over repeated
+predictions \citep{degroot1983,gneiting2007}. We consider the problem of deciding how much of
+a discrepancy persists after accounting for a systematic error in the predictive median, and
+whether the remaining intervals tend to be too wide or too narrow.
 
-In the special case of time series estimators, there may also be a systematic mismatch between the timing of prediction and true value giving a lag error. These are relatively easy to characterise with a cross-correlation function and correct by shifting the true values or the estimates in time and not considered further in this paper.
+Suppose we have a continuous predictive distribution $F_i$ and an observed or independently
+specified reference value $x_i$ for each of $n$ predictions. The probability integral
+transform $u_i=F_i(x_i)$ locates the reference value within its prediction. Probabilistic
+calibration requires uniform PITs in the population of predictions being evaluated. For the
+tests in this paper we additionally require independence across cases
+\citep{dawid1984,diebold1998}. A PIT histogram with excess observations near zero and one is
+consistent with intervals that are too narrow. Different errors can nevertheless produce
+similar histograms, and errors within subgroups can disappear on pooling \citep{hamill2001}.
+Coverage at a single interval level also leaves discrepancies at other levels unmeasured.
 
-The bias of an estimator is simply the average of the difference between central values of each prediction and (typically unknown) true value. In our framework we use the median as the central value as the most commonly reported statistic. The sharpness of an individual probabilistic prediction is described by the average of the variance of the prediction, or by the width of a prediction interval (e.g. an interval of 50\%, which is the inter-quartile range). The average sharpness is a property of the estimator and describes how confident the estimator is. The calibration of a prediction can be thought of as a proxy for the spread of the error function of the estimator (see Fig~\ref{fig:1}), and measures how appropriate the estimator's confidence is. There is a trade off between bias, sharpness and calibration, and combined metrics aim to measure overall performance combining all three aspects.
+Wasserstein distance provides a measure of the discrepancy across all quantiles
+\citep{panaretos2019}. \citet{zhao2020} used the distance from uniformity to study individual
+calibration, and \citet{wessel2025} used a sample version as a penalty when training a
+forecasting model. Calibration errors based on differences between nominal and empirical
+quantiles have also been used to assess regression models \citep{kuleshov2018,dheur2023}. We
+use the existing unadjusted distance to assess the original forecasts. We give it a sampling
+reference, estimate a common shift on the scale on which location errors are expected to add,
+and derive references for the magnitude and direction of the remaining discrepancy. We examine
+what the three statistics distinguish in simulations with known errors, then apply them to
+estimates of the reproduction number in epidemics for which the target is known.
 
-\begin{figure}[ht!]
-\centering
-  \includegraphics{fig/fig1-introduction}
-  \caption{Panel A: A slightly biased conservative estimator generates probabilistic predictions for any given true values (blue line), based on data (not shown). The estimator has an inherent propensity for error (Panel B) which is slightly greater than the true value (blue line) - the estimator may be regarded as biased. The estimator also generates a measure of uncertainty of the probabilistic prediction (thin grey bars: 95\% CI and thick gery bars: IQR). Over many predictions the distribution of this uncertainty is a measure of estimator sharpness (Panel C). The sharpness ideally matches the spread of the estimator's error function (red line). If, as is shown here, the estimators sharpness is larger than the error function spread then any single prediction is likely to be conservative. This is the result of a mis-calibrated and conservative estimator. The ratio of the error function standard deviation and the median of the estimator spread distribution (sharpness) is the true value of the dispersion calibration.}
-\label{fig:1}
+\section{Measuring departures from PIT uniformity}
+\label{sec:metrics}
+
+\subsection{The original and location-adjusted predictions}
+
+Let $m_i=F_i^{-1}(1/2)$ be the predictive median. Choose an increasing link $g$ such that a
+common bias is reasonably expressed as an additive error on that scale. The identity link
+removes an additive shift in the outcome. The log link removes a common multiplicative factor
+for a positive quantity. We estimate the shift once for the set of predictions being evaluated
+and evaluate each predictive CDF at its adjusted reference value.
+\begin{equation}
+ \widehat\delta=\med_i\{g(m_i)-g(x_i)\},\qquad
+ x_i^{\rm adj}=g^{-1}\{g(x_i)+\widehat\delta\},\qquad
+ v_i=F_i(x_i^{\rm adj}).
+ \label{eq:adjust}
+\end{equation}
+A positive shift means that the predictive medians tended to exceed the reference values on
+the chosen scale. Using the median makes the correction appropriate for a skewed error
+distribution when the target is median bias. The correction is descriptive and uses the
+observed outcomes. Recalibrating future forecasts would require estimating it on separate
+data.
+
+Write $r_i=(i-1/2)/n$ for the midpoint of the $i$th of $n$ equal probability intervals. For
+any set of PITs $a$, write $a_{(i)}$ for its $i$th smallest value. Define
+\begin{align}
+ W_n(a)&=\frac1n\sum_{i=1}^n |r_i-a_{(i)}|, &
+ \Bpit&= W_n(u), & \Upit&= W_n(v), \label{eq:unsigned}\\
+ h(t)&=\sgn(1/2-t), &
+ \Dpit&=\frac1n\sum_{i=1}^n (r_i-v_{(i)})h(r_i). &&\label{eq:directed}
+\end{align}
+The raw and adjusted PITs are ranked separately. Adding the same shift to two observations can
+change their PIT ordering if the predictions have different scales. In one dimension
+Wasserstein-1 distance is the integral of the absolute difference between quantile functions.
+Thus $W_n$ is exactly the distance to the discrete uniform measure on the midpoints. Its
+difference from the distance to the continuous uniform law is at most $1/(4n)$, the mean
+distance from a uniform draw to its closest midpoint. This distinction matters in small
+samples. Even independent uniform draws generally have a positive baseline score.
+
+\subsection{Direction and magnitude}
+
+For an overconfident forecast, low adjusted PITs tend to lie below their uniform ranks and
+high PITs above theirs. Both contribute positively to equation~\eqref{eq:directed}. For a
+conservative forecast both contribute negatively. Opposing departures can cancel in $\Dpit$,
+whereas $\Upit$ accumulates their magnitudes. For even $n$, if $P$ and $M$ are the sums of the
+positive and absolute negative contributions to $\Dpit$ (including the factor $1/n$), then
+$\Dpit=P-M$ and $\Upit=P+M$. At odd $n$ the middle rank has zero signed weight, and its
+absolute discrepancy also contributes to $\Upit$. In either case $|\Dpit|\leq\Upit$. The
+unsigned scores lie between 0 and $1/2$, and the signed score between $-1/4$ and $1/4$.
+
+In a location family on the link scale, displacing all forecasts by the same amount increases
+$\widehat\delta$ by that amount. The adjusted PITs are then unchanged, even if the prediction
+scales differ. An alternative implemented in \texttt{pitw} subtracts the sample median of
+$\Phi^{-1}(u_i)$ on the probit scale. Here and below $\Phi$ and $\varphi$ are the standard
+normal distribution and density. With Gaussian errors of common scale the two adjustments
+coincide. With varying scales an outcome shift of $b$ corresponds to a different standardised
+shift $b/s_i$ for each prediction. A single correction estimated from the PITs alone therefore
+answers a different question.
+
+A simple case gives the adjustment a numerical interpretation. Suppose $m_i-x_i$ is normally
+distributed with mean one and standard deviation one, and each forecast reports standard
+deviation one. Every population PIT quantile lies below its uniform counterpart. The
+population baseline distance, also the population counterpart of the unadjusted penalty of
+\citet{wessel2025}, is $1/2-\mathbb{E}[u_i]=\Phi(1/\sqrt{2})-1/2=0.260$ to three decimal
+places. After correcting the unit shift the population values of both adjusted scores are
+zero. Conversely, an error in spread alone can produce appreciable values of all three scores.
+
+\section{Sampling references for independent predictions}
+\label{sec:null}
+
+\subsection{Baseline distance}
+
+Let $Q_n$ be the empirical quantile function of the raw PITs. Under independent uniform
+sampling, $\sqrt n\{t-Q_n(t)\}$ converges to a standard Brownian bridge $G(t)$, with
+covariance $K(s,t)=\min(s,t)-st$ \citep{bhattacharya2021}. The bridge describes how far
+ordered uniform observations fluctuate about their expected positions. The midpoint
+approximation in equation~\eqref{eq:unsigned} vanishes on this scale. Taking the integrated
+absolute value gives
+\begin{equation}
+ \sqrt n\,\Bpit\ \Longrightarrow\ L_B=\int_0^1|G(t)|\,dt,
+ \qquad \mathbb{E}L_B=\sqrt{2/\pi}\int_0^1\!\sqrt{t(1-t)}\,dt=\frac{\sqrt{2\pi}}8 .
+ \label{eq:baseline-limit}
+\end{equation}
+Where the Kolmogorov--Smirnov statistic measures the largest discrepancy, this statistic
+measures the area. \citet{johnson-killeen-1983} give the distribution function of $L_B$. Its
+95th and 99th percentiles are 0.5821 and 0.7519, respectively. A one-sided test at the 5\%
+level therefore compares $\Bpit$ with $0.5821/\sqrt n$. The series evaluates the law of the
+limiting bridge functional. Its use at a given $n$ is an approximation.
+
+\subsection{Estimating location from the evaluation sample}
+
+For the adjusted references we assume that, on the chosen link scale, the predictive
+distributions are Gaussian with common standard deviation $s$ and that
+$g(x_i)-g(m_i)=-\delta+sZ_i$, with $Z_i$ independent standard normals. The true shift $\delta$
+may be non-zero. After equation~\eqref{eq:adjust}, $v_i=\Phi(Z_i-\med_j Z_j)$. Estimating
+location from the sample reduces the variability of its median PIT. To see how that affects
+other quantiles, write $z_t=\Phi^{-1}(t)$ and expand the adjusted quantile
+$\Phi(Z_{(i)}-\med_j Z_j)$ about $z_t$ with $r_i$ near $t$. The first-order change due to
+centring is $-\varphi(z_t)\med_j Z_j$. The sample median on the normal scale has the
+PIT-quantile fluctuation at $t=1/2$ divided by $\varphi(0)$. Thus the bridge for the adjusted
+ranks is
+\begin{equation}
+ G_A(t)=G(t)-k(t)G(1/2),\qquad
+ k(t)=\frac{\varphi(\Phi^{-1}(t))}{\varphi(0)},\qquad
+ \sqrt n\,\Upit\ \Longrightarrow\ L_U=\int_0^1 |G_A(t)|\,dt .
+ \label{eq:adjusted-limit}
+\end{equation}
+In particular $G_A(1/2)=0$. Applying the baseline critical value after fitting the shift gives
+too few rejections in this model. We evaluate $L_U$ numerically by simulating 20,000 bridges
+on a grid of 1,000 points, removing the fitted median component from each and integrating its
+absolute value. The estimated 95th percentile is about 0.39, roughly two-thirds of the
+baseline value. The package caches the simulations and extrapolates the survival probability
+above the simulated 99th percentile. Very small reported tail probabilities therefore depend
+on the extrapolation. An explicit distribution function or a high-precision tabulation would
+improve this part of the calculation.
+
+\subsection{The directed statistic}
+
+The directed statistic is linear in the quantile discrepancy. In the Gaussian model
+$k(t)=k(1-t)$ while $h(t)=-h(1-t)$, so the estimated-location term integrates to zero.
+\begin{equation}
+ \sqrt n\,\Dpit\ \Longrightarrow\ \int_0^1 h(t)G_A(t)\,dt
+ =\int_0^1 h(t)G(t)\,dt\ \sim\ N(0,1/48).
+ \label{eq:directed-limit}
+\end{equation}
+The limit is Gaussian because it is a linear functional of a Gaussian process. To obtain its
+variance, integrate $h(s)h(t)K(s,t)$ over the unit square. The $\min(s,t)$ term gives
+$\int_0^1[\int_x^1 h(t)\,dt]^2dx=2\int_0^{1/2}x^2dx=1/12$. The $st$ term gives $[\int_0^1 t
+h(t)\,dt]^2=1/16$. Their difference is $1/48$. The resulting two-sided 5\% threshold is
+$|\Dpit|>0.2829/\sqrt n$. For example, with 100 independent predictions the three 5\%
+thresholds are 0.0582 for $\Bpit$, about 0.039 for $\Upit$ and 0.0283 for $|\Dpit|$.
+
+The baseline reference applies to independent uniform PITs from any continuous predictive
+family. Equations~\eqref{eq:adjusted-limit} and~\eqref{eq:directed-limit} describe the effect
+of estimating a median in the specified common-scale Gaussian model. The density at each
+quantile determines the effect of a shift. Changing the family, varying the scales or
+introducing dependence can therefore require a different reference. In particular, a
+population directed score of zero alone does not imply variance $1/(48n)$.
+
+\section{Simulation results}
+\label{sec:simulation}
+
+\subsection{Bias, reported spread and error spread}
+
+We simulated 1,000 estimators, each making 1,000 Gaussian predictions. For each prediction we
+drew a reference $x_i$ uniformly on $[-1,1]$ and an error $e_i\sim N(\mu_{\mathcal
+E},\sigma_{\mathcal E}^2)$, and reported $N(x_i+e_i,s_i^2)$. The reported standard deviation
+$s_i$ was drawn independently from a lognormal distribution with median $\sigma_{\mathcal S}$
+and coefficient of variation $\kappa$. Between estimators we varied the mean location error
+uniformly over $[-1,1]$, each scale independently and log-uniformly over $[1/2,2]$, and
+$\kappa$ uniformly over $[0,2]$. The ratio $c=\sigma_{\mathcal S}/\sigma_{\mathcal E}$
+measures dispersion calibration in this design. At $c=1$, the typical reported spread matches
+the error spread. When $\kappa>0$, reported uncertainty also varies from case to case without
+any corresponding change in the error distribution. This differs from a correctly specified
+forecast whose conditional variance genuinely varies between cases.
+
+\begin{figure}[tbp]
+ \centering\includegraphics[width=.89\linewidth]{fig/fig1-metric-compare.pdf}
+ \caption{Scores for 1,000 simulated estimators against the ratio of typical reported standard
+ deviation to error standard deviation. Each point summarises 1,000 forecasts. Colour shows
+ absolute bias for mean CRPS (A) and baseline distance (B), and the coefficient of variation
+ of reported spread for the adjusted unsigned (C) and directed (D) statistics. A ratio below
+ one denotes overconfidence in the typical width.}
+ \label{fig:metrics}
 \end{figure}
 
-The purpose of this paper is to describe modifications to commonly used numerical measures of dispersion calibration to make them independent of bias and informative about the direction of dispersion miscalibration, and demonstrate its utility for comparing the calibration of different estimators.
+At a given spread ratio, larger location errors generally increased both mean continuous
+ranked probability score (CRPS) and $\Bpit$ (Figure~\ref{fig:metrics}A,B). CRPS integrates the
+squared difference between each predictive CDF and the observation step function, in outcome
+units. Lower values indicate better overall predictive performance. The PIT statistics instead
+compare quantiles over the set of predictions. After adjustment, $\Upit$ was lowest close to
+$c=1$ and increased as reported spread varied more independently of the errors (panel C). The
+directed statistic crossed zero close to $c=1$ and distinguished narrow from wide forecasts
+across the range of $\kappa$ studied (panel D).
 
-\section{Methods}
+There is an exact population symmetry in the constant-scale Gaussian case. After removing
+location bias, the PIT CDF is $H_c(t)=\Phi(c\Phi^{-1}(t))$. Since $H_{1/c}=H_c^{-1}$,
+reflection in the diagonal preserves the area between the CDF and the uniform reference.
+Forecasts with twice and half the correct standard deviation therefore have the same
+population adjusted distance and opposite signed discrepancies. Variation in reported spread
+mixes these curves. At a typical spread ratio of one it can produce excess mass both near the
+PIT endpoints and near the centre, leaving a small net direction despite a measurable unsigned
+departure. The \vignette{introduction-to-pit}{PIT histogram examples} show the individual
+predictions behind these patterns. The \vignette{pit-w-metrics}{metric comparison} includes
+coverage of the central 50\% interval.
 
-% TODO: needs updating and to conform to notation:
-% [1] C. Guo, G. Pleiss, Y. Sun, and K. Q. Weinberger, ‘On Calibration of Modern Neural Networks’, in Proceedings of the 34th International Conference on Machine Learning, PMLR, Jul. 2017, pp. 1321–1330. Accessed: Nov. 13, 2026. [Online]. Available: https://proceedings.mlr.press/v70/guo17a.html
-% [2] S. Zhao, T. Ma, and S. Ermon, ‘Individual Calibration with Randomized Forecasting’, in Proceedings of the 37th International Conference on Machine Learning, PMLR, Nov. 2020, pp. 11387–11397. Accessed: Nov. 13, 2026. [Online]. Available: https://proceedings.mlr.press/v119/zhao20e.html
-% [3] V. Dheur and S. B. Taieb, ‘A Large-Scale Study of Probabilistic Calibration in Neural Network Regression’, in Proceedings of the 40th International Conference on Machine Learning, PMLR, Jul. 2023, pp. 7813–7836. Accessed: Nov. 13, 2026. [Online]. Available: https://proceedings.mlr.press/v202/dheur23a.html
+\subsection{Sample size and rejection rates}
 
+We first compared 100 replicate estimators per combination of spread ratio ($2/3$, 1 or
+$3/2$), mean location error (0, 0.5 or 1 outcome units) and sample size (10, 100 or 1,000).
+The error standard deviation varied between estimators, while reported spread was constant
+within each estimator. At ten predictions there was considerable overlap between groups
+(Figure~\ref{fig:limits}). At 100 predictions the directed score more clearly separated the
+conservative and overconfident groups. The baseline score remained sensitive to location error
+at each spread ratio.
 
-In this paper we describe a set of true values of a measure with the notation $X_i$ where $i \in {1 \dots n}$. The probabilistic prediction of this true value is a function which we describe with the notation $F_i(x) = Pr(X_i \le x)$. We describe the quantiles of this distribution using the notation $x_{i,0.5}$ where $F_i(x_{i,0.5}) = 0.5$ and so on. For simplicity sake we define $X_i$ to be in ascending order ($X_i \le X_{i+1}$).
+\begin{figure}[tbp]
+ \centering\includegraphics[width=.86\linewidth]{fig/fig2-critical-limits.pdf}
+ \caption{Sampling variation by reported width, location bias and number of independent
+ predictions. Rows give the baseline (A), directed (B) and adjusted unsigned (C) statistics.
+ Columns give sample size. Boxes summarise 100 replicates for each combination. Dashed lines
+ are marginal 5\% large-sample rejection thresholds.}
+ \label{fig:limits}
+\end{figure}
 
-A well described combined metric for measuring the quality of a probabilistic estimator that encompasses bias, sharpness and calibration is the average of the Continuous Rank Probability Score (CRPS) of each prediction \cite{anderson1996,bosse2024,bosse2023,brocker2008,gneiting2007}. This is defined as follows where $H$ is the Heaviside step function, and smaller values imply better predictions:
+We next fixed the error standard deviation at one and varied sample size from 10 to 1,000 in
+four scenarios (Figure~\ref{fig:curves}). A location shift of one error standard deviation
+kept the median baseline score above its threshold throughout. A reduction in reported spread
+to two-thirds of the error standard deviation produced a positive directed score. When only
+reported spread varied independently of error ($c=1$, $\kappa=1$), the median adjusted
+distance crossed its threshold earlier than the median baseline distance. The ribbons show
+variation between estimators. Power for a specified departure is the proportion of replicate
+scores beyond the relevant threshold.
 
-\begin{equation*}
-\begin{aligned}
-CRPS_i &= \int_\mathbb{R}{(F_i(x) - H(x < X_i))^2}dx \\
-\overline{CRPS} &= \frac{1}{n}\sum_n{CRPS_i}
-\end{aligned}
-\mytag{eq:crps}
-\end{equation*}
+\begin{figure}[tbp]
+ \centering\includegraphics[width=\linewidth]{fig/fig3-three-part-test.pdf}
+ \caption{Baseline (A), directed (B) and adjusted unsigned (C) statistics over ten sample
+ sizes. Each solid line is the median of 250 replicate estimators and shading covers their
+ central 95\%. The four scenarios are correct forecasts, a common location shift,
+ overconfidence, and a correctly centred forecast with independently varying reported spread.
+ Dashed lines give the reference thresholds.}
+ \label{fig:curves}
+\end{figure}
 
-The average value of every prediction's CRPS is a measure of the estimator itself and this is a proper scoring rule, in that it is minimised by a sharp, well calibrated unbiased estimator, and combines aspects of all three aspects into a single number. When developing estimators it is important to be able to characterise bias, sharpness and calibration individually, for which the CRPS is less useful.
+We estimated rejection rates separately for the median adjustment in
+equation~\eqref{eq:adjust} (Table~\ref{tab:power}). With 200 predictions a pure width error
+frequently led all three tests to reject. A common location shift alone was detected by the
+baseline statistic in every replicate, while the adjusted statistics remained close to their
+nominal rejection rates. Independent variation in reported spread was detected in 67\% of
+replicates by $\Upit$ and 17\% by $\Bpit$. Estimating a location shift reduces the critical
+value for the unsigned statistic, which in this example improved sensitivity to departures
+that persisted after centring.
 
-For a linear variable the bias of an estimator is simply the average difference between a set of true values and the central quantile of the predictions. For logarithmic variables a better representation is the average proportional bias. If we specify a link function ($g$) that relates the variable of interest to a linear scale we can generalise the median estimator bias ($\mathcal{E}_{X,0.5}$) as follows, and with this value defined we can define an adjusted true value $X_{i,adj}$.
-
-\begin{equation*}
-\begin{aligned}
-\mathcal{E}_{X,0.5} &= \operatorname{med} ( g(X_i) - g(x_{i,0.5}) ) \\
-X_{i,adj} &= g^{-1}(g(X_i) - \mathcal{E}_{X,0.5})
-\end{aligned}
-\mytag{eq:bias}
-\end{equation*}
-
-In the case of the disease incidence for example the link function is typically $g(R_t) = log(R_t)$ and the resulting bias is multiplicative and represented as the percentage $e^{\mathcal{E}_{R_t}}-1$.
-
-When individual predictions are available as posterior continuous probability distributions, they can be assessed using probability integral transform (PIT) values $u_i$ \cite{gneiting2007,david1948} which are the estimated cumulative distribution function (CDF, $F_i(x)$) evaluated at the true values of $X_i$. These PIT values are also sometimes described as universal residuals \cite{brockwell2007}. The average universal residual, rescaled to range from -1 to 1, $\overline{\mathcal{E}_u}$ gives an indication of estimator error that is independent of the distributional form of the estimator.
-
-\begin{equation*}
-\begin{aligned}
-u_i &= F_i(X_i) \\
-\overline{\mathcal{E}_u} &= \frac{1}{n} \sum{(2u_i - 1)}
-\end{aligned}
-\mytag{eq:ubias}
-\end{equation*}
-
-The sharpness of an probabilistic estimator can be measured as the average variance of predictions, or, in the main paper, as the average width of predictions at a given level of probability (usually 50\% - $\overline{\omega_{0.5}}$). This is independent of the true value.
-
-\begin{equation*}
-\begin{aligned}
-\overline{\omega_{0.5}} = \frac{1}{n} \sum{(x_{i,0.75} - x_{i,0.25})}
-\end{aligned}
-\mytag{eq:sharp}
-\end{equation*}
-
-For a single prediction we can assign a logical value to the condition that the true value is between the 0.25 and 0.75 quantiles. For a set of predictions produced by a single estimator the average gives us the probability of 50\% coverage as a metric for the the calibration of the estimator ($\mathcal{P}_{X,0.5}$). In a well calibrated unbiased estimator the probability that the true value is within the quartiles should be 0.5, whereas over confident estimators will score lower, and excessively conservative higher. Bias affects the 50\% coverage probability, as a shift in the quartiles reduces the chance that the true value lies within the range.
-
-\begin{equation*}
-\begin{aligned}
-\mathcal{P}_{X,0.5} &= \frac{1}{n} \sum_n{ 1( 0.25 \le F_i(X_i) \le 0.75 )  } \\
-\end{aligned}
-\mytag{eq:cover}
-\end{equation*}
-
-% TODO: need to compare with PIT-W distance metrics from CDF to Uniform from previous works including Dheur 2023 adn Zhao 2020. Difference is in prior work there is no bias adjustment, so it is not a pure measure of dispersion calibration, and affected by bias. And directed wasserstein is new and useful.
-
-We defined the probability integral transform (PIT) for a single prediction above. For many predictions if the estimator is well calibrated the PIT value should be approximately uniformly distributed on [0,1]. It is common practice to visually compare PIT histograms and look for flatness. If the PIT value histogram is U-shaped, and there is more mass at the edges, it represents an over confident prediction, or if dome shaped with more mass in the centre, it represents an excessively uncertain prediction. However if bias is also present the PIT histogram is then skewed and difficult to interpret and compare \cite{hamill2001,anderson1996}.
-
-To address this and to quantify the difference between the distribution of the PIT values and the uniform, we initially adjust the estimates for bias and then calculate an adjusted PIT value for each predictions $u_{i,adj}$. We summarise these using a Wasserstein distance, (also known as earth movers cost) \cite{panaretos2019} between the PIT values and the ideal uniform distribution. This adjusted PIT Wasserstein metric ($U^*_{pit}$) is strictly positive, will take a maximum value of 0.5 if all the mass of the PIT distribution is centred at any one point, and a minimum value of zero if the estimator is perfectly calibrated.
-
-\begin{equation*}
-\begin{aligned}
-rank_i &= \frac{i-0.5}{n}\\
-u_{i,adj} &= F_i(X_{i,adj})\\
-U^*_{pit} &= \frac{1}{n}\sum_{i=1}^n{|rank_i - u_{i,adj}|}
-\end{aligned}
-\mytag{eq:pit2}
-\end{equation*}
-
-We can calculate another PIT centrality measure ($D^*_{pit}$) as Wasserstein distance from the PIT distribution to the uniform distribution with positive cost if moving away from the centre, and negative cost if moving towards the centre. This directed PIT Wasserstein metric will take values between +0.25 if all the mass is at the edges representing over-confidence in predictions, to -0.25 if all the mass is at the centre, representing excessive uncertainty in predictions. An ideal estimator would have zero for this metric:
-
-\begin{equation*}
-\begin{aligned}
-D^*_{pit} &= \frac{1}{n}\sum_{i=1}^n{(rank_i - u_{i,adj}) \times \sgn(0.5-rank_i) }
-\end{aligned}
-\mytag{eq:pit3}
-\end{equation*}
-
-The $U^*_{pit}$ and $D^*_{pit}$ are trivial to compute for a set of predictions associated with their true values, and give a single number that represents the calibration of the estimator. We further examine the properties of these metrics.
-
-\subsection{Validation}
-
-When building an estimator of a variable, uncertainty is introduced, for example due to missing information (aleatoric uncertainty), measurement noise, discretisation or model assumptions (epistemic uncertainty). Regardless of the modelling framework we can regard the combined effect of the different types of uncertainty as an estimator error function. If we were able to repeat the whole process of making observations, building a model, and deriving a prediction of a variable, then the error function would represent the distribution of the offset of the central measure of the predictions from the true value, otherwise known as the bias.
-
-When we consider a probabilistic estimator there is a distribution surrounding this bias, which defines the confidence intervals of any given prediction. While any probability distribution is possible we generally consider the simpler case of a parameterised probability distribution which the central measure is the bias and each individual prediction width is defined by a spread parameter such as the standard deviation. The value of this spread parameter is defined by the estimator, and its relationship to the spread of the estimator error function defines the calibration of the estimator.
-
-
-To validate $U^*_{pit}$ and $D^*_{pit}$, we constructed a simple simulation framework, in which ``true values'' ($X_i$) are defined either directly or as random samples from a distribution. Secondly, a hypothetical estimator is specified as an estimator error function expressed as probability distribution. This incorporates a true bias - represented by the mean of the error function, and a true uncertainty - represented by the standard deviation of the error function.
-
-By sampling this error distribution we construct a central value of synthetic predictions of the true values. Prediction uncertainty, which is a property of the prediction, is defined either directly or as a random sample from a distribution,
-
-defined by the CDF $F_i$, offset from the true value by a random sample $\mathcal{E}$ from a normally distributed error function with mean $\mu_\mathcal{E}$ and standard deviation of $\sigma_\mathcal{E}$. The estimate uncertainty, as defined by $\sigma_i$ is a log-normally distributed sharpness parameterised by median $\sigma_\mathcal{S}$ and coefficient of variation $\kappa_\mathcal{S}$.
-
-\begin{equation*}
-\begin{aligned}
-X &\sim N(0,1) \\
-\mathcal{E} &\sim N(\mu_\mathcal{E}, \sigma_\mathcal{E}) \\
-\log(\sigma_i) &\sim N\bigg(\log(\sigma_\mathcal{S}), \sqrt{\log(\kappa_\mathcal{S}^2+1)}\bigg) \\
-F_i(x) &= \Phi\bigg(\frac{x - X_i - \mathcal{E}_i}{\sigma_i}\bigg)
-\end{aligned}
-\mytag{eq:valid}
-\end{equation*}
-
-Where $\Phi$ is the standard normal distribution cumulative density function. With this arrangement the estimator bias is defined as $\mu_\mathcal{E}$, sharpness as $\sigma_\mathcal{S}$ and calibration is $\frac{\sigma_\mathcal{S}}{\sigma_\mathcal{E}}$. $\kappa_\mathcal{S}$ is a measure of the intrinsic variability of estimate confidence, and is an index of the variability of the confidence of predictions produced by a single estimator.
-
-We ran this simulation 1000 times with random configurations, and calculated the metrics described above, based on 10000 simulated true value and probabilistic prediction pairs, for each of the 1000 random simulations. The summary estimator metrics were calculated without resampling.
-
-\begin{equation*}
-\begin{aligned}
-\mu_\mathcal{E} &\sim Uniform(-1,1) \\
-log(\sigma_\mathcal{E}) &\sim Uniform(-log(2),log(2))\\
-log(\sigma_\mathcal{S}) &\sim Uniform(-log(2),log(2))\\
-\kappa_\mathcal{S} &\sim Uniform(0,2)
-\end{aligned}
-\mytag{eq:valid2}
-\end{equation*}
-
-\subsection{Results and Discussion}
-
-The simulation was run for a curated set of configuration parameters shown in Table~\ref{tab:1} and the resulting PIT histograms plotted in Fig~\ref{fig:2}. These demonstrate the expected PIT histogram shapes in the presence of bias and calibration errors, showing U shaped histograms for overconfident estimators, and dome shapes for excessively conservative ones. Skew in the PIT histograms is exhibited by configurations with positive or negative bias. In each plot the associated values of the adjusted PIT-Wasserstein (adj PIT-W), and directed PIT-Wasserstein (dir PIT-W) metrics, along with the mean CRPS for each of the represented estimators is given. The adjusted PIT-W metrics are invariant in the presence of bias, and appear correlated to calibration.
-
-\begin{table}[ht!]
-\centering
-\caption{Curated parameters for 9 simulated estimators with fixed sharpness and variable calibration and bias.}
-  \includegraphics{fig/tab1-params}
-\label{tab:1}
+\begin{table}[tbp]
+ \centering
+ \begin{tabular}{lrrrrrr}
+ \toprule
+ & \multicolumn{3}{c}{Generating parameters} & \multicolumn{3}{c}{Rejecting (\%)}\\
+ \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+ Scenario & $\mu_{\mathcal E}$ & $c$ & $\kappa$ & $\Bpit$ & $\Dpit$ & $\Upit$\\
+ \midrule
+ Correct forecasts            &0&1&0&4.7&5.4&4.4\\
+ Location shift               &1&1&0&100&5.1&4.9\\
+ Overconfident                &0&0.7&0&95.3&100&99.8\\
+ Conservative                 &0&1.3&0&66.4&98.8&96.4\\
+ Independently varying spread &0&1&1&16.8&9.2&66.8\\
+ Location shift and wide intervals &1&1.3&0&100&99.2&96.4\\
+ \bottomrule
+ \end{tabular}
+ \caption{Marginal rejection percentages at the 5\% level in 2,000 replicate sets of 200
+ independent Gaussian predictions per scenario. The error standard deviation was one. Each
+ replicate used its own sample median shift. The largest Monte Carlo standard error of a
+ percentage in the table is 1.1 percentage points.}
+ \label{tab:power}
 \end{table}
 
-\begin{figure}[ht!]
-\centering
-\includegraphics{fig/fig2-pit-histograms}
-\caption{PIT histograms from 10000 simulated predictions from 9 simulated estimators with curated parameters, as given in Table~\ref{tab:1}. Typical U and dome shaped patterns are seen as a result of mis-calibration, and skew as a result of estimator bias}
-\label{fig:2}
+Small samples also affected the false-positive rate. In a separate check with 4,000 replicates
+per sample size and correctly specified common-scale Gaussian forecasts, the baseline,
+directed and adjusted unsigned tests rejected in 4.6\%, 7.1\% and 1.8\% of replicates at
+$n=10$. At $n=100$ the rates were 5.0\%, 5.1\% and 4.7\%. The departures at ten observations
+were in different directions for the two adjusted statistics. The
+\vignette{sample-sizes-and-power}{sample-size study} gives the design behind
+Figures~\ref{fig:limits} and~\ref{fig:curves}.
+
+\subsection{Predictive family and interpretation of the three scores}
+
+For a positive quantity we also compared gamma and lognormal generating families with gamma,
+lognormal and normal reported distributions. For each generating family we drew a
+multiplicative error $w_i$ with median one and specified coefficient of variation, set the
+predictive median to $1/w_i$, and evaluated the forecast at a reference value of one. The
+reported distribution had the same median and coefficient of variation across candidate
+families. We used 2,000 predictions per estimator, 20 replicates per combination and
+coefficients of variation from 0.01 to 0.8. Reporting a normal distribution for a skewed
+quantity produced a growing $\Upit$ while $\Dpit$ remained close to zero. Exchanging gamma and
+lognormal families changed the sign of $\Dpit$ and could resemble a width error. Normal
+predictions for a positive quantity can also put mass outside its support. The
+\vignette{model-misspecification}{distributional misspecification study} examines these
+comparisons and the effect of a multiplicative location bias.
+
+For an estimator of unknown quality we report $\Bpit$ for the original predictions, the
+estimated location shift, then $\Dpit$ and $\Upit$ for the adjusted predictions. A large
+baseline distance that diminishes after centring is consistent with a common location error. A
+large directed score describes the net direction of interval error. A large unsigned score
+alongside a small directed score directs attention to departures that cancel, for example
+different errors in the two tails or across subgroups. The same sign can arise from more than
+one mechanism, as the family comparisons illustrate. All three tests use the same
+observations. Their marginal $p$-values describe the evidence for each comparison and provide
+no joint 5\% classification rule. A small baseline score can coexist with conditional errors,
+so it is also informative to examine the adjusted scores and relevant subgroups in their own
+right.
+
+\section{Estimating the reproduction number in simulated epidemics}
+\label{sec:epi}
+
+We applied EpiEstim \citep{cori2013} to simulated case counts so that each estimate of the
+instantaneous reproduction number could be compared with a known trajectory. In a
+deterministic susceptible--infectious--recovered model, the true value on day $t$ was $R_t=R_0
+S_t$, where $S_t$ is the susceptible proportion. We set $R_0=2$, used a mean infectious period
+of five days and started with an infectious proportion of $10^{-4}$. We followed the same
+epidemic curve for 100 days in each of 100 populations, spaced logarithmically from about 316
+to 100,000 people. At each size we generated ten independent series of observed counts by
+binomial sampling with probability 0.5 from the rounded daily model incidence. Increasing
+population size therefore increased the case counts available for estimation while preserving
+epidemic shape and ascertainment.
+
+EpiEstim received the observed counts and a parametric serial interval with mean and standard
+deviation both five days. We specified a gamma prior on $R$ with mean two and standard
+deviation two. We fitted overlapping windows of eight daily counts, advancing the start by one
+day at each fit. For each retained estimate we took the reported posterior mean and standard
+deviation to define a gamma distribution, and followed the day matching in the worked example.
+The incidence vector begins at simulation day zero, whereas EpiEstim numbers its entries from
+one. Joining the numerical window-end index to the simulation day therefore scores the
+estimate against the following day. We retained reference days with a positive observed count.
+A median of 76 of the 87 candidate estimates contributed to each epidemic. We used a log link
+in equation~\eqref{eq:adjust}. The outcome-scale bias displayed in Figure~\ref{fig:epi}A is
+the mean of $x_i-m_i$, so a negative value here means that EpiEstim tended to overestimate
+$R_t$.
+
+\begin{figure}[tbp]
+ \centering\includegraphics[width=.89\linewidth]{fig/fig4-epiestim-by-epi-size.pdf}
+ \caption{EpiEstim estimates scored against the simulated reproduction number. Each point is
+ one epidemic and the horizontal axis gives peak observed daily cases among scored days.
+ Panels show mean reference minus predictive median (A), baseline distance (B), directed
+ statistic (C) and adjusted unsigned distance (D). Black lines are local regression smooths.
+ In B--D, red indicates rejection at the nominal 5\% level under independence and blue
+ indicates non-rejection. Overlapping windows invalidate that significance comparison. We
+ interpret the scores and smooths descriptively.}
+ \label{fig:epi}
 \end{figure}
 
-In Fig~\ref{fig:3} we see the results of the 1000 random simulations, and the values of 4 estimator metrics are plotted as they relate to the theoretical value of the calibration on the x-axis ($\frac{\sigma_\mathcal{S}}{\sigma_\mathcal{E}}$), based on the simulation configurations defined in \eqref{eq:valid2}. The points are coloured according to the variation in confidence intervals represented by the value of $\kappa_\mathcal{S}$. In panel A the CRPS is correlated with calibration, but does not exhibit a minimum at a well calibrated, and tends to favour conservative estimates. The CRPS is composite metric and affected by bias and sharpness, as well as by calibration, which can compensate for bias when the estimator is conservative. The 50\% coverage probability in Fig~\ref{fig:3} panel B is used as a metric for calibration, and demonstrates a better relationship with calibration, but it too is affected by bias, as shifted estimates are less likely to contain the true value, unless they are also excessively conservative. In the presence of minor bias coverage probability is likely to give a good indication of the direction and to a lesser extent the scale of mis-calibration. In Fig~\ref{fig:3} panel C we introduce the adjusted PIT-Wasserstein metric which has a clear relationship with calibration that is not affected by bias or sharpness. It appears to be a proper scoring rule for calibration and is symmetric on the logarithm of calibration. This means that an estimator that produces estimates that have confidence intervals twice as large as they should be will score the same as one whose confidence intervals are half as wide as they should be. This is a useful property for comparisons between estimators. The directed PIT-Wasserstein metric in Fig~\ref{fig:3} panel D is similarly unaffected by bias and sharpness, and similar to the undirected version but gives us a clear direction of mis-calibration similar to the 50\% coverage probability.
+We grouped the 1,000 epidemics by peak observed count into eight equal-sized groups and
+averaged the scenario-level scores within each group. From the lowest to highest group, the
+mean peak increased from 10 to 1,297 cases per day. The mean CRPS fell from 0.182 to 0.087 in
+units of $R_t$, while coverage of the nominal 95\% intervals fell from 90\% to 51\%. The mean
+baseline distance increased from 0.240 to 0.298. The mean directed score changed from $-0.074$
+to $+0.089$, with the fitted curve crossing zero near 57 peak cases per day. The adjusted
+unsigned curve was lowest near 47 cases (Figure~\ref{fig:epi}C,D). Thus intervals were
+relatively wide at low counts and narrow at high counts after correcting the common location
+error. Narrow intervals and a declining location error can improve the overall score even as
+coverage deteriorates.
 
-\begin{figure}[h!]
-\centering
-  \includegraphics{fig/fig3-metric-compare}
-  \caption{Comparison of four estimator metrics for 1000 random simulated estimators, consisting of 10000 synthetic predications, as it relates to the theoretical calibration of the estimator on the X-axes. Panel A shows the mean CRPS, panel B the 50\% coverage probability. Panels C and D show adjusted and directed PIT-Wasserstein metrics, as described earlier in this paper, which are designed to give a measure of calibration that is independent of estimator bias and sharpness.}
-\label{fig:3}
-\end{figure}
+These are repeated estimates along a declining $R_t$ trajectory. Adjacent windows share
+observations, so counting each estimate as an independent prediction would overstate the
+information in the series. The descriptive agreement between coverage and the directed score
+supports a change in interval behaviour with case count in this design. The prior, the length
+and alignment of the window, and the incidence likelihood could each contribute to this
+pattern. We held all of them fixed. The \vignette{sir-epiestim-example}{EpiEstim worked
+example} supplies the model and scoring code.
 
-Fig~\ref{fig:4} demonstrates ...
+\section{Discussion}
 
-\begin{figure}[h!]
-\centering
-  \includegraphics{fig/fig4-sample-size}
-  % TODO: needs updating
-  \caption{The relationship between bias, sample size and directed pit-Wasserstein. In A we show the directed PIT-Wasserstein metric in 9 experiments each with 10, 100, or 1000 synthetic predictions from estimators with zero, medium and high bias estimators, and with conservative (estimator SD / error SD = 1.5), appropriate, or over-confident (estimator SD/error SD = 2/3))} calibration. Undirected PIT-Wasserstein is similar regardless of bias, and symmetrical with regard to degree of calibration. Well-calibrated scenarios with 100 or 1000 samples show a low undirected PIT-Wasserstein. In panel B the relationship between undirected PIT-Wasserstein and sample size is further explored, in scenarios with well calibrated to mildly conservative, to highly conservative. The scenarios diverge with lower values for undirected PIT-Wasserstein in well calibrated scenarios
-\label{fig:4}
-\end{figure}
+The baseline distance answers a question about the predictive distributions as issued. A
+global location adjustment answers a second question that is particularly relevant when
+developing an estimator. If its median were consistently shifted on an appropriate scale, how
+much of the discrepancy between observed and predicted quantiles would remain? The directed
+and unsigned statistics describe complementary aspects of that discrepancy. The adjusted
+reference distributions account for the use of the same data to estimate the shift in the
+common-scale Gaussian model. Using a common critical value for the two unsigned statistics
+would have obscured much of the evidence for independently varying spread in our simulations.
 
-\section{Conclusion}
+These diagnostics complement a proper score. A proper score assesses overall predictive
+performance on a specified outcome scale, and a score decomposition can attribute some of that
+performance to calibration \citep{gneiting2023}. Our distances give equal weight across PIT
+ranks and use probability units. In the EpiEstim example the overall score improved while the
+nominal intervals covered fewer reference values. Reporting interval width, bias and coverage
+with the PIT statistics makes that distinction interpretable. The adjusted scores alone would
+also discard information about the systematic overestimation of $R_t$.
 
-In this paper we introduce a novel metric of probabilistic estimator calibration, the adjusted PIT-Wasserstein distance. We show that this works well to specifically identify issues with calibration independent of bias and sharpness. Further work is required to characterise the behaviour of this in small samples, and to identify thresholds for significance.
+Three limitations affect their use. First, pooling assumes that a single location shift is a
+meaningful summary. Opposite biases by forecast horizon or subgroup can average out in the PIT
+distribution and require separate evaluation. Second, the projected-bridge calculation uses a
+common Gaussian scale on the link scale. A family-specific projection or a simulation that
+reproduces the forecast scales, the fitted shift and any dependence would be needed to justify
+comparable tests in other settings. Third, the ordinary PIT assumes continuous univariate
+predictions. Discrete outcomes require an appropriate randomised transform
+\citep{brockwell2007}, with that extra variation carried through the analysis. Multivariate
+outcomes require a choice of joint diagnostic.
 
-% TODO: needs updating
+For independent predictions from the reference model, the three statistics can be accompanied
+by large-sample $p$-values. In settings such as rolling epidemic estimates, the scores retain
+a descriptive interpretation even when their nominal thresholds do not apply. The R package
+\texttt{pitw} provides \texttt{pit\_w()} for individual sets of predictions and
+\texttt{prediction\_scores()} for grouped comparisons with CRPS and coverage. The
+\href{https://ai4ci.github.io/pit-wasserstein/articles/}{package articles} give worked
+examples, and the \vignette{significance-testing}{significance-testing vignette} gives the
+numerical evaluation of the reference distributions.
 
-We describe the selection of metrics that we use to compare probabilistic estimators of $R_t$ in the main paper, and provide a formal definition. These are summarised as follows.
+\appendix
+\section{Numerical evaluation of the tests}
 
-\begin{itemize}
- \item Overall:
- \begin{itemize}
-  \item the average continuous rank probability score (CRPS). Lower values imply better predictions.
- \end{itemize}
- \item Bias:
- \begin{itemize}
-  \item the exponent of the average error on a logarithmic scale. Like $R_t$ this is a multiplicative measure and values closer to 1 are better.
-  \item the average of the universal residuals. Values closer to zero are better.
- \end{itemize}
- \item Sharpness:
- \begin{itemize}
-  \item the 50\% prediction interval width. Lower values are better but only if the estimate is unbiased and correctly calibrated.
- \end{itemize}
- \item Calibration:
-  \begin{itemize}
-  \item the 50\% coverage probability. Ideally this is around 0.5, with lower values representing over-confidence in the estimator and larger values representing an excessively conservative estimator. Bias can affect this metric, and an alternative is the directed PIT-Wasserstein distance.
-  \item the adjusted PIT-Wasserstein distance. In general lower values are better, but the trade off between sharpness and calibration has to be considered.
-  \end{itemize}
+For completeness, write $a'_j$ for the negative zeros of the derivative of the Airy function
+$\mathrm{Ai}$, ordered by increasing magnitude, and $d_j=|a'_j|/2^{1/3}$. The series of
+\citet{johnson-killeen-1983} for equation~\eqref{eq:baseline-limit} is
+\begin{align*}
+ \Pr(L_B\leq x)&=\sqrt{\pi/2}\sum_{j\geq1}d_j^{-3/2}
+      \psi\big(x/d_j^{3/2}\big),\qquad x>0,\\
+ \psi(y)&=3^{2/3}y^{-1/3}\exp\{-2/(27y^2)\}\,
+             \mathrm{Ai}\big((3y)^{-4/3}\big).
+\end{align*}
+The package evaluates this series for the baseline statistic and uses normal tail
+probabilities for the directed statistic. The following R code reproduces the
+independent-prediction checks in Section~\ref{sec:simulation} with the median adjustment. The
+locations and errors are in units of one error standard deviation. Run the code in a fresh R
+session so that the random seed also determines the cached adjusted reference.
 
-\end{itemize}
+{\small
+\begin{verbatim}
+library(pitw)
+set.seed(2861)
+critical <- c(B = q_l1_bridge(.95), D = qnorm(.975) / sqrt(48),
+              U = u_pit_significance(NA_real_, 1)$critical_0.05)
+
+rejections <- function(n, bias, ratio, cv, reps) {
+  ranks <- (seq_len(n) - .5) / n
+  rejects <- replicate(reps, {
+    error <- rnorm(n, bias)
+    sd_i <- if (cv == 0) ratio else
+      rlnorm(n, log(ratio), sqrt(log1p(cv^2)))
+    raw <- sort(pnorm(-error / sd_i))
+    adj <- sort(pnorm((median(error) - error) / sd_i))
+    score <- c(B = mean(abs(ranks - raw)),
+               D = mean((ranks - adj) * sign(.5 - ranks)),
+               U = mean(abs(ranks - adj)))
+    sqrt(n) * abs(score) > critical
+  })
+  100 * rowMeans(rejects)
+}
+sapply(c(10, 25, 100, 400), function(n) rejections(n, 0, 1, 0, 4000))
+scenarios <- rbind(c(0, 1, 0), c(1, 1, 0), c(0, .7, 0),
+                   c(0, 1.3, 0), c(0, 1, 1), c(1, 1.3, 0))
+apply(scenarios, 1, function(p) rejections(200, p[1], p[2], p[3], 2000))
+\end{verbatim}
+}
 
 \bibliography{refs}
-
 \end{document}
