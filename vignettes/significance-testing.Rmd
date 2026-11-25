@@ -27,8 +27,9 @@ Each test compares a PIT-Wasserstein score with the values expected under
 its reference model. The scores measure departures of the probability
 integral transform (PIT) values from uniformity. The reference
 distributions are large-sample approximations and assume independent PIT
-values. Estimates from overlapping windows can share observations, as in
-the [EpiEstim example](sir-epiestim-example.html).
+values. In the [EpiEstim example](sir-epiestim-example.html), each series
+contributes one estimate at a given window setting. Pooling the five settings
+would count the same series several times.
 
 The [worked example](#in-practice) uses 120 normal forecasts with a common
 location bias and reported standard deviations smaller than the spread of
@@ -113,7 +114,7 @@ KS takes the worst single point ($L^\infty$). Cramér–von Mises takes the mean
 square ($L^2$). **Ours takes the mean absolute gap (the $L^1$ norm), which is
 the area between the empirical CDF and the diagonal.** That area is exactly
 the 1-Wasserstein distance between the PIT distribution and the uniform, which
-is why the metric is called what it is.
+gives the continuous reference for our midpoint approximation.
 
 Using the whole difference gives weight to small departures that persist
 across the PIT range. The Kolmogorov–Smirnov statistic uses the largest
@@ -149,7 +150,7 @@ $$
 W(u) = \frac1n\sum_{i=1}^n \left| r_i - u_{(i)} \right|
 $$
 
-and one signed variant, in which the absolute value is replaced by a weight
+and one signed variant, in which the signed discrepancy is multiplied by a weight
 that is $+1$ in the lower half of the distribution and $-1$ in the upper, so
 that over- and under-dispersion cancel rather than accumulate:
 
@@ -162,19 +163,16 @@ $\hat\delta = \mathrm{median}_i\left(g(m_i) - g(x_i)\right)$ for predictive
 medians $m_i$, applies it to the observations, and re-computes the PITs. Write
 $u^{adj}$ for the result. The three metrics are then
 
-| Metric | Definition | $H_0$ |
+| Metric | Definition | Large-sample reference |
 |---|---|---|
-| $B_{pit}$ | $W(u)$ | the PIT values are iid $\mathrm{Uniform}(0,1)$ |
-| $D_{pit}$ | $D(u^{adj})$ | dispersion is correct, **location arbitrary** |
-| $U_{pit}$ | $W(u^{adj})$ | shape is correct, **location arbitrary** |
+| $B_{pit}$ | $W(u)$ | Independent uniform PIT values |
+| $D_{pit}$ | $D(u^{adj})$ | Independent Gaussian errors with a common standard deviation on the link scale and a fitted median shift |
+| $U_{pit}$ | $W(u^{adj})$ | The same fitted Gaussian model |
 
-$B$ for *baseline*: it is the omnibus test, directly analogous to KS, and the
-other two refine it. $B_{pit}, U_{pit} \in [0,\tfrac12]$ and
-$D_{pit} \in [-\tfrac14,\tfrac14]$, positive for an over-confident estimator.
-
-The nulls are nested (each is strictly weaker than the one before), so the
-three read as a diagnosis rather than as three separate tests. Section 7
-tabulates how.
+The baseline distance describes pooled PIT uniformity. The adjusted scores
+measure the direction and magnitude of the departure left after fitting a
+common shift. Their marginal tests use the same observations and may reject
+together.
 
 ```{r metrics}
 # Row-wise metrics on a matrix of PIT values: one replicate per row.
@@ -191,7 +189,8 @@ null_pit <- function(n, reps = 4000) matrix(runif(n * reps), reps, n)
 
 ## 3. The null of `B_pit`: an explicit formula
 
-$B_{pit}$ is the $L^1$ norm of the empirical process, so
+The difference between the midpoint distance and the distance to continuous
+uniformity is at most $1/(4n)$. They therefore have the same scaled limit,
 
 $$
 \sqrt{n}\,B_{pit} \;\Rightarrow\; \int_0^1 \left| B^\circ(t) \right| \mathrm{d}t
@@ -226,9 +225,9 @@ tibble(
 )
 ```
 
-So the 5% test is $B_{pit} > 0.5821/\sqrt n$, and `b_pit_significance()`
-returns the exact $p$-value. Checking the whole thing against the finite-sample
-statistic:
+At the nominal 5% level we compare $B_{pit}$ with $0.5821/\sqrt n$.
+`b_pit_significance()` evaluates the limiting distribution. The table below
+compares it with independent uniform samples of finite size.
 
 ```{r b-null}
 map_dfr(c(25L, 50L, 100L, 400L), function(n) {
@@ -294,11 +293,10 @@ tibble(
 )
 ```
 
-The signed functional matches $1/48$ closely. The absolute functional comes
-out slightly *above* $\sqrt{2\pi}/8$: approximating $\int|B^\circ|$ on a finite
-grid is biased upward, because the discretisation cannot see the excursions
-that cross zero between grid points. The bias is $O(m^{-1/2})$ and is a
-property of this check, not of the metric.
+The simulated variance and mean can be compared with $1/48$ and
+$\sqrt{2\pi}/8$, respectively. Both the finite integration grid and the
+number of simulated paths affect this comparison. The next table uses raw
+uniform PITs to check the signed functional before fitting a shift.
 
 ```{r d-null}
 map_dfr(c(10L, 25L, 50L, 100L, 400L), function(n) {
@@ -310,10 +308,9 @@ map_dfr(c(10L, 25L, 50L, 100L, 400L), function(n) {
 })
 ```
 
-The variance constant is attained essentially exactly from $n = 25$. The size
-is mildly inflated at very small $n$, because the normal approximation to a sum of
-order statistics converges from above, so for $n \lesssim 50$ the closed-form
-critical value should be treated as approximate.
+The simulation compares the finite-sample variance with $1/48$ on the
+scaled statistic. At small sample sizes the two-sided test can reject more
+often than its nominal 5% level.
 
 ## 5. The reference distribution for adjusted PIT values
 
@@ -378,13 +375,12 @@ pmap_dfr(crossing(n = c(25L, 76L, 400L), kappa = c(0, 0.5)),
 })
 ```
 
-Two things to take from that table. The 5% critical value for $U_{pit}$ is a
-stable **two thirds** of the one for $B_{pit}$, at every $n$ and at both
-levels of heteroscedasticity, and the stability across $\kappa$ is the evidence
-that the adjusted null is still distribution-free. And using Section 3's
-critical value for $U_{pit}$ would be badly conservative: at $n = 76$, a
-$U_{pit}$ of $0.05$ carries $p = 0.165$ against the baseline null and
-$p = 0.022$ against the correct one.
+Under the common-scale Gaussian model the 5% critical value for $U_{pit}$
+is about two-thirds of the baseline value. The rows with varying forecast
+scales check one particular simulation. Other families or patterns of
+variation can change the reference distribution. For illustration the two
+package functions assign different tail probabilities to a score of 0.05
+with 76 independent predictions.
 
 ```{r conservative}
 bind_rows(
@@ -393,26 +389,20 @@ bind_rows(
 )
 ```
 
-**The adjustment is free for $D_{pit}$ and costly for $U_{pit}$.** $D_{pit}$ is
-already orthogonal to a location shift, so there is no direction left for the
-adjustment to remove and its null is $\mathcal{N}(0, 1/48n)$ either way. This
-asymmetry is worth remembering when choosing which statistic to lead with.
+In the common-scale Gaussian model the location correction is symmetric
+about the median. It integrates to zero against the antisymmetric weight
+of $D_{pit}$. The same correction changes the absolute area used by $U_{pit}$.
 
-## 6. Where the adjustment has to live
+## 6. Choosing a scale for the adjustment
 
-The null above is only useful if the adjustment is the one we actually want,
-and there is a real constraint here worth stating.
+### 6a. Link-scale and probit adjustments
 
-### 6a. Not in PIT space
-
-A natural idea is to adjust in PIT space, by subtracting a centring statistic
-from $\Phi^{-1}(u_i)$, but an adjustment that is a function of the $u_i$
-alone is automatically distribution-free. It does not work.
+The package offers a median adjustment on the link scale or on the probit
+scale. The paper uses the link scale to represent a common location bias.
 
 Bias is a location error in $x$-space. An $x$-space shift $\delta$ becomes a
-**heterogeneous** shift $\delta/\sigma_i$ in probit space, so a single common
-probit shift over-corrects confident predictions and under-corrects uncertain
-ones. Under homoscedasticity the two coincide; under heteroscedasticity they
+**heterogeneous** shift $\delta/\sigma_i$ in probit space, so the correction required on the probit scale depends on the
+forecast standard deviation. Under homoscedasticity the two coincide; under heteroscedasticity they
 diverge, and the symptom is a loss of the log-calibration symmetry of the
 metric.
 
@@ -426,8 +416,7 @@ $$F_{1/s}(p) = \Phi\!\left(s\,\Phi^{-1}(p)\right) = F_s^{-1}(p)$$
 Inverting a monotone function reflects its graph in the diagonal, which
 preserves the area between graph and diagonal. So $\int_0^1|F_s(p)-p|\,dp$ is
 *exactly* invariant under $c \leftrightarrow 1/c$: an estimator twice too wide
-and one twice too narrow score identically. Any observed asymmetry is an
-artefact of the adjustment.
+and one twice too narrow score identically. The identity concerns population distances for constant scales.
 
 ```{r symmetry}
 asymmetry <- function(c_cal, n = 2000, reps = 400) {
@@ -436,7 +425,7 @@ asymmetry <- function(c_cal, n = 2000, reps = 400) {
   e  <- matrix(rnorm(n * reps), reps, n) + b
   sc <- matrix(rlnorm(n * reps, log(c_cal), sqrt(log(k^2 + 1))), reps, n)
   z  <- -e / sc
-  c(link_space  = mean(pit_metrics(pnorm((-e + rowMeans(e)) / sc))$W),
+  c(link_space  = mean(pit_metrics(pnorm((-e + apply(e, 1, median)) / sc))$W),
     probit_mean = mean(pit_metrics(pnorm(z - rowMeans(z)))$W),
     probit_med  = mean(pit_metrics(pnorm(z - apply(z, 1, median)))$W))
 }
@@ -445,21 +434,18 @@ tibble(adjustment = names(hi), U_at_c_2 = hi, U_at_c_half = lo,
        asymmetry_pct = 100 * (hi - lo) / ((hi + lo) / 2))
 ```
 
-The link-scale adjustment used by `pit_w()` is symmetric to within Monte Carlo
-error; the probit alternatives are not. This is a genuine constraint, not a
-tuning problem: **an adjustment that is a function of the $u_i$ alone cannot
-know the $\sigma_i$, so a trivially distribution-free null and exact
-bias-invariance under heteroscedasticity cannot both hold.** We keep
-bias-invariance and pay for the null in Section 5.
+With varying scales, the link adjustment removes the simulated common
+bias in outcome units. Centring the probits instead removes a common shift
+in standardised errors. The two operations answer different questions.
 
-### 6b. And it leaves `D_pit` untouched
+### 6b. Directed scores after fitting the shift
 
 ```{r adjustment-null}
 adjusted_null <- function(n, bias, kappa, reps = 4000) {
   e  <- matrix(rnorm(n * reps), reps, n) + bias
   sc <- if (kappa == 0) matrix(1, reps, n) else
         matrix(rlnorm(n * reps, 0, sqrt(log(kappa^2 + 1))), reps, n)
-  d  <- pit_metrics(pnorm((-e + rowMeans(e)) / sc))$D
+  d  <- pit_metrics(pnorm((-e + apply(e, 1, median)) / sc))$D
   tibble(n, bias, kappa, n_var_D = n * var(d),
          size = mean(d_pit_significance(d, n)$p_value < 0.05))
 }
@@ -472,17 +458,16 @@ With $\kappa = 0$, the location adjustment cancels to first order in the
 Gaussian limit. In the simulation, $n\mathrm{Var}(D)$ stays near $1/48$ and
 the rejection rate is close to nominal with or without a common bias.
 
-With $\kappa > 0$ the variance inflates and does not shrink with $n$, so it is
-an asymptotic effect rather than a small-sample artefact. The next section
-explains why that is not a defect.
+At $\kappa>0$ reported spreads vary independently of the size of the errors.
+The rejection proportions in those rows describe a departure from the
+reference model.
 
 ## 7. What exactly is the null hypothesis?
 
-The inflation above is not size distortion, because $\kappa > 0$ is **not a
-calibrated estimator**, even when the median dispersion is exactly right. A
-scale mixture of normals is heavier-tailed than a normal, so some predictions
-are over-confident and others under-confident, and the PIT values are not
-uniform:
+The following simulation keeps the median reported spread equal to the
+error standard deviation and varies the spread from case to case. We
+compare the resulting PIT tail frequency with the 10% expected under
+uniformity.
 
 ```{r kappa-not-null}
 map_dfr(c(0, 0.25, 0.5, 1, 2), function(k) {
@@ -501,13 +486,10 @@ So $H_0$ for $B_{pit}$ is not "the median predictive width is correct". It is
 PIT uniformity, which in this simulation family requires the dispersion ratio
 $c = 1$ *and* $\kappa = 0$.
 
-It is worth being precise about what $\kappa > 0$ represents. The failure is
-not heterogeneity of $\sigma_i$ as such, because if the stated uncertainty varied *in
-step with* the realised per-prediction error the PIT values would be uniform
-and the estimator perfectly calibrated, which is what a good heteroscedastic
-model achieves. Here $\sigma_i$ varies *independently* of the realised error,
-so what is penalised is **spread–error decoupling**: uncertainty that varies
-without being informative.
+Here $\kappa>0$ means that the reported spread varies independently of the
+error distribution. A correctly specified heteroscedastic forecast can also
+report different spreads. If the conditional distribution of the outcome
+matches each forecast, the PIT values are uniform.
 
 ## 8. Reading the three tests together
 
@@ -519,7 +501,7 @@ sweep_c <- function(c_cal, kappa, n = 20000, reps = 100) {
   e  <- matrix(rnorm(n * reps), reps, n)
   sc <- if (kappa == 0) matrix(c_cal, reps, n) else
         matrix(rlnorm(n * reps, log(c_cal), sqrt(log(kappa^2 + 1))), reps, n)
-  m <- pit_metrics(pnorm((-e + rowMeans(e)) / sc))
+  m <- pit_metrics(pnorm((-e + apply(e, 1, median)) / sc))
   tibble(c_cal, kappa, U = mean(m$W), D = mean(m$D))
 }
 pmap_dfr(crossing(c_cal = c(0.5, 0.8, 1, 1.25, 2), kappa = c(0, 0.5, 1, 2)),
@@ -528,17 +510,14 @@ pmap_dfr(crossing(c_cal = c(0.5, 0.8, 1, 1.25, 2), kappa = c(0, 0.5, 1, 2)),
   print(width = Inf)
 ```
 
-$\mathbb{E}[D_{pit}]$ is zero at $c = 1$ for **every** $\kappa$, because the root
-does not move, whereas $\mathbb{E}[U_{pit}]$ at $c = 1$ rises steadily with
-$\kappa$. The mechanism is that a lognormal scale mixture is *leptokurtic*:
-excess mass at the edges **and** at the centre with a deficit in between, so
-the PIT histogram under $\kappa > 0$ is W-shaped rather than U-shaped.
-$D_{pit}$ weights edge and centre departures with opposite signs so they
-cancel; the absolute-value metrics accumulate them.
+In this simulation the average directed score stays near zero at $c=1$ as
+$\kappa$ increases. The average unsigned score increases. Independent
+variation in the scales can put excess PIT mass both near the endpoints
+and near the centre. Some departures then cancel in the directed score.
 
-Because the three nulls are nested, the three tests read down as a diagnosis.
-Rather than assert the pattern, here is the rejection rate of each test under
-five known failure modes, $n = 200$, nominal 5%:
+At $n=200$, what fraction of replicate sets gives a rejection at the
+nominal 5% threshold? We calculate all three proportions for each of six
+scenarios, fitting a separate median shift in each replicate.
 
 ```{r power}
 scenario <- function(label, bias, c_cal, kappa, n = 200L, reps = 400) {
@@ -546,7 +525,7 @@ scenario <- function(label, bias, c_cal, kappa, n = 200L, reps = 400) {
   sc <- if (kappa == 0) matrix(c_cal, reps, n) else
         matrix(rlnorm(n * reps, log(c_cal), sqrt(log(kappa^2 + 1))), reps, n)
   B  <- pit_metrics(pnorm(-e / sc))$W                       # unadjusted
-  m  <- pit_metrics(pnorm((-e + rowMeans(e)) / sc))         # adjusted
+  m  <- pit_metrics(pnorm((-e + apply(e, 1, median)) / sc))         # adjusted
   tibble(label, bias, c_cal, kappa,
          B_pit = mean(b_pit_significance(B, n)$p_value < 0.05),
          D_pit = mean(d_pit_significance(m$D, n)$p_value < 0.05),
@@ -563,31 +542,13 @@ pmap_dfr(tribble(
 ), scenario)
 ```
 
-which gives the read-down:
-
-| $B_{pit}$ | $D_{pit}$ | $U_{pit}$ | Reading |
-|---|---|---|---|
-| not rejected | — | — | calibrated |
-| rejected | not rejected | not rejected | pure location error (bias) |
-| — | rejected | rejected | dispersion error; sign of $D_{pit}$ gives the direction |
-| — | not rejected | rejected | right median width, wrong shape (skew, tails, or spread–error decoupling) |
-| rejected | rejected | rejected | location *and* dispersion error |
-
-Note the row that is easy to get wrong: a genuine dispersion error moves
-**both** $U_{pit}$ and $D_{pit}$, because $U_{pit}$ is undirected and
-accumulates any departure. What distinguishes a width error from a shape error
-is not whether $U_{pit}$ fires but whether $D_{pit}$ does alongside it.
-
-Note also that in the spread–error decoupling row the *adjusted* test is the
-more powerful one: $U_{pit}$ rejects about 69% of the time where the omnibus
-$B_{pit}$ manages 19%. Paying for a tighter null buys power, once a location
-error is no longer something you need the test to notice.
-
-Two cautions. The three statistics come from the same PIT values and are not
-independent, so this is a read-down from a single rejection and not three
-tests each at the 5% level. And the shape row is evidence of *some* residual
-departure, because a wrong distributional family or tail misspecification would also
-land there, rather than an identification of $\kappa$.
+A common shift produces a large baseline distance in this simulation.
+A pure width error can also produce a large baseline distance and can cause
+all three tests to reject. The sign of $D_{pit}$ then gives the net direction
+of the remaining error. Under independently varying spread, $U_{pit}$ can
+detect departures that largely cancel in $D_{pit}$. A shape error can give
+a similar pattern. The table reports marginal rejection rates for known
+scenarios. It supplies neither a unique diagnosis nor a joint 5% test.
 
 ## 9. In practice
 
@@ -622,12 +583,10 @@ can be applied directly to a table of scored forecasters.
 
 ## 10. Caveats
 
-**Independence.** Every null here rests on the PIT values being independent.
-$n$ is the number of *independent* predictions. Overlapping forecast windows,
-such as rolling $R_t$ estimates or multi-horizon forecasts from one model run, violate
-this and inflate apparent significance. There is no correction built in; the
-honest options are to thin to non-overlapping predictions or to treat the
-$p$-values as optimistic.
+**Independence.** Here $n$ counts independent predictions. Rolling estimates
+from one series may share observations or be correlated even when their
+windows do not overlap. The nominal thresholds can then misstate the
+evidence. In the EpiEstim study each comparison uses independent replicates.
 
 **Small $n$.** All three tests use limiting reference distributions. In the
 simulated Gaussian setting, the $D_{pit}$ normal approximation is mildly
@@ -660,8 +619,8 @@ asks the unconditional question and does not estimate anything from the sample.
 
 * The PIT values of a calibrated forecaster are uniform, so the gap between
   their empirical CDF and the diagonal converges to a **Brownian bridge**.
-  Every goodness-of-fit statistic is a norm on that gap; ours is the $L^1$
-  norm, where Kolmogorov–Smirnov is $L^\infty$.
+  The limiting Wasserstein statistic uses its $L^1$ norm and
+  Kolmogorov–Smirnov uses its supremum.
 * $\sqrt n\,B_{pit} \Rightarrow \int_0^1|B^\circ|$, with an explicit CDF from
   Johnson & Killeen (1983): a 5% critical value of $0.5821/\sqrt n$.
 * $\sqrt n\,D_{pit} \Rightarrow \mathcal{N}(0, 1/48)$ under the stated
@@ -674,5 +633,5 @@ asks the unconditional question and does not estimate anything from the sample.
   bias-invariance under heteroscedasticity is lost.
 * $H_0$ is PIT uniformity, which is stronger than "the median width is
   correct": spread–error decoupling is an alternative, not a null.
-* Report all three with their $p$-values and read them down as a diagnosis,
-  remembering that they are not independent of one another.
+* Report all three with their $p$-values and interpret them alongside the fitted shift
+  and the forecast design. The three tests use the same predictions.

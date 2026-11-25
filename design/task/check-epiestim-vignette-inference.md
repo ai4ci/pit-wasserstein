@@ -2,7 +2,7 @@
 class: task
 id: check-epiestim-vignette-inference.md
 title: Revisit the EpiEstim reference values and inference with overlapping windows
-status: todo
+status: done
 kind: issue
 priority: high
 touches:
@@ -22,3 +22,5 @@ Keep the comparison descriptive until a supported reference accounts for the ove
 The figure also colours the panels by the current significance calls. Review those colours and any legend or caption alongside the numerical interpretation.
 
 The example also describes seven-day windows and exclusion of windows without cases. The actual EpiEstim index pairs are 7–14 through 93–100 inclusive (eight counts), and the filter is on positive counts on the matched reference day. The incidence vector starts at simulation day zero but t_end is a one-based row index. Joining t_end to the simulation day places the reference one day after the last incidence in the window. Check whether this alignment was intended before changing the example. The paper describes the calculation as run.
+
+**Review of 25 November 2026.** The revised calculation has 100 independent series per score at each fixed window. The figure uses colour for the five windows and the vignette distinguishes the baseline and fitted references. The window convention and one-day reference offset are documented as run and tracked in the [reference-day issue](confirm-epiestim-window-and-reference-day.md).

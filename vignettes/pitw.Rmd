@@ -53,8 +53,8 @@ interval width and the continuous ranked probability score (CRPS).
 2. [The three PIT-Wasserstein scores](pit-w-metrics.html). See how the scores
    are calculated and how they behave alongside coverage and CRPS.
 3. [Scoring reproduction number estimates from EpiEstim](sir-epiestim-example.html).
-   Compare estimates with known $R_t$ across simulated epidemics of different
-   sizes.
+   Compare five window settings across epidemic sizes, scoring one $R_t$
+   estimate per independent series at each setting.
 4. [Significance testing](significance-testing.html). See how to use the
    reference distributions and which assumptions matter for interpretation.
 5. [Sample size and power](sample-sizes-and-power.html). Compare how the scores

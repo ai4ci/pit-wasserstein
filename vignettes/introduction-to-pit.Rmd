@@ -167,7 +167,7 @@ configuration_plot(config, labels=FALSE, xlim=c(-4,6))
 ```
 
 The three predictions come from an unbiased estimator with the correct
-average width. The narrow prediction on the left has a large error and the
+typical width. The narrow prediction on the left has a large error and the
 wide prediction on the right lies close to the reference value.
 
 In this simulation, reported uncertainty varies independently of the error.
@@ -265,7 +265,9 @@ fig2_pit
 ```
 
 The centre panel shows the histogram for the calibrated simulation. The
-remaining panels illustrate the following patterns.
+remaining panels illustrate the patterns below. Several kinds of error can
+produce the same pooled histogram, particularly when forecasts come from
+different groups.
 
 | PIT histogram | Scenario illustrated |
 |---|---|
@@ -318,8 +320,8 @@ tab1
 - `vignette("significance-testing")` — their null distributions, so that a
   value can be reported with a $p$-value.
 - `vignette("sample-sizes-and-power")` — how many predictions you need.
-- `vignette("sir-epiestim-example")` — the whole thing applied to a real
-  estimator.
+- `vignette("sir-epiestim-example")` — how case counts and window choice affect intervals for
+  $R_t$, using one estimate per independent simulated series at each setting.
 
 
 ```{r}
@@ -329,5 +331,3 @@ tab1
 #     size = std_size$half
 #   )
 ```
-
-

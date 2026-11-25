@@ -13,7 +13,10 @@ by `loom render` from `design/document-model.mmd`.
 | uri | status |
 | --- | --- |
 | [Significance test for H0: estimator is dispersion-calibrated](../plan/dispersion-calibration-significance-test.md) | active |
+| [Assess multivariate predictive distributions through their copulas](../plan/multivariate-copula-calibration.md) | draft |
 | [Rewrite the appendix as a standalone methods paper](../plan/paper-rewrite.md) | active |
+| [Score forecasts supplied as draws or quantiles](../plan/prediction-distribution-inputs.md) | draft |
+| [Significance tests for serially dependent forecasts](../plan/serially-dependent-forecasts.md) | draft |
 <!-- loom view: activePlans end -->
 
 ## Open tasks
@@ -22,15 +25,20 @@ by `loom render` from `design/document-model.mmd`.
 
 | uri | status | priority |
 | --- | --- | --- |
-| [Revisit the EpiEstim reference values and inference with overlapping windows](../task/check-epiestim-vignette-inference.md) | todo | high |
+| [Clarify Figure 4 and the limits of the EpiEstim comparison](../task/clarify-epiestim-figure-and-inference.md) | todo | high |
 | [Package documentation describes limiting PIT-Wasserstein tests as exact](../task/clarify-pit-test-reference-approximations.md) | todo | high |
-| [Qualify vignette claims about what PIT departures identify](../task/qualify-vignette-diagnostic-interpretation.md) | todo | high |
+| [Confirm the EpiEstim observation windows and reference day](../task/confirm-epiestim-window-and-reference-day.md) | todo | high |
 | [Integrate JMLR LaTeX style file for the paper](../task/integrate-jmlr-latex-style.md) | doing | high |
-| [Reconcile vignette metric explanations with the formulas and figures](../task/correct-metrics-vignette-interpretation.md) | todo | medium |
-| [Correct the sample-size vignette descriptions of the plots and power](../task/correct-power-vignette-interpretation.md) | todo | medium |
 | [Find or tabulate a c.d.f. for the bias-adjusted U_pit null](../task/derive-cdf-of-the-adjusted-u-pit-null.md) | todo | medium |
 | [Huxtable PDF export unit test fails in scoder](../task/hux-pdf-export-test-fails-in-scoder.md) | todo | medium |
 | [Verify GitHub license recognition for Reservoir](../task/verify-reservoir-license-detection.md) | todo | medium |
+| [Clarify what the three statistics can diagnose](../task/clarify-calibration-and-diagnostic-claims.md) | todo | medium |
+| [Clarify common shifts and the fitted Gaussian reference](../task/clarify-location-shift-and-fitted-reference.md) | todo | medium |
+| [Clarify the replicate ranges and power statements in Figures 2 and 3](../task/clarify-power-and-replicate-envelopes.md) | todo | medium |
+| [Gather the supporting materials at one online address](../task/online-supporting-materials.md) | todo | medium |
+| [Accept posterior samples via an empirical CDF](../task/score-posterior-sample-forecasts.md) | todo | medium |
+| [Accept forecasts specified by predictive quantiles](../task/score-quantile-forecasts.md) | todo | medium |
+| [Separate PIT construction and adjustment from metric calculation](../task/separate-pit-construction-and-scoring.md) | todo | medium |
 | [Correct the DOI for Johnson and Killeen (1983)](../task/verify-johnson-killeen-doi.md) | todo | low |
 | [Expose Lean declarations as Loom source anchors](../task/expose-lean-declarations-in-loom.md) | todo | low |
 <!-- loom view: openTasks end -->

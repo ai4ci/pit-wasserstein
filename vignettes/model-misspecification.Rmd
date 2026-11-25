@@ -41,17 +41,12 @@ parameters to match forecasts across families.
 
 The construction uses the fact that `lnorm4` and `gamma4` are scale families.
 Draw a multiplicative error $w_i \sim \mathcal{T}(\text{median}=1, \kappa)$
-from the *true* family $\mathcal{T}$, and place the forecast at
-$\ell_i = x/w_i$. Then
-
-$$
-x \;=\; \ell_i w_i \;\sim\; \mathcal{T}(\text{median}=\ell_i,\ \kappa)
-$$
-
-so a forecaster reporting $\mathcal{T}(\ell_i, \kappa)$ is **exactly
-calibrated** by construction. A forecaster reporting a different family
-$\mathcal{R}(\ell_i, \kappa)$ — same median, same coefficient of variation — is
-wrong in shape and in nothing else.
+from the generating family $\mathcal{T}$, and place the forecast median at
+$\ell_i=x/w_i$, with the reference fixed at $x=1$. If $F_W$ is the CDF of
+the generating error, the PIT under the matching forecast family is
+$F_W(x/\ell_i)=F_W(w_i)$, which is uniform across independent draws.
+Reporting another family at the same median and coefficient of variation
+lets us measure the change in these PITs.
 
 ```{r construction}
 # One estimator: n predictions of a true value of 1, errors from `truth`,
@@ -141,11 +136,12 @@ The scores for mismatched families began to cross the reference thresholds
 around $\kappa = 0.4$ in these simulations. At $\kappa = 0.2$, the scores
 shown remained within the thresholds.
 
-The sign of $D_{pit}$ changed when we exchanged the gamma and lognormal
-families. When we reported normal forecasts for either of the two skewed
-generating families, $D_{pit}$ stayed near zero while $U_{pit}$ increased.
-Departures on opposing sides of the distribution can cancel in the directed
-score while still contributing to the undirected score.
+For example, at $\kappa=0.8$ a lognormal forecast for gamma errors gave a
+median directed score of about $+0.033$, indicating net overconfidence.
+Exchanging the two families gave about $-0.033$, indicating net
+underconfidence. When we reported a normal forecast, the unsigned distance
+exceeded the absolute directed score for both generating families. Some of
+the departure therefore cancelled in the directed score.
 
 # 3. Comparing changes in shape and width
 
@@ -184,28 +180,16 @@ bind_rows(width_error, shape_error) |>
   theme(legend.position = "bottom", legend.direction = "vertical")
 ```
 
-A **pure width error sits on the diagonal**: $U_{pit} = |D_{pit}|$ almost
-exactly, because stating intervals uniformly too narrow pushes the PIT values
-toward both ends in a way that the signed weight accumulates rather than
-cancels.
+In the width experiment, the points lie close to the diagonal
+$U_{pit}=|D_{pit}|$. Most PIT departures contributed in the same direction.
+Exchanging gamma and lognormal distributions at matched median and
+coefficient of variation produced a similar pattern. These scores alone
+give little basis for choosing between the two explanations.
 
-In these simulations, the tail-weight differences produced a pattern of
-scores similar to that from changing the reported width. The gamma and
-lognormal comparisons at matched median and $\kappa$ also sit close to the
-diagonal.
-
-A **skew mismatch sits well above the diagonal**, with ratios of 3–20. Fitting
-a symmetric family to a skewed one produces a departure the signed metric
-cancels, so $U_{pit} \gg |D_{pit}|$.
-
-So the practical rule is the one the three-part test already implies, now with
-a concrete cause attached:
-
-| Pattern | Diagnosis |
-|---|---|
-| $U_{pit} \approx \lvert D_{pit}\rvert$, both significant | net dispersion error — stated width wrong, **or** tail weight wrong |
-| $U_{pit} \gg \lvert D_{pit}\rvert$ | asymmetry mismatch — a symmetric family fitted to a skewed quantity |
-| only $B_{pit}$ significant | location error, family and width fine |
+Reporting a normal distribution for the positive, skewed observations gave
+larger $U_{pit}$ relative to $|D_{pit}|$. Opposing contributions cancelled in
+the signed score. The same pattern could arise from errors that differ
+between subgroups.
 
 # 4. Bias adjustment with skewed errors
 
@@ -241,27 +225,18 @@ bias_sweep |>
   labs(x = "multiplicative bias", y = NULL, colour = NULL, fill = NULL)
 ```
 
-$B_{pit}$ increased with the size of the location shift. The two adjusted
-scores were unchanged across the values of $b$ studied, including $b = 2$,
-for all the reported families in this simulation.
+As the multiplicative bias increased, so did the baseline distance in these
+simulations. At a fixed set of draws, multiplying every forecast by the same
+factor adds a constant to the fitted log shift. The adjusted PITs are then
+unchanged. The plotted groups use fresh draws at each bias level and show
+the sampling variation around this result.
 
-# 5. Summary and caveats
+# 5. Scope of the comparison
 
-- A pure family mismatch — right median, right coefficient of variation, wrong
-  shape — **is** detected, from around $\kappa \approx 0.4$ upward.
-- A **tail-weight** mismatch is indistinguishable from a width error, because
-  it produces the same PIT values. The metrics report the net realised
-  dispersion error, which is the honest answer to the question they are asked.
-- A **skew** mismatch has its own signature, $U_{pit} \gg |D_{pit}|$, which no
-  width error produces.
-- The median-based bias adjustment remains exactly bias-invariant under skewed
-  errors, including when the predictive family is simultaneously wrong.
-
-Caveats. All of this holds the median and coefficient of variation matched exactly; a real misspecified model usually gets those slightly wrong too, so
-the signatures above will be mixed rather than pure. The families compared here
-are the realistic ones for positive skewed quantities, and nothing is claimed
-about heavy-tailed symmetric alternatives such as a $t$ distribution, which the
-package does not currently provide in the four-parameter form. And a normal
-family fitted to a positive quantity places mass below zero; at the larger
-$\kappa$ values here that is part of what is being detected, which is realistic
-but means the effect is not purely one of skew.
+The reported and generating distributions shared a median and coefficient
+of variation in the family comparisons. At the higher coefficients of
+variation, reporting a normal forecast also put appreciable probability
+below zero. The observed discrepancy can therefore include a difference
+in support as well as skew or tail weight. The horizontal reference lines
+use the independent uniform PIT model for $B_{pit}$ and the fitted
+common-scale Gaussian approximation for the two adjusted scores.

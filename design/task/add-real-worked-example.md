@@ -1,7 +1,7 @@
 ---
 class: task
 id: add-real-worked-example.md
-title: 'EpiEstim on simulated SEIR data: differential calibration at low vs high prevalence'
+title: 'Evaluate EpiEstim across epidemic sizes and estimation windows'
 status: done
 kind: feature
 priority: high
@@ -11,6 +11,12 @@ touches:
 produces:
 - resource:fig4-epiestim-by-epi-size.pdf
 ---
+Figure 4 and its supplementary vignette use a deterministic SIR trajectory, 100 population sizes and 100 independent observation series per size. Each series supplies a single randomly chosen endpoint for all five windows. We score one estimate per series within each size and window. The earlier proposal for a within-epidemic low/high prevalence comparison was superseded. The [study design](../doc/paper-rewrite-skeleton.md#7-epiestim-across-epidemic-sizes-and-estimation-windows) and [reference-day issue](confirm-epiestim-window-and-reference-day.md) document the calculation used in the figure.
+
+## Earlier design and results (superseded)
+
+The following records the original experiment. Its sample counts, figure numbering and numerical results predate the independent-replicate design above.
+
 Concrete scope agreed with the user 2026-11-13, replacing the earlier
 "depends on data availability" framing — this doesn't need real surveillance
 data, it needs one new simulation plus a genuinely external, independent

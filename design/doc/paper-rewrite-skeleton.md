@@ -3,9 +3,7 @@ class: doc
 id: paper-rewrite-skeleton.md
 title: Paper rewrite skeleton — narrative structure, arguments, gaps
 ---
-This document lays out the planned structure of the standalone methods paper,
-mapping each section to the narrative goal, key arguments, existing material,
-and open questions. It is a planning artefact — **not yet written prose**.
+This is the original planning outline. The [reviewed manuscript](../../vignettes/main/main.tex) is the current account of the methods and results. Section 7 below records the revised EpiEstim design. The earlier section targets and drafting questions elsewhere in this outline are historical. For outstanding decisions use the [task index](INDEX.md).
 
 ---
 
@@ -157,7 +155,9 @@ $$
 Range $[-0.25, 0.25]$. Positive = overconfident, negative = overconservative,
 zero = median width correct. $B_{pit}, U_{pit} \in [0, 0.5]$.
 
-#### 3.4. Three nested hypotheses
+#### 3.4. Original proposal for nested hypotheses (superseded)
+
+The reviewed manuscript uses marginal tests based on shared observations. Their rejection patterns do not uniquely identify causes. The following was the initial proposal.
 
 **This is the contribution.** The metrics are not competitors; they test
 progressively weaker nulls about the same forecaster.
@@ -208,12 +208,9 @@ statistic — Zhao et al. and Wessel et al. report the distance and stop.
 
 ---
 
-## 4. The Null Distributions (target: ~3 pages) ⭐
+## 4. The null distributions
 
-### Goal
-The **star section**. Three distribution-free nulls, two of them in closed
-form, all depending on $n$ and nothing else. This is what makes the family
-publishable and what the rest of the paper leans on.
+The [independent-prediction plan](../plan/dispersion-calibration-significance-test.md) records the scope adopted in the manuscript. The baseline limit requires independent uniform PITs. The fitted limits below assume a common-scale Gaussian location model. Earlier conjectures of pivotality under arbitrary families or heterogeneous scales were superseded.
 
 ### Content
 
@@ -293,13 +290,7 @@ adjustment is not a free lunch in general.
 
 #### 4.6. What the nulls assume
 
-All three require the PIT values to be **independent**. $n$ is the number of
-independent predictions; serial dependence (overlapping forecast windows, as
-in §7) inflates apparent significance. Say this plainly rather than burying it.
-
-Note also that the three statistics come from the same PIT values and are not
-independent of one another — the §3.4 sequence is a read-down from a single
-rejection, not three tests each at 5%.
+The references assume independent predictions. Section 7 supplies one independent estimate per series within each window setting. The three tests use the same observations and provide marginal significance levels only. Their fitted references assume the common-scale Gaussian location model described in the manuscript.
 
 ### Gaps / decisions
 
@@ -368,7 +359,7 @@ calibration ratio $c \in [0.25, 4]$, sharpness CV $\kappa_{\mathcal{S}} \in [0, 
   Recommendation: yes, but as a **caveat box** or footnote, not a main result. File as a
   pre-existing bug.
 - **Q12:** What is the real-world example?
-  **Status: DONE.** Built as `vignette:seir-example.Rmd`, producing
+  **Status: DONE.** Built as `vignette:sir-epiestim-example.Rmd`, producing
   `resource:fig4-epiestim-by-epi-size.pdf`. It is now its own Section 7 below. The
   SEIR framing was simplified to a deterministic SIR ODE, and the low-vs-high
   prevalence contrast was replaced by a continuous sweep over epidemic size,
@@ -376,7 +367,9 @@ calibration ratio $c \in [0.25, 4]$, sharpness CV $\kappa_{\mathcal{S}} \in [0, 
 
 ---
 
-## 6. The Three-Part Diagnostic (target: ~1.5 pages)
+## 6. Original proposal for a three-part diagnostic (superseded)
+
+The current interpretation treats the scores as complementary summaries and reports marginal rejection rates under specified alternatives. This historical section records the earlier proposed sequence.
 
 ### Goal
 Show the three tests working as one diagnostic procedure. §3.4 states the
@@ -430,76 +423,15 @@ two statistics' magnitudes directly; compare their p values.
 
 ---
 
-## 7. Real-World Example: EpiEstim across epidemic sizes (target: ~2 pages)
+## 7. EpiEstim across epidemic sizes and estimation windows
 
-### Goal
-Show that the metrics say something useful and non-obvious about an estimator
-**this project did not write**, against a ground truth the estimator never sees,
-and that a proper score does not say it. This is the section that stops the paper
-being a demonstration of our own simulator working on itself.
+The fourth manuscript figure comes from the [EpiEstim vignette](../../vignettes/sir-epiestim-example.Rmd). The experiment uses a deterministic SIR trajectory with $R_t=2 S_t$, where $S_t$ is the susceptible proportion. At each of 100 population sizes (316–100,000), binomial ascertainment at probability 0.5 generates 100 independent series of counts. A series contributes exactly one endpoint, shared across the five window settings. This gives 10,000 series, 50,000 estimates and 500 score groups. Each score uses 100 independent estimates.
 
-Source: `vignette:seir-example.Rmd`. Figure: `resource:fig4-epiestim-by-epi-size.pdf`
-(panels A–D).
+The endpoint index is drawn uniformly from 40 to 75. Window labels 2, 4, 7, 10 and 14 give the difference between the end and start indices. EpiEstim includes both endpoints. The current join evaluates the truth on the simulation day numbered with the endpoint index, one day after the last observation. The [window and reference-day issue](../task/confirm-epiestim-window-and-reference-day.md) records the manuscript decision.
 
-### Design
+The serial interval and prior both have standard deviation 5, with means 5 days and 2 respectively. Each fitted posterior mean and standard deviation specify a gamma distribution. For each population and window we fit a common median shift on the log scale. All five settings share the maximum observed daily count over the 100 series as their horizontal coordinate.
 
-| Element | Choice | Why |
-|---|---|---|
-| Epidemic | Deterministic SIR ODE, $R_0=2$, $\gamma=1/5$, 100 days | $R_t = R_0 S_t$ is **exact**; no real dataset gives ground-truth $R_t$ |
-| Sweep | 100 log-spaced $N \in [10^{2.5}, 10^{5}]$, 10 replicates = 1000 scenarios | Identical epidemic shape, varying signal strength |
-| Observation | $\mathrm{obs} \sim \mathrm{Binom}(\lfloor \mathrm{incid}\cdot N\rceil,\, p_{obs})$, $p_{obs}=0.5$ fixed | Ascertainment held fixed so it does not confound the size axis |
-| Estimator | `EpiEstim::estimate_R`, parametric SI (mean 5, sd 5), 7-day windows, Gamma(2,2) prior | External, widely used, told nothing about the SIR model |
-| Prediction | posterior mean + sd per window, scored as `dist="gamma2"`, `link="log"` | Exactly how a user would report the estimate |
-| x-axis | peak observed case count | One-dimensional measure of available signal |
-
-Median $n \approx 76$ scored windows per scenario (windows with zero observed
-cases dropped), falling to $\approx 46$ in the smallest epidemics.
-
-### Results to report
-
-| peak cases | $D^*_{pit}$ | $U^*_{pit}$ | mean CRPS | bias | cov$_{50}$ | cov$_{95}$ |
-|---|---|---|---|---|---|---|
-| 10 | $-0.079$ | 0.081 | 0.183 | $-0.185$ | 0.44 | 0.91 |
-| 36 | $-0.018$ | **0.050** | 0.141 | $-0.136$ | 0.39 | 0.70 |
-| 73 | $+0.011$ | 0.056 | 0.119 | $-0.108$ | 0.38 | 0.66 |
-| 304 | $+0.049$ | 0.077 | 0.096 | $-0.091$ | 0.35 | 0.59 |
-| 1261 | $+0.089$ | 0.102 | 0.087 | $-0.088$ | 0.29 | 0.51 |
-
-Four claims, in order:
-
-1. **$D^*_{pit}$ changes sign** at a peak of $\approx 56$ cases; $U^*_{pit}$ is
-   U-shaped with a minimum at $\approx 47$. `EpiEstim` is under-confident in small
-   epidemics and over-confident in large ones. Two independent functionals of the
-   same PIT values locate the same optimum — the two-part diagnostic (Section 6)
-   working on data where nobody supplied the answer.
-2. **CRPS ranks the forecaster in the opposite direction.** CRPS falls
-   monotonically ($r = -0.89$ with $\log_{10}$ peak), $D^*_{pit}$ rises
-   monotonically ($r = +0.91$). CRPS is tracking sharpness: the posterior narrows
-   as counts grow, so the score improves while calibration deteriorates. Coverage
-   corroborates PIT-W, not CRPS — nominal 95% intervals cover 91% at peak 10 and
-   **51%** at peak 1261. **This is the headline result of the paper.**
-3. **Significance read from the analytical null of Section 4**, not a simulated
-   table. With $D^*_{pit}\sim N(0,1/48n)$ and $\mathbb{E}[U^*_{pit}]=\sqrt{2\pi}/(8\sqrt{n})$,
-   at median $n=76$ (null sd 0.0166, null mean 0.0359): $z = -3.7, -1.0, +0.7, +3.1, +5.7$
-   and $U^*/\text{null} = 1.8, 1.3, 1.5, 2.2, 3.0$ across the rows above. Only the
-   36–73 band is indistinguishable from calibrated. The example **exercises** the
-   theory rather than illustrating the metric.
-4. **Bias invariance demonstrated on an error nobody designed.** Bias is negative
-   throughout ($-0.185 \to -0.088$; prior pull towards $R=2$ plus window lag).
-   `B_pit` is 0.24–0.30 and nearly flat; adjusted `U_pit` is 0.05–0.10 and
-   carries all the structure. Almost all raw PIT deviation is location error.
-
-### Gaps / decisions
-
-- **Q12a:** The experiment shows *that* dispersion calibration changes sign, not
-  *why*. Prior vs window width vs renewal-equation likelihood are not separated.
-  Recommendation: state as a limitation, do not run the sensitivity sweep for this
-  paper. If a reviewer asks, it is a prior/window grid over the same code.
-- **Q12b:** `EpiEstim` becomes a `Suggests` dependency (vignette-only). Covered by
-  `task:add-real-worked-example.md`.
-- **Q12c:** Figure currently has a vestigial `P(obs)` colour aesthetic with one
-  level. Either drop it or restore the 0.2/0.8 arm as a sensitivity panel.
-  Ponytail: drop the aesthetic.
+Figure 4 shows mean predictive-median bias, baseline PIT distance, directed score and adjusted unsigned distance. The directed score tends to move from negative to positive as counts rise, with a different crossing for each window. The baseline threshold uses independent uniform PITs. The two fitted thresholds give common-scale Gaussian benchmarks for the gamma estimates. The vignette also gives mean CRPS and central 50% coverage before and after adjustment. The earlier rolling-window counts, correlations and coverage estimates have been superseded. Serial-dependence inference belongs to a [future plan](../plan/serially-dependent-forecasts.md).
 
 ---
 
@@ -547,20 +479,14 @@ not repair anything.
 
 ---
 
-## 9. Caveats and Future Work (target: ~0.5 page)
+## 9. Limitations and future work
 
-### Content
+The paper uses one fitted median shift on the chosen link scale and assumes independent predictions for inference. A common shift can obscure subgroup differences, and the fitted reference distributions were derived for common-scale Gaussian errors. The simulation intervals are credible intervals for a continuous univariate target.
 
-1. **Skewed predictive families:** Mean-based bias estimator fails for skewed families.
-   Future: median-based estimator. (Pre-existing bug.)
-2. **Heteroscedastic null:** With $\kappa_{\mathcal{S}} > 0$, the null variance of
-   $D^*_{pit}$ depends on the PIT shape. Studentised bootstrap recommended.
-3. **Small-sample correction:** $D^*_{pit}$ normal approximation over-rejects at $n < 50$.
-   Edgeworth correction or exact tail needed.
-4. **Non-parametric PIT:** The current metric assumes parametric predictive distributions
-   (continuous CDF available). Discrete or mixed families need the functional PIT.
-5. **Multivariate extension:** PIT is inherently univariate. Multivariate PIT or
-   rank-based approaches are open.
+- [Serially dependent forecasts](../plan/serially-dependent-forecasts.md) concerns repeated predictions from the same time series. The current paper uses independent series.
+- [Multivariate copula calibration](../plan/multivariate-copula-calibration.md) concerns dependence among outcomes in one joint forecast.
+- [Prediction distribution inputs](../plan/prediction-distribution-inputs.md) covers posterior draws, supplied quantiles and separation of PIT construction from scoring.
+- The [supporting-materials task](../task/online-supporting-materials.md) brings the article, package and formal proof links together.
 
 ---
 
@@ -577,57 +503,6 @@ not repair anything.
 
 ---
 
-## Summary of Gaps and To-Dos
+## Subsequent decisions
 
-| # | Issue | Priority | Notes |
-|---|-------|----------|-------|
-| Q1 | Title + abstract | High | Blocker for drafting |
-| Q2 | Journal target | High | Determines length/format |
-| Q3 | Formal "dispersion calibration" definition | High | Needed in intro and methods |
-| Q4 | Skewed families in Section 5 | Low | Caveat only |
-| Q5 | Link function generality | Medium | Fix to $g=\log$ unless user decides otherwise |
-| Q6 | Proof rigour for metrics section | Medium | Formal proof for Thm 1, sketch for others |
-| Q7 | Mean vs median bias estimator | **High** | Paper currently uses mean; median is correct |
-| Q8 | Double integral evaluation for $1/48$ | Medium | Show algebra or cite |
-| Q9 | Reference for $\int|B^\circ|$ distribution | Medium | Takács is wrong; need bridge-specific source or table |
-| Q10 | Edgeworth correction at small $n$ | Low | Caveat only |
-| Q11 | Real-data example | **High** | SEIR+EpiEstim was discussed but not done |
-| Q12 | Bootstrap procedure detail | Medium | Describe, don't derive |
-| Q13 | Two-part diagnostic formal test | Medium | Refer to vignette |
-| Q14 | Gneiting & Resin (2023) MCB in table | Low | Prose only |
-
----
-
-## Mapping to Existing Tasks
-
-The rewrite skeleton maps to these loom tasks:
-
-| Task | Section(s) | Status |
-|------|-----------|--------|
-| `clarify-bias-adjusted-pit-diagnostic` | 2, 3 (terminology fix) | todo, blocks intro |
-| `reframe-introduction-as-mathematical-methods-paper` | 1 | todo, blocked by above |
-| `update-figure-3-compare-unadjusted-vs-adjusted-pit-w` | 5 | **done** — `vignette:pit-w-metrics.Rmd` |
-| `characterise-d-pit-sampling-distribution-by-simulation` | 5 | todo, blocked by null derivation |
-| `implement-bootstrap-test-for-dispersion-calibration` | 6 | **superseded** — recommend drop |
-| `two-part-test-decomposition-d-then-u` | 6 | todo — now three-part |
-| `restore-pivotality-of-the-bias-adjustment` | 3, 6 | **done** — link scale kept, PIT space ruled out |
-| `add-real-worked-example` | 7 | **done** — `vignette:seir-example.Rmd`, Fig. 5 |
-| `derive-analytical-null-distribution-for-pit-w-metrics` | 4 | **done** — `src:significance.R` |
-| `derive-cdf-of-the-adjusted-u-pit-null` | 4.4 | todo |
-| `rename-unadjusted-metric-to-b-pit` | 3 (notation) | todo |
-| `b-pit-computed-against-adjusted-ranks` | 3.5, 5.5 | todo, issue |
-| `mean-based-bias-estimator-fails-for-skewed-distributions` | 8 (caveat) | todo |
-| `add-non-normal-distribution-robustness-study` | 5 | todo |
-| `reframe-vignettes-as-supplementary-materials` | all | todo |
-
-## What Needs User Decisions Before Drafting
-
-1. **Journal target** — determines format (article length, structure, reference style).
-2. **Title preference** — which of the three options, or a new one?
-3. **Mean vs median bias estimator** — the paper currently uses mean; the correct fix
-   is median. Should we switch the whole paper?
-4. ~~**Real-data example**~~ — **resolved.** Built as `vignette:seir-example.Rmd`
-   (SIR sweep + EpiEstim), now Section 7, Fig. 5.
-5. **Proof level** — formal proofs or simulation-supported sketches?
-6. **$U^*_{pit}$ critical values** — find a reference for $\int|B^\circ|$ or tabulate from
-   high-quality simulation?
+The manuscript uses the JMLR preprint style and the median link-scale adjustment. Figures 1–3 cover metric behaviour and sampling variability. Figure 4 applies the scores to EpiEstim. The [paper plan](../plan/paper-rewrite.md) links completed work and the decisions outstanding after author review. The [formalisation plan](../plan/formalise-significance-tests.md) records the scope of the Lean verification. The analytic distribution or higher-precision tabulation for the fitted unsigned reference remains a separate [open task](../task/derive-cdf-of-the-adjusted-u-pit-null.md).

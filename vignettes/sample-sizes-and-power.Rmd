@@ -63,8 +63,8 @@ scale varies while the spread ratio stays at its assigned level. All
 predictions from an estimator report the same spread
 ($\kappa_\mathcal{S} = 0$).
 
-Bias is expressed in units of $\sigma_\mathcal{E}$. A high bias displaces
-the predictive distribution by one error standard deviation.
+The location offsets of 0, 0.5 and 1 are in outcome units. Their size relative
+to the error standard deviation therefore varies between estimators.
 
 ```{r}
 
@@ -188,10 +188,10 @@ ggplot(scores, aes(y=mean_crps, x = confidence, colour= samples, fill = samples)
   ylab("mean CRPS")
 
 ```
-Coverage is ordered correctly by dispersion calibration but is insensitive to
-sample size in its central tendency — more data narrows the boxes without
-moving them — and has no reference line to test against. Mean CRPS is ordered
-mainly by bias, as in Figure 1 panel A. Neither supports a decision rule.
+Coverage increased with reported spread. Increasing the sample size reduced
+the variability between replicates. Mean CRPS varied with both spread and
+location bias. The dashed PIT reference thresholds apply to the three scores
+in Figure 2.
 
 # 2. Power against sample size (Figure 3)
 
@@ -199,12 +199,12 @@ The second simulation varies sample size in four scenarios. In the
 spread–error decoupling scenario, reported uncertainty varies independently
 of the errors even though the typical spread has the correct scale.
 
-| Scenario | $\mu_\mathcal{E}$ | $\sigma_\mathcal{S}/\sigma_\mathcal{E}$ | $\kappa_\mathcal{S}$ | Should be detected by |
+| Scenario | $\mu_\mathcal{E}$ | $\sigma_\mathcal{S}/\sigma_\mathcal{E}$ | $\kappa_\mathcal{S}$ | Expected response in this design |
 |---|---|---|---|---|
 | unbiased; calibrated | 0 | 1 | 0 | nothing — this is the null |
 | biased; calibrated | 1 | 1 | 0 | $B_{pit}$ only |
-| unbiased; overconfident | 0 | $2/3$ | 0 | $D_{pit}$ and $U_{pit}$ |
-| unbiased; calibrated; decoupled | 0 | 1 | 1 | $U_{pit}$, weakly $B_{pit}$ |
+| unbiased; overconfident | 0 | $2/3$ | 0 | all three scores |
+| unbiased; calibrated; decoupled | 0 | 1 | 1 | primarily $U_{pit}$, also $B_{pit}$ |
 
 Here the error scale is **fixed** at $\sigma_\mathcal{E} = 1$ rather than
 redrawn, so the only thing varying along each curve is $n$. Sample sizes are
@@ -325,6 +325,24 @@ spread–error decoupling stayed within the two thresholds.
 The median $U_{pit}$ for spread–error decoupling crossed its threshold at
 a smaller sample size than the median $B_{pit}$ did (panels C and A).
 The crossing points describe the median curves for these scenarios.
+
+For an estimate of power, the table below takes the overconfident scenario
+with reported spread two-thirds of the error standard deviation. At the two
+simulated sample sizes on either side of 100, it gives the fraction of the
+250 replicate estimators that exceeded each score's nominal 5% threshold.
+
+```{r overconfidence-power}
+scores |>
+  dplyr::ungroup() |>
+  dplyr::filter(calibration == 2/3, samples %in% c(77, 129)) |>
+  dplyr::group_by(samples) |>
+  dplyr::summarise(
+    replicates = dplyr::n(),
+    B = mean(b_pit_significance(B_pit, samples)$p_value < 0.05),
+    D = mean(d_pit_significance(D_pit, samples)$p_value < 0.05),
+    U = mean(u_pit_significance(U_pit, samples)$p_value < 0.05)
+  )
+```
 
 Two caveats carried over from `vignette("significance-testing")`: the
 $D_{pit}$ critical value is mildly anti-conservative below $n \approx 50$, so

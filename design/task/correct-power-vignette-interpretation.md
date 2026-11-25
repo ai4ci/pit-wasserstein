@@ -2,7 +2,7 @@
 class: task
 id: correct-power-vignette-interpretation.md
 title: Correct the sample-size vignette descriptions of the plots and power
-status: todo
+status: done
 kind: issue
 priority: medium
 touches:
@@ -18,3 +18,5 @@ Figure 2 places the three scores in panels and facets each score by sample size.
 Describe which levels are panels and facets. State that the dashed lines are reference cut-offs and that the plots show distributions of scores. Base any target-power recommendation on rejection proportions for the specified scenario.
 
 The fixed-sample experiment also describes the three bias levels as multiples of the error standard deviation. generate_simulation() passes bias_location directly to the normal generator while bias_scale is drawn separately. The offsets 0, 0.5 and 1 are therefore in outcome units for Figure 2. For Figure 3 the error standard deviation is fixed at one.
+
+**Review of 25 November 2026.** The article describes score panels, sample-size facets, outcome-unit offsets, and marginal rejection rates. It distinguishes median crossings from a target-power calculation.

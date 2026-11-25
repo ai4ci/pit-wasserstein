@@ -16,6 +16,13 @@ spawns:
 - task:mean-based-bias-estimator-fails-for-skewed-distributions.md
 - task:rename-unadjusted-metric-to-b-pit.md
 - task:integrate-jmlr-latex-style.md
+- task:review-revised-paper-and-vignettes.md
+- task:online-supporting-materials.md
+- task:confirm-epiestim-window-and-reference-day.md
+- task:clarify-epiestim-figure-and-inference.md
+- task:clarify-calibration-and-diagnostic-claims.md
+- task:clarify-location-shift-and-fitted-reference.md
+- task:clarify-power-and-replicate-envelopes.md
 informedBy:
 - reference:wessel-2025-tail-calibration.md
 - reference:gneiting-2007-calibration-and-sharpness.md
@@ -41,12 +48,6 @@ task below:
    narrative context, not bare figure-generation scripts
    (`task:reframe-vignettes-as-supplementary-materials.md`).
 
-The significance-test research direction (sample size vs. the limiting
-behaviour of $D^*_{pit}$, and a test of the null hypothesis that an estimator
-is dispersion-calibrated) is **not** part of this plan. It is
-`plan:dispersion-calibration-significance-test.md`, whose first task is
-blocked on the terminology fix here, because the null hypothesis the test
-targets needs "dispersion calibration" nailed down as a distinct, well
-defined quantity first.
+The [significance-test plan](dispersion-calibration-significance-test.md) developed the independent-prediction references. The terminology task is complete and the manuscript uses its definitions.
 
-The new [manuscript](../../vignettes/main/main.tex) follows the [outline](../doc/paper-rewrite-skeleton.md), uses the four supplied figures and links the six supplementary studies. It includes reproducible median-adjusted rejection rates and explicitly restricts the sampling references. The remaining JMLR task covers the full typesetting check.
+The author-reviewed [manuscript](../../vignettes/main/main.tex) includes the independent-prediction reference distributions and four figures. The EpiEstim figure uses one estimate per series within each population and window setting. Six supplementary articles give the simulation designs and calculations. The proposed rejection-rate table is commented out of the manuscript. The [significance article](../../vignettes/significance-testing.Rmd) computes the marginal rejection rates with the sample median. The linked paper tasks record the remaining decisions. Serial dependence and multivariate prediction are separate future plans.

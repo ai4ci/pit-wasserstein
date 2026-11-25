@@ -42,7 +42,7 @@ original "further work" statement as resolved by this work.
 
 ---
 
-## Superseded (2026-11-17) — awaiting a decision
+## Superseded proposal (17 November 2026)
 
 The premise of this task was that no analytical null was available, so a
 bootstrap would have to stand in. That premise no longer holds: see
@@ -54,9 +54,4 @@ nominal 5% confirmed by simulation.
 A bootstrap would now be strictly worse — slower, approximate, and it would
 undercut the paper's claim that the family is analytical.
 
-**Recommendation: drop.** Not dropped yet because the user has not confirmed.
-The one argument for keeping it is as a robustness check for dependent
-predictions (overlapping forecast windows, as in the EpiEstim example, violate
-the i.i.d. PIT assumption that every one of these nulls rests on). If that
-check is wanted it is a *different* task with a different rationale, and
-should be raised as one rather than left here.
+The independent-prediction bootstrap was dropped. The current EpiEstim study obtains independent estimates by design. Dependence-aware resampling is a separate [future plan](../plan/serially-dependent-forecasts.md).

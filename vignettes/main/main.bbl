@@ -1,4 +1,4 @@
-\begin{thebibliography}{17}
+\begin{thebibliography}{16}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -71,17 +71,6 @@ Francis~X. Diebold, Todd~A. Gunther, and Anthony~S. Tay.
 \newblock ISSN 0020-6598.
 \newblock \doi{10.2307/2527342}.
 \newblock URL \url{https://www.jstor.org/stable/2527342}.
-
-\bibitem[Gneiting and Resin(2023)]{gneiting2023}
-Tilmann Gneiting and Johannes Resin.
-\newblock Regression diagnostics meets forecast evaluation: conditional
-  calibration, reliability diagrams, and coefficient of determination.
-\newblock \emph{Electronic Journal of Statistics}, 17\penalty0 (2):\penalty0
-  3226--3286, January 2023.
-\newblock ISSN 1935-7524, 1935-7524.
-\newblock \doi{10.1214/23-EJS2180}.
-\newblock URL
-  \url{https://projecteuclid.org/journals/electronic-journal-of-statistics/volume-17/issue-2/Regression-diagnostics-meets-forecast-evaluation--conditional-calibration-reliability-diagrams/10.1214/23-EJS2180.full}.
 
 \bibitem[Gneiting et~al.(2007)Gneiting, Balabdaoui, and Raftery]{gneiting2007}
 Tilmann Gneiting, Fadoua Balabdaoui, and Adrian~E. Raftery.

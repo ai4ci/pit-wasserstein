@@ -132,10 +132,10 @@ $$
 B_{pit} = \frac1n\sum_i \left| r_i - u_{(i)} \right|
 $$
 
-which is the 1-Wasserstein distance between the empirical PIT distribution and
-$\mathrm{Uniform}(0,1)$ — the area between the PIT histogram's cumulative
-curve and the diagonal. It is zero for a calibrated estimator and grows with
-*any* departure, including a pure bias.
+This is the 1-Wasserstein distance to a discrete uniform distribution on
+the $n$ midpoints. The distance to the continuous uniform distribution differs
+by at most $1/(4n)$. Even independent uniform PIT values generally give a
+positive score in a finite sample.
 
 The **bias adjustment** estimates one location shift,
 $\hat\delta = \mathrm{median}_i(g(m_i) - g(x_i))$ on the link scale, applies
@@ -148,11 +148,12 @@ U_{pit} = \frac1n\sum_i \left| r_i - u^{adj}_{(i)} \right|,
 D_{pit} = \frac1n\sum_i \left( r_i - u^{adj}_{(i)} \right)\mathrm{sgn}\!\left(\tfrac12 - r_i\right)
 $$
 
-$U_{pit}$ is the same undirected distance with the location error removed.
-$D_{pit}$ replaces the absolute value with a weight that is $+1$ below the
-median and $-1$ above it, so that departures at the two ends **cancel instead
-of accumulating** — which is what makes it signed, and positive for an
-over-confident estimator.
+$U_{pit}$ measures the remaining distance after fitting the common shift.
+For a forecast with intervals that are too narrow, the low PIT values fall
+below their ranks and the high PIT values exceed theirs. The signed weight
+makes both contributions positive. Intervals that are too wide tend to
+give negative contributions in both halves. Departures in opposing
+directions can cancel in $D_{pit}$.
 
 | Metric | Range | Reads |
 |---|---|---|
@@ -369,7 +370,7 @@ plot_metrics = patchwork::wrap_plots(
 )
 ```
 
-Mean CRPS was lowest near a spread ratio of one among estimators with little
+Mean CRPS (panel A) was lowest near a spread ratio of one among estimators with little
 bias. At similar spread ratios, the larger values generally came from
 estimators with greater absolute bias. The baseline PIT-Wasserstein score
 $B_{pit}$ also increased with bias and away from a spread ratio of one
@@ -453,4 +454,3 @@ ggplot(
 Coverage increased with the spread ratio and changed little at the extremes
 shown here. Each coverage estimate describes one interval level. The
 PIT-Wasserstein scores use information from across the predictive distribution.
-

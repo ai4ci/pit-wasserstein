@@ -22,3 +22,5 @@ The current `refs.bib` uses these standard BibTeX fields (confirmed 26 entries w
 2. **Compile and verify** — `pdflatex main` → `bibtex main` → `pdflatex main` → `pdflatex main` should produce a clean PDF with no BibTeX warnings.
 
 The [standalone manuscript](../../vignettes/main/main.tex) uses the supplied JMLR preprint style and its plainnat bibliography. The 15 cited entries passed a standalone BibTeX check with no warnings. The full pdfLaTeX build still needs verification. In scoder the system TeX Live index and format configuration resolve into the unavailable /var/lib/texmf tree, and pdfLaTeX stops before reading the manuscript.
+
+**Review of 25 November 2026.** The tracked log records a successful 15-page JMLR build and BibTeX used 17 entries without warnings. The tracked PDF still describes ten independent series per population in the EpiEstim methods, while the current TeX source says 100. Refresh the PDF and verify it against the reviewed source. A local rebuild stops before reading main.tex because pdflatex.fmt is unavailable in this sandbox.

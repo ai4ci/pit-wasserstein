@@ -26,34 +26,19 @@ set.seed(1001)
 
 ## Purpose
 
-`EpiEstim` has been noted to have very narrow confidence intervals in certain 
-situations. It was particularly noticed at periods of the COVID-19 pandemic 
-when case rates were very high, so we wanted to investigate is there is a 
-correlation between epidemic size and `EpiEstim` dispersion mis-calibration.
-
-We used `EpiEstim` to estimate the instantaneous reproduction number from
-simulated case counts, using different window sizes. The deterministic SIR model gives us a reference value
-of $R_t$ for each day, which allows us to assess the uncertainty reported by
-the estimator.
-
-We varied population size while holding the shape of the epidemic curve and
-the probability of observing a case fixed, and use the peak observed case count
-to compare simulations with different numbers of cases available to the
-estimator.
+We asked whether EpiEstim's intervals for the instantaneous reproduction number
+were too wide or too narrow, and whether this depended on the number of observed
+cases and the estimation window. A simulated epidemic gives us a reference
+$R_t$ for each day. At a given population size and window setting, each
+independent series of case counts contributes one estimate to the comparison.
 
 ## 1. Simulation setup
 
-We use a simple SIR model with known reproductive number dynamics. The true $R_t$ at each time point is analytically known:
-
-$$R_t = R_0 \cdot \frac{S_t}{N}$$
-
-The model is solved as a deterministic ODE on the proportion scale with
-$R_0 = 2$, $\gamma = 1/5$ (a five-day infectious period) and a seed of
-$10^{-4}$, over 100 days. Because $S_t$ is deterministic, $R_t = R_0 S_t$ is
-exact at every time point: this is the ground truth against which `EpiEstim`
-is scored. The incidence curve $\beta S_t I_t$ is the expected number of new
-infections per capita per day, and is what the observation process below is
-built on.
+We solved a deterministic SIR model on the proportion scale for days 0 to 100,
+with $R_0=2$, a mean infectious period of five days and an initial infectious
+proportion of $10^{-4}$. If $S_t$ is the susceptible proportion, the reference
+reproduction number is $R_t=R_0 S_t$. Multiplying the daily incidence rate
+$\beta S_t I_t$ by population size gives the expected count used below.
 
 ```{r}
 
@@ -97,15 +82,11 @@ ggplot(tmp, aes(x=time))+
 
 ### Population sizes and observed counts
 
-The population size `N` is swept over 100 log-spaced values from $10^{2.5}$
-(about 320 people) to $10^{5}$, with 100 independent replicate runs at each,
-giving 10000 scenarios. Expected daily cases are `incid * N`, and the observed
-counts are a binomial thinning of those at a fixed ascertainment
-probability `pObs = 0.5`.
-
-Peak observed case count is the horizontal axis in the results. Each
-combination of `run`, `N` and `pObs` defines one simulated epidemic, one
-`EpiEstim` fit and one row of scores.
+We used 100 rounded, log-spaced population sizes from 316 to 100,000.
+At each size we kept the epidemic curve fixed and generated 100 independent
+series of observed daily counts. On each day the number observed was a binomial
+draw from the rounded model count with ascertainment probability 0.5. There
+was no observation delay.
 
 ```{r}
 scenarios = tidyr::crossing(
@@ -129,25 +110,25 @@ scenarios = tidyr::crossing(
 
 ## 2. Estimating $R_t$ with EpiEstim
 
-We fitted `EpiEstim` to the observed counts over a random window between the 25th
-and 75th simulation day in each scenario using 2, 4, 7, 10, and 14 day windows, 
-a parametric serial interval with mean of 5 and
-standard deviation both 5 days (matching that o the simulation), and a prior on
-$R_t$ with mean of 2 (matching the simulation R0) and a standard deviation of 5.
+For each series we chose one endpoint uniformly from incidence-vector indices
+40 to 75. At that endpoint we fitted EpiEstim using five windows, with
+`t_end - t_start` equal to 2, 4, 7, 10 or 14. These are the labels used in
+the figures. EpiEstim includes both endpoints, so the corresponding windows
+contain 3, 5, 8, 11 or 15 daily counts. We used a parametric serial interval
+with mean and standard deviation both five days, and a prior for $R_t$ with
+mean 2 and standard deviation 5.
 
-For each window we used the posterior mean and standard deviation to
-parametrise a Gamma distribution, scored against the reference $R_t$ at
-the window end. We used a log link for the bias adjustment. For each population
-size 100 time-series of daily observed new cases were randomly sampled from the model 
-assuming ascertainment of 0.5 using a binomial. There was no observation delay.
+The first entry of the incidence vector is simulation day 0. A window ending
+at index 40 therefore includes counts through day 39. The join below compares
+it with the reference $R_t$ on day 40. This one-day difference matters when
+interpreting bias because $R_t$ falls over the course of this epidemic.
 
 ```{r}
 
 results = scenarios %>% dplyr::group_modify(function(d,g,...) {
   
-  # Every group (i.e. 10000 groups, 100 runs of the same simulation in different population sizes)
-  # has three EpiEstim estimates at the same random time during days 25-75 the simulation. 
-  # with different window widths.
+  # Fit all five windows at one endpoint in this replicate.
+
   endpoint = sample(50-14,1) + 14 +25
   starts = endpoint-c(2,4,7,10,14)
   ends = rep(endpoint,length(starts))
@@ -180,14 +161,17 @@ results = scenarios %>% dplyr::group_modify(function(d,g,...) {
 
 ## 3. Scoring
 
-`prediction_scores()` is applied per scenario. `max_obs`, the peak observed
-case count, is computed inside the scenario grouping before the regroup, so it
-indexes the scenario rather than being recomputed over a pooled set. The
-threshold of 1 is the epidemiologically meaningful one: it asks how often the
-prediction is on the wrong side of "the epidemic is growing".
+We used each posterior mean and standard deviation to specify a gamma
+distribution for $R_t$. For each population size and window setting we scored
+the 100 estimates together, fitting one median location shift on the log
+scale. Each point therefore summarises 100 independent series. Comparisons
+across windows are paired because the five fits use the same series and endpoint.
 
-We set `calibration` to `NA` because the spread-to-error ratio of the
-`EpiEstim` estimates is unknown.
+The horizontal axis is the largest daily count observed across all 100 series
+at that population size. All five window settings share that value. We left
+`calibration` unspecified because the spread-to-error ratio is unknown. The
+threshold $R_t=1$ is used by the package for its separate classification
+summary.
 
 ```{r}
 
@@ -280,39 +264,24 @@ p5 = p5a+p5b+p5c+p5d+patchwork::plot_layout(guides="collect",axes="collect")+
 
 ### Interpretation
 
-`EpiEstim` tended to overestimate $R_t$ across the epidemic sizes studied
-regardless of epidemic size (panel A) but with more effect with larger windows.
-Three possible contributing factors are the prior with mean of 2 and standard
-deviation of 5, the lag from estimating a falling $R_t$ at the end of the
-window, and the impact of a day zero truncation of the generation time
-distribution enforced by `EpiEstim`. `EpiEstim` assumes a constant $R_t$ during
-the window which would intuitively make it more likely to overestimate due to
-lag, in our scenario of a monotonically falling $R_t$, and for that to 
-be related to window size.
+Panel A shows mean bias on the $R_t$ scale, calculated as the predictive
+median minus the reference and averaged over the 100 series. EpiEstim tended
+to overestimate $R_t$, particularly for the longer windows. A longer window
+includes earlier days when $R_t$ was higher. The day used for the reference
+also contributes to this comparison.
 
-The baseline score $B_pit$ (lower is better) suggests `EpiEstim` with smaller 
-windows is overall better and suggests its performance worsens in large epidemics
-(panel B). This is largely mirroring the bias. The vast majority of the estimators 
-are statistically unlikely to be well calibrated (dashed line is critical 0.95 
-threshold for 100 estimates).
+The baseline distance in panel B measures the departure from uniformity before
+any adjustment. After adjusting for location, the directed score in panel C
+tends to be negative at low counts and positive at high counts. The change
+from conservative to overconfident estimates occurred at different case counts
+for different windows. Panel D shows the magnitude of the remaining departure.
+Its minimum also varies with the window setting.
 
-The mean directed score $D_pit$ adjusts for bias, (panel C). The negative scores indicate intervals
-that were too wide at low counts (excessively conservative), and the positive scores indicate
-intervals that were too narrow at high counts (overconfident). `EpiEstim` with a
-2 day window is conservative unless used in epidemics with a case count of over 1000. This
-is most likely reflecting reversion to the under-confident prior, and longer
-windows show this reversion is resolved in epidemics with smaller case counts. 
-Large amounts of over-confidence are exhibited by `EpiEstim` at all windows in
-larger epidemics and this is clearly correlated with window size. 
-
-The undirected score reached its minimum at different epidemic sizes depending on
-window size (panel D) and epidemic size. It is likely that adjusting the window 
-size depending on the size of the epidemic could result in well calibrated 
-estimates from `EpiEstim`.
-
-With $n = 100$ scored predictions per scenario, the reference expressions used in
-this comparison are $D^*_{pit} \sim N(0, 1/48n)$ and
-$\mathbb{E}[U^*_{pit}] = \sqrt{2\pi}/(8\sqrt{n})$. 
+The dashed lines use $n=100$. For the baseline distance the reference is the
+large-sample distribution for independent uniform PIT values. For the two
+adjusted scores the reference assumes a common-scale Gaussian model on the
+link scale. The fitted gamma distributions have varying scales, so those two
+lines provide benchmarks for reading the figure.
 
 ```{r}
 
@@ -355,30 +324,25 @@ p6
 
 ```
 
-REWRITE: **CRPS runs the other way.** Panel A falls monotonically from 0.183 to 0.087
-(correlation $-0.89$ with $\log_{10}$ peak cases). Read without care it says
-that the bigger the epidemic, the better the forecast. What it is actually
-measuring is sharpness: in a large epidemic the posterior is narrow, so the
-score is small even as calibration deteriorates. $D^*_{pit}$ is monotone in
-the opposite direction (correlation $+0.91$) and is the only metric in the
-panel that identifies the large-epidemic forecasts as the mis-calibrated ones.
-This is the central argument of the paper, made on a real estimator rather
-than a constructed example: a proper score and a dispersion diagnostic can
-rank the same forecaster in opposite directions, and they are answering
-different questions.
+Panel A gives mean CRPS in units of $R_t$. It measures overall predictive
+performance, so it can improve as the estimates become more precise even when
+their intervals cover too few reference values. Panels B and C show the
+fraction of reference values inside the posterior interquartile range before
+and after fitting the common location shift. The horizontal line marks the nominal 50% coverage.
 
-REWRITE: Coverage corroborates the PIT-Wasserstein reading and not the CRPS one.
-Nominal 95% intervals cover 91% of true values in the smallest epidemics and
-only 51% in the largest; nominal 50% intervals fall from 0.44 to 0.29. The
-estimator is getting worse by the only criterion that asks whether its stated
-uncertainty is honest.
+For example, at the largest population the shortest window covered the
+reference on `r with(plotdata, round(100 * mean_coverage.0.5[N == max(N) & window == "2"]))`%
+of occasions. After the common location adjustment, coverage was
+`r with(plotdata, round(100 * mean_coverage.0.5_adj[N == max(N) & window == "2"]))`%.
+For the longest window the corresponding figures were
+`r with(plotdata, round(100 * mean_coverage.0.5[N == max(N) & window == "14"]))`% and
+`r with(plotdata, round(100 * mean_coverage.0.5_adj[N == max(N) & window == "14"]))`%.
+The location shift accounts for more of the coverage deficit in the shorter window.
 
+### Scope of the comparison
 
-### Caveats
-
-This experiment identifies *that* the dispersion calibration changes sign with
-epidemic size; it does not separate the contributions of the Gamma prior, and 
-any genuine over-confidence in the renewal-equation
-likelihood. Disentangling those would need a prior 
-sensitivity sweep and is out of scope here.
-
+The prior, ascertainment probability and epidemic trajectory were held fixed.
+These simulations show how the scores vary with the available counts and
+window setting along that trajectory. They do not establish which window to
+use in a new outbreak or isolate how much of the discrepancy comes from the
+prior, the window lag or the renewal model.
