@@ -3,91 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Testing for bias, dispersion miscalibration and skill spread decoupling • pitw</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Testing for bias, dispersion miscalibration and skill spread decoupling">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Testing for bias, dispersion miscalibration and skill spread decoupling">
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">pitw</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9001</span>
-      </span>
-    </div>
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    <a class="navbar-brand me-2" href="../index.html">pitw</a>
 
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/introduction-to-pit.html">Introduction to calibration and probability integral transforms</a>
-    </li>
-    <li>
-      <a href="../articles/model-misspecification.html">Model misspecification: what the metrics do when the predictive family is wrong</a>
-    </li>
-    <li>
-      <a href="../articles/pit-w-metrics.html">PIT-Wasserstein metrics for miscalibration diagnosis</a>
-    </li>
-    <li>
-      <a href="../articles/sample-sizes-and-power.html">Testing for bias, dispersion miscalibration and skill spread decoupling</a>
-    </li>
-    <li>
-      <a href="../articles/significance-testing.html">Significance testing for the PIT-Wasserstein metrics</a>
-    </li>
-    <li>
-      <a href="../articles/sir-epiestim-example.html">A PIT-Wasserstein study using SIR dynamics and EpiEstim</a>
-    </li>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
+
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/pitw.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/introduction-to-pit.html">Introduction to calibration and probability integral transforms</a></li>
+    <li><a class="dropdown-item" href="../articles/model-misspecification.html">Model misspecification: what the metrics do when the predictive family is wrong</a></li>
+    <li><a class="dropdown-item" href="../articles/pit-w-metrics.html">PIT-Wasserstein metrics for miscalibration diagnosis</a></li>
+    <li><a class="dropdown-item" href="../articles/sample-sizes-and-power.html">Testing for bias, dispersion miscalibration and skill spread decoupling</a></li>
+    <li><a class="dropdown-item" href="../articles/significance-testing.html">Significance testing for the PIT-Wasserstein metrics</a></li>
+    <li><a class="dropdown-item" href="../articles/sir-epiestim-example.html">A PIT-Wasserstein study using SIR dynamics and EpiEstim</a></li>
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+      </ul>
 </div>
-<!--/.nav-collapse -->
+
+
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
+</nav><div class="container template-article">
 
 
 
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Testing for bias, dispersion miscalibration and
-skill spread decoupling</h1>
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+
+      <h1>Testing for bias, dispersion miscalibration and skill spread decoupling</h1>
             
       
 
-      <div class="hidden name"><code>sample-sizes-and-power.Rmd</code></div>
-
+      <div class="d-none name"><code>sample-sizes-and-power.Rmd</code></div>
     </div>
 
     
@@ -114,11 +96,11 @@ skill spread decoupling</h1>
 <span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
 <span><span class="va">fig_dir</span> <span class="op">=</span> <span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"vignettes"</span>, <span class="st">"main"</span>, <span class="st">"fig"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1001</span><span class="op">)</span></span></code></pre></div>
-<p>This vignette is the reference for <strong>Figures 2 and 3</strong>
-of the paper. It asks the practical question that follows once the
-metrics have null distributions: <strong>how many predictions do you
-need before a test can see anything?</strong></p>
-<p>Two simulations answer it from different directions.</p>
+<p>We compared the PIT-Wasserstein scores at 10, 100 and 1,000
+predictions per estimator, then varied sample size across four
+prespecified scenarios. These simulations show how sample size affects
+our ability to distinguish calibrated forecasts from the departures
+represented in Figures 2 and 3.</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -133,22 +115,21 @@ need before a test can see anything?</strong></p>
 <tbody>
 <tr class="odd">
 <td>Question</td>
-<td>do the metrics separate known failures at realistic
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>?</td>
-<td>how does each test’s power build with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>?</td>
+<td>How well do the scores separate scenarios at three sample
+sizes?</td>
+<td>How do the scores and rejection thresholds change with sample
+size?</td>
 </tr>
 <tr class="even">
 <td>Design</td>
 <td>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>×</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">3\times3</annotation></semantics></math>
-grid of dispersion calibration and bias</td>
-<td>4 named scenarios swept over
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+<span class="math inline">\(3\times3\)</span> grid of dispersion
+calibration and bias</td>
+<td>4 named scenarios swept over <span class="math inline">\(n\)</span>
 </td>
 </tr>
 <tr class="odd">
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math></td>
+<td><span class="math inline">\(n\)</span></td>
 <td>10, 100, 1000</td>
 <td>10 log-spaced values from 10 to 1000</td>
 </tr>
@@ -164,19 +145,16 @@ grid of dispersion calibration and bias</td>
 </tr>
 </tbody>
 </table>
-<p>Throughout, predictive distributions are normal and the dashed lines
-are the analytical 5% critical values from
-<code><a href="../articles/significance-testing.html">vignette("significance-testing")</a></code>, evaluated at the relevant
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.
-A metric above its dashed line is a rejection; how far the <em>bulk</em>
-of the distribution sits above it is the power.</p>
-<p>The paper describes both figures in more detail. The setup below is
-the specification they refer back to.</p>
+<p>All predictive distributions are normal. The dashed lines mark the
+nominal 5% rejection thresholds from the <a href="significance-testing.html">significance vignette</a> at each
+sample size. The boxplots and ribbons show how the scores vary between
+replicates. The proportion of replicates beyond the relevant threshold
+gives the rejection rate for that scenario.</p>
 <div class="section level2">
 <h2 id="separation-at-fixed-sample-sizes-figure-2">1. Separation at fixed sample sizes (Figure 2)<a class="anchor" aria-label="anchor" href="#separation-at-fixed-sample-sizes-figure-2"></a>
 </h2>
-<p>The first simulation crosses the two failure modes that the
-adjustment is meant to separate, at three sample sizes.</p>
+<p>The first simulation varies location bias and the ratio of reported
+spread to error spread at three sample sizes.</p>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -188,32 +166,19 @@ adjustment is meant to separate, at three sample sizes.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>dispersion calibration
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mi>𝒮</mi></msub><mi>/</mi><msub><mi>σ</mi><mi>ℰ</mi></msub></mrow><annotation encoding="application/x-tex">\sigma_\mathcal{S}/\sigma_\mathcal{E}</annotation></semantics></math>
+<td>dispersion calibration <span class="math inline">\(\sigma_\mathcal{S}/\sigma_\mathcal{E}\)</span>
 </td>
 <td>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">2/3</annotation></semantics></math>
-(overconfident),
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
-(calibrated),
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">3/2</annotation></semantics></math>
-(conservative)</td>
+<span class="math inline">\(2/3\)</span> (overconfident), <span class="math inline">\(1\)</span> (calibrated), <span class="math inline">\(3/2\)</span> (conservative)</td>
 </tr>
 <tr class="even">
-<td>bias
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>ℰ</mi></msub><annotation encoding="application/x-tex">\mu_\mathcal{E}</annotation></semantics></math>
+<td>bias <span class="math inline">\(\mu_\mathcal{E}\)</span>
 </td>
 <td>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
-(unbiased),
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.5</mn><annotation encoding="application/x-tex">0.5</annotation></semantics></math>
-(medium),
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
-(high)</td>
+<span class="math inline">\(0\)</span> (unbiased), <span class="math inline">\(0.5\)</span> (medium), <span class="math inline">\(1\)</span> (high)</td>
 </tr>
 <tr class="odd">
-<td>predictions per estimator
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+<td>predictions per estimator <span class="math inline">\(n\)</span>
 </td>
 <td>10, 100, 1000</td>
 </tr>
@@ -223,24 +188,14 @@ adjustment is meant to separate, at three sample sizes.</p>
 </tr>
 </tbody>
 </table>
-<p>Two details matter for interpretation. The <strong>error
-scale</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>ℰ</mi></msub><annotation encoding="application/x-tex">\sigma_\mathcal{E}</annotation></semantics></math>
-is itself redrawn log-uniformly on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[\tfrac12, 2]</annotation></semantics></math>
-for each replicate, with the claimed scale set to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mi>𝒮</mi></msub><mo>=</mo><msub><mi>σ</mi><mi>ℰ</mi></msub><mo>×</mo></mrow><annotation encoding="application/x-tex">\sigma_\mathcal{S} = \sigma_\mathcal{E}\times</annotation></semantics></math>
-calibration — so the calibration <em>ratio</em> is held at its nominal
-level while the absolute scale varies, and nothing can depend on the
-units. And
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>κ</mi><mi>𝒮</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\kappa_\mathcal{S} = 0</annotation></semantics></math>
-throughout, so every prediction from a given estimator claims the same
-width: spread–error decoupling is deliberately excluded here and appears
-only in Simulation 2.</p>
-<p>Bias is expressed in units of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>ℰ</mi></msub><annotation encoding="application/x-tex">\sigma_\mathcal{E}</annotation></semantics></math>,
-so “high” bias is a one-standard-deviation displacement — large, but not
-absurd for a real forecaster.</p>
+<p>We draw the error scale <span class="math inline">\(\sigma_\mathcal{E}\)</span> log-uniformly on <span class="math inline">\([\tfrac12, 2]\)</span> for each replicate and set
+the reported spread to <span class="math inline">\(\sigma_\mathcal{S} =
+\sigma_\mathcal{E}\times\)</span> calibration. The absolute scale varies
+while the spread ratio stays at its assigned level. All predictions from
+an estimator report the same spread (<span class="math inline">\(\kappa_\mathcal{S} = 0\)</span>).</p>
+<p>The location offsets of 0, 0.5 and 1 are in outcome units. Their size
+relative to the error standard deviation therefore varies between
+estimators.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Simulation setup</span></span>
@@ -331,44 +286,21 @@ absurd for a real forecaster.</p>
 <span>  formats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pdf"</span>, <span class="st">"eps"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="sample-sizes-and-power_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="576"></p>
-<p>Reading Figure 2, panel by panel. Each panel is one sample size;
-within it, boxes are grouped by true dispersion calibration and coloured
-by bias.</p>
-<p><strong>Panel A,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>B</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">B_{pit}</annotation></semantics></math>.</strong>
-The baseline metric responds to both failures at once. Boxes rise with
-bias (colour) <em>and</em> away from the calibrated centre group, so a
-rejection is informative only in the weakest sense: something is wrong.
-At
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">n = 10</annotation></semantics></math>
-the critical value is high enough that only the grossest failures clear
-it; by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>
-almost everything does, including combinations that are only mildly
-miscalibrated.</p>
-<p><strong>Panel B,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">D_{pit}</annotation></semantics></math>.</strong>
-Two dashed lines, because the directed test is signed and two-sided. The
-colour groups now sit <strong>on top of one another</strong>: bias moves
-the boxes hardly at all, which is the bias invariance of Figure 1 shown
-as a distribution rather than a scatter. What separates the boxes is
-dispersion calibration, and it separates them by <em>sign</em> —
-conservative below zero, overconfident above.</p>
-<p><strong>Panel C,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>U</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">U_{pit}</annotation></semantics></math>.</strong>
-The undirected adjusted metric is also flat in colour, and like
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>B</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">B_{pit}</annotation></semantics></math>
-it is a distance so only the upper critical value applies. It separates
-calibrated from miscalibrated but, unlike panel B, cannot say which
-direction.</p>
-<p>The practical message is in the leftmost panel: at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">n = 10</annotation></semantics></math>
-the boxes for different calibration levels overlap heavily and sit
-largely below their critical values. <strong>Ten predictions is not
-enough to diagnose anything but a gross failure.</strong> By
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">n = 100</annotation></semantics></math>
-the groups are cleanly separated, which is the sample size the paper
-recommends as a working minimum.</p>
+<p>Figure 2 has one panel for each score. Within each panel, the columns
+show the three sample sizes and the colours identify the bias
+levels.</p>
+<p><span class="math inline">\(B_{pit}\)</span> increased with bias and
+with departures from a spread ratio of one (panel A). At a given spread
+ratio, the distributions of <span class="math inline">\(D_{pit}\)</span>
+were similar across bias levels (panel B). The conservative scenarios
+gave negative scores and the overconfident scenarios gave positive
+scores. <span class="math inline">\(U_{pit}\)</span> also varied little
+across bias levels and increased away from a ratio of one (panel C).</p>
+<p>At 10 predictions, the simulated groups overlapped and most boxes lay
+below their upper rejection thresholds or within the two-sided bounds.
+The groups were more clearly separated at 100 predictions in this
+design. When planning an evaluation, consider the departure of interest
+and how many independent predictions are available.</p>
 <p>For comparison, the two conventional summaries over the same
 simulation:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -383,20 +315,18 @@ simulation:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">bias</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"mean CRPS"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="sample-sizes-and-power_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="576">
-Coverage is ordered correctly by dispersion calibration but is
-insensitive to sample size in its central tendency — more data narrows
-the boxes without moving them — and has no reference line to test
-against. Mean CRPS is ordered mainly by bias, as in Figure 1 panel A.
-Neither supports a decision rule.</p>
+Coverage increased with reported spread. Increasing the sample size
+reduced the variability between replicates. Mean CRPS varied with both
+spread and location bias. The dashed PIT reference thresholds apply to
+the three scores in Figure 2.</p>
 </div>
 <div class="section level2">
 <h2 id="power-against-sample-size-figure-3">2. Power against sample size (Figure 3)<a class="anchor" aria-label="anchor" href="#power-against-sample-size-figure-3"></a>
 </h2>
-<p>The second simulation replaces the grid with four <strong>named
-scenarios</strong>, each a single well-defined failure mode, and sweeps
-the number of predictions continuously. This is the figure to use when
-choosing
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.</p>
+<p>The second simulation varies sample size in four scenarios. In the
+spread–error decoupling scenario, reported uncertainty varies
+independently of the errors even though the typical spread has the
+correct scale.</p>
 <table class="table">
 <colgroup>
 <col width="20%">
@@ -407,10 +337,10 @@ choosing
 </colgroup>
 <thead><tr class="header">
 <th>Scenario</th>
-<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>ℰ</mi></msub><annotation encoding="application/x-tex">\mu_\mathcal{E}</annotation></semantics></math></th>
-<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mi>𝒮</mi></msub><mi>/</mi><msub><mi>σ</mi><mi>ℰ</mi></msub></mrow><annotation encoding="application/x-tex">\sigma_\mathcal{S}/\sigma_\mathcal{E}</annotation></semantics></math></th>
-<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>κ</mi><mi>𝒮</mi></msub><annotation encoding="application/x-tex">\kappa_\mathcal{S}</annotation></semantics></math></th>
-<th>Should be detected by</th>
+<th><span class="math inline">\(\mu_\mathcal{E}\)</span></th>
+<th><span class="math inline">\(\sigma_\mathcal{S}/\sigma_\mathcal{E}\)</span></th>
+<th><span class="math inline">\(\kappa_\mathcal{S}\)</span></th>
+<th>Expected response in this design</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -426,44 +356,32 @@ choosing
 <td>1</td>
 <td>0</td>
 <td>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>B</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">B_{pit}</annotation></semantics></math>
-only</td>
+<span class="math inline">\(B_{pit}\)</span> only</td>
 </tr>
 <tr class="odd">
 <td>unbiased; overconfident</td>
 <td>0</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">2/3</annotation></semantics></math></td>
+<td><span class="math inline">\(2/3\)</span></td>
 <td>0</td>
-<td>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">D_{pit}</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>U</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">U_{pit}</annotation></semantics></math>
-</td>
+<td>all three scores</td>
 </tr>
 <tr class="even">
 <td>unbiased; calibrated; decoupled</td>
 <td>0</td>
 <td>1</td>
 <td>1</td>
-<td>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>U</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">U_{pit}</annotation></semantics></math>,
-weakly
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>B</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">B_{pit}</annotation></semantics></math>
+<td>primarily <span class="math inline">\(U_{pit}\)</span>, also <span class="math inline">\(B_{pit}\)</span>
 </td>
 </tr>
 </tbody>
 </table>
-<p>Here the error scale is <strong>fixed</strong> at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mi>ℰ</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\sigma_\mathcal{E} = 1</annotation></semantics></math>
-rather than redrawn, so the only thing varying along each curve is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.
-Sample sizes are the 10 log-spaced values from 10 to 1000, with 250
-replicate estimators at each; the lines are medians and the ribbons the
-central 95% of replicates.</p>
+<p>Here the error scale is <strong>fixed</strong> at <span class="math inline">\(\sigma_\mathcal{E} = 1\)</span> rather than
+redrawn, so the only thing varying along each curve is <span class="math inline">\(n\)</span>. Sample sizes are the 10 log-spaced
+values from 10 to 1000, with 250 replicate estimators at each; the lines
+are medians and the ribbons the central 95% of replicates.</p>
 <p>The critical-value curves are evaluated on a finer grid of 100 sample
-sizes so that they render as smooth
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><msqrt><mi>n</mi></msqrt></mrow><annotation encoding="application/x-tex">1/\sqrt{n}</annotation></semantics></math>
-decays rather than as segments.</p>
+sizes so that they render as smooth <span class="math inline">\(1/\sqrt{n}\)</span> decays rather than as
+segments.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Second simulation setup</span></span>
@@ -577,77 +495,65 @@ decays rather than as segments.</p>
 <span>  formats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pdf"</span>, <span class="st">"eps"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="sample-sizes-and-power_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="576"></p>
-<p>Reading Figure 3. In each panel the dashed line falls as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><msqrt><mi>n</mi></msqrt></mrow><annotation encoding="application/x-tex">1/\sqrt{n}</annotation></semantics></math>
-— the test gets more sensitive with more data — while a curve that stays
-above it is a failure the test detects, and one that tracks below it is
-a failure that test is blind to.</p>
-<p><strong>Panel A,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>B</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">B_{pit}</annotation></semantics></math>.</strong>
-The null scenario tracks the critical value, as it must. The biased
-scenario sits far above it at every
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>:
-a
-one-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>σ</mi><annotation encoding="application/x-tex">\sigma</annotation></semantics></math>
-bias is detected from the smallest samples. The overconfident scenario
-also separates, but later. The decoupled scenario rises above the line
-only slowly — the omnibus test is the <em>weakest</em> of the three
-against spread–error decoupling.</p>
-<p><strong>Panel B,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">D_{pit}</annotation></semantics></math>.</strong>
-The biased curve now sits on zero, inside the two critical lines, at
-every sample size: the directed metric does not see a pure location
-error, by construction. Only the overconfident scenario leaves the band,
-and it does so with a definite sign. Note also that the decoupled
-scenario stays within the band —
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">D_{pit}</annotation></semantics></math>
-is insensitive to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>κ</mi><annotation encoding="application/x-tex">\kappa</annotation></semantics></math>
-as well as to bias, which is what makes it a clean test of median
-width.</p>
-<p><strong>Panel C,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>U</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">U_{pit}</annotation></semantics></math>.</strong>
-The biased curve again sits on the null, confirming bias invariance.
-Both genuine miscalibrations — overconfidence and decoupling — separate,
-and the decoupled scenario separates <em>earlier here than in panel
-A</em>. Paying for the tighter adjusted null buys power against shape
-failures.</p>
-<p>Taken together the three panels are the three-part test working as
-intended: the pattern of which curves clear which lines identifies the
-failure mode, rather than merely flagging that one exists. The crossing
-points also give the direct answer to the sample-size question — read
-off where the scenario of interest leaves the dashed line.</p>
+<p>In Figure 3, the dashed lines give the rejection thresholds and fall
+in magnitude as <span class="math inline">\(1/\sqrt{n}\)</span>. The
+solid lines give the median score in each scenario.</p>
+<p>The median <span class="math inline">\(B_{pit}\)</span> for a bias of
+one error standard deviation was above the threshold at every sample
+size studied (panel A). The overconfident scenario separated at larger
+sample sizes.</p>
+<p>The median <span class="math inline">\(D_{pit}\)</span> for pure
+location bias stayed close to zero (panel B). The overconfident scenario
+crossed the upper threshold. The median for spread–error decoupling
+stayed within the two thresholds.</p>
+<p>The median <span class="math inline">\(U_{pit}\)</span> for
+spread–error decoupling crossed its threshold at a smaller sample size
+than the median <span class="math inline">\(B_{pit}\)</span> did (panels
+C and A). The crossing points describe the median curves for these
+scenarios.</p>
+<p>For an estimate of power, the table below takes the overconfident
+scenario with reported spread two-thirds of the error standard
+deviation. At the two simulated sample sizes on either side of 100, it
+gives the fraction of the 250 replicate estimators that exceeded each
+score’s nominal 5% threshold.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">scores</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">calibration</span> <span class="op">==</span> <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>, <span class="va">samples</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">77</span>, <span class="fl">129</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">samples</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span></span>
+<span>    replicates <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    B <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/b_pit_significance.html">b_pit_significance</a></span><span class="op">(</span><span class="va">B_pit</span>, <span class="va">samples</span><span class="op">)</span><span class="op">$</span><span class="va">p_value</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span>,</span>
+<span>    D <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/d_pit_significance.html">d_pit_significance</a></span><span class="op">(</span><span class="va">D_pit</span>, <span class="va">samples</span><span class="op">)</span><span class="op">$</span><span class="va">p_value</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span>,</span>
+<span>    U <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/u_pit_significance.html">u_pit_significance</a></span><span class="op">(</span><span class="va">U_pit</span>, <span class="va">samples</span><span class="op">)</span><span class="op">$</span><span class="va">p_value</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 5</span></span></span>
+<span><span class="co">#&gt;   samples replicates     B     D     U</span></span>
+<span><span class="co">#&gt;     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>      77        250 0.6   0.944 0.896</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     129        250 0.904 0.988 0.976</span></span></code></pre></div>
 <p>Two caveats carried over from
-<code><a href="../articles/significance-testing.html">vignette("significance-testing")</a></code>: the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">D_{pit}</annotation></semantics></math>
-critical value is mildly anti-conservative below
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≈</mo><mn>50</mn></mrow><annotation encoding="application/x-tex">n \approx 50</annotation></semantics></math>,
-so the left-hand end of panel B is optimistic; and all of this assumes
-independent predictions.</p>
+<code><a href="../articles/significance-testing.html">vignette("significance-testing")</a></code>: the <span class="math inline">\(D_{pit}\)</span> critical value is mildly
+anti-conservative below <span class="math inline">\(n \approx
+50\)</span>, so the left-hand end of panel B is optimistic; and all of
+this assumes independent predictions.</p>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-      </div>
-
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
-  <p></p>
-<p>Developed by Rob Challen.</p>
+    <footer><div class="pkgdown-footer-left">
+  <p>Developed by Rob Challen.</p>
 </div>
 
-<div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+<div class="pkgdown-footer-right">
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
-
 
 
 

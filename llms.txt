@@ -1,0 +1,275 @@
+# Adjusted PIT-Wasserstein: A Calibration Metric for Probabilistic Estimators
+
+A dispersion calibration metric for probabilistic estimators,
+disentangled from bias and sharpness. Originally published as
+Supplementary Appendix 2 of **Challen & Danon (2025), “Instantaneous
+Reproduction Number Estimation From Modelled Incidence”**; this
+repository is the extension into a standalone paper.
+
+The [Lean proof
+library](https://ai4ci.github.io/pit-wasserstein/proof/README.md) gives
+the asymptotic null laws for all three tests and instructions for
+importing them into another Lean project.
+
+------------------------------------------------------------------------
+
+## Core concepts
+
+The paper defines three metrics for assessing probabilistic estimators
+and differentiating between, bias, dispersion miscalibration, and
+skill-spread decoupling.
+
+### Baseline PIT-Wasserstein (\\B\_{pit}\\)
+
+\\B\_{pit} = \frac{1}{n}\sum\_{i=1}^n{\|u_i - rank_i\|}\\
+
+Where \\rank_i = (i-0.5)/n\\ and \\u_i\\ are the PIT values.
+
+- **Range:** \[0, 0.5\]. Zero = perfect calibration and zero bias.
+- **Property:** Symmetric on log-calibration for a given bias.
+- **Validated:** Dependent on bias, dispersion calibration and sharpness
+  in simulation.
+
+### Adjusted PIT-Wasserstein (\\U^\*\_{pit}\\)
+
+\\U\_{pit} = \frac{1}{n}\sum\_{i=1}^n{\|u\_{i,adj} - rank_i\|}\\
+
+Where \\rank_i = (i-0.5)/n\\ and \\u\_{i,adj}\\ are the bias-adjusted
+PIT values.
+
+- **Range:** \[0, 0.5\]. Zero = perfect calibration.
+- **Property:** Symmetric on log-calibration — conservative and
+  overconfident estimators of equal magnitude score equally.
+- **Validated:** Independent of bias and sharpness in simulation.
+
+### Directed PIT-Wasserstein (\\D^\*\_{pit}\\)
+
+\\D\_{pit} = \frac{1}{n}\sum\_{i=1}^n{(rank_i - u\_{i,adj}) \times
+\operatorname{sgn}(0.5-rank_i)}\\
+
+- **Range:** \[-0.25, +0.25\]
+- **Direction:** Positive = overconfident (U-shaped PIT histogram);
+  Negative = conservative (dome-shaped).
+
+All three metrics have significance tests based on large-sample
+reference distributions for independent PIT values. The adjusted tests
+use reference laws derived for the Gaussian location model.
+
+------------------------------------------------------------------------
+
+## Literature context
+
+Closest existing work; all of it is in the `pit-wasserstein` Zotero
+collection, and `references/literature-review.md` has the detail.
+
+| Paper | Metric | Difference from \\U^\*\_{pit}\\ |
+|----|----|----|
+| **Wessel et al. (2025)** arXiv:2506.13687 | **MCB** = mean \|sorted PIT - uniform\| | No bias adjustment. Used as regularisation during training, not evaluation. |
+| **Wilks (2018)** QJRMS 144:76–88 | Miscalibration penalty (deviations of PIT from uniform) | First PIT-uniformity penalty. Qualitative/binned, not Wasserstein. |
+| **Kuleshov, Fenner & Ermon (2018)** ICML | PCE = sup-norm \|PIT CDF - uniform CDF\| | Sup-norm (KS-style), not L1/Wasserstein. No bias adjustment. |
+| **Dheur & Ben Taieb (2023)** ICML | PCE (same definition) | Large-scale empirical study of PCE. |
+| **Gneiting, Balabdaoui & Raftery (2007)** JRSS-B | — | Canonical PIT/calibration/sharpness framework. |
+| **Hamill (2001)** MWR 129:550–560 | — | Rank histograms for ensemble verification. |
+| **Brockwell (2007)** Stat. Prob. Lett. | — | Universal residuals / PIT residuals. |
+| **Podsztavek et al. (2024)** ESANN | — | ML classification of PIT histogram shapes. |
+| **Arrieta-Ibarra et al. (2022)** JMLR 23 | — | Survey of calibration metrics; reliability diagrams. |
+| **Panaretos & Zemel (2019)** Annu. Rev. Stat. Appl. | — | Wasserstein distances in statistics. |
+| **Bosse et al. (2024)** arXiv:2205.07090 | — | `scoringutils` has the AD test for PIT uniformity, no Wasserstein calibration metric. |
+
+### Summary of novelty
+
+The **adjusted PIT-Wasserstein (\\U^\*\_{pit}\\)** appears to be
+genuinely novel as a **standalone evaluative calibration metric**
+because it uniquely combines:
+
+1.  **Bias adjustment** before PIT uniformity assessment (no other
+    metric does this)
+2.  **Wasserstein/L1 distance** rather than sup-norm (PCE) or binning
+    (reliability diagrams)
+3.  **Signed direction** (\\D^\*\_{pit}\\) distinguishing overconfidence
+    from over-conservatism
+4.  **Validation** showing it is independent of bias and sharpness
+
+The closest existing metrics (Wessel et al.’s MCB, Kuleshov et al.’s
+PCE) measure raw PIT uniformity without de-biasing, so represent
+calibration as both bias and dispersion calibration and are not
+informative on dispersion miscalibration in the presence of bias.
+
+# Package index
+
+## PIT-W scoring
+
+## Simulations
+
+## Reparameterised and non-standard distributions
+
+- [`dbeta2()`](https://ai4ci.github.io/pit-wasserstein/reference/dbeta2.md)
+  : The Beta Distribution
+- [`dcgamma()`](https://ai4ci.github.io/pit-wasserstein/reference/dcgamma.md)
+  : Density: gamma distribution constrained to have mean \> sd
+- [`ddist()`](https://ai4ci.github.io/pit-wasserstein/reference/ddist.md)
+  : Density function a named distribution
+- [`dgamma2()`](https://ai4ci.github.io/pit-wasserstein/reference/dgamma2.md)
+  : The Gamma Distribution
+- [`dgamma4()`](https://ai4ci.github.io/pit-wasserstein/reference/dgamma4.md)
+  : The Gamma Distribution
+- [`dlnorm2()`](https://ai4ci.github.io/pit-wasserstein/reference/dlnorm2.md)
+  : The Log-Normal Distribution
+- [`dlnorm4()`](https://ai4ci.github.io/pit-wasserstein/reference/dlnorm4.md)
+  : The Log-Normal Distribution
+- [`dlogitnorm()`](https://ai4ci.github.io/pit-wasserstein/reference/dlogitnorm.md)
+  : Logit-normal distribution
+- [`dlogitnorm2()`](https://ai4ci.github.io/pit-wasserstein/reference/dlogitnorm2.md)
+  : Logit-normal distribution
+- [`dnbinom2()`](https://ai4ci.github.io/pit-wasserstein/reference/dnbinom2.md)
+  : The Negative Binomial Distribution
+- [`dnorm4()`](https://ai4ci.github.io/pit-wasserstein/reference/dnorm4.md)
+  : The Normal Distribution
+- [`dnull()`](https://ai4ci.github.io/pit-wasserstein/reference/dnull.md)
+  : Null distributions always returns NA
+- [`dwedge()`](https://ai4ci.github.io/pit-wasserstein/reference/dwedge.md)
+  : Wedge distribution
+- [`pbeta2()`](https://ai4ci.github.io/pit-wasserstein/reference/pbeta2.md)
+  : The Beta Distribution
+- [`pcgamma()`](https://ai4ci.github.io/pit-wasserstein/reference/pcgamma.md)
+  : Cumulative probability: gamma distribution constrained to have mean
+  \> sd
+- [`pdist()`](https://ai4ci.github.io/pit-wasserstein/reference/pdist.md)
+  : Cumulative probability from a named distribution
+- [`pgamma2()`](https://ai4ci.github.io/pit-wasserstein/reference/pgamma2.md)
+  : The Gamma Distribution
+- [`pgamma4()`](https://ai4ci.github.io/pit-wasserstein/reference/pgamma4.md)
+  : The Gamma Distribution
+- [`plnorm2()`](https://ai4ci.github.io/pit-wasserstein/reference/plnorm2.md)
+  : The Log-Normal Distribution
+- [`plnorm4()`](https://ai4ci.github.io/pit-wasserstein/reference/plnorm4.md)
+  : The Log-Normal Distribution
+- [`plogitnorm()`](https://ai4ci.github.io/pit-wasserstein/reference/plogitnorm.md)
+  : Logit-normal distribution
+- [`plogitnorm2()`](https://ai4ci.github.io/pit-wasserstein/reference/plogitnorm2.md)
+  : Logit-normal distribution
+- [`pnbinom2()`](https://ai4ci.github.io/pit-wasserstein/reference/pnbinom2.md)
+  : The Negative Binomial Distribution
+- [`pnorm4()`](https://ai4ci.github.io/pit-wasserstein/reference/pnorm4.md)
+  : The Normal Distribution
+- [`pnull()`](https://ai4ci.github.io/pit-wasserstein/reference/pnull.md)
+  : Null distributions always returns NA
+- [`pwedge()`](https://ai4ci.github.io/pit-wasserstein/reference/pwedge.md)
+  : Wedge distribution
+- [`qbeta2()`](https://ai4ci.github.io/pit-wasserstein/reference/qbeta2.md)
+  : The Beta Distribution
+- [`qcgamma()`](https://ai4ci.github.io/pit-wasserstein/reference/qcgamma.md)
+  : Quantile: gamma distribution constrained to have mean \> sd
+- [`qdist()`](https://ai4ci.github.io/pit-wasserstein/reference/qdist.md)
+  : Quantile function of a named distribution
+- [`qgamma2()`](https://ai4ci.github.io/pit-wasserstein/reference/qgamma2.md)
+  : The Gamma Distribution
+- [`qgamma4()`](https://ai4ci.github.io/pit-wasserstein/reference/qgamma4.md)
+  : The Gamma Distribution
+- [`qlnorm2()`](https://ai4ci.github.io/pit-wasserstein/reference/qlnorm2.md)
+  : The Log-Normal Distribution
+- [`qlnorm4()`](https://ai4ci.github.io/pit-wasserstein/reference/qlnorm4.md)
+  : The Log-Normal Distribution
+- [`qlogitnorm()`](https://ai4ci.github.io/pit-wasserstein/reference/qlogitnorm.md)
+  : Logit-normal distribution
+- [`qlogitnorm2()`](https://ai4ci.github.io/pit-wasserstein/reference/qlogitnorm2.md)
+  : Logit-normal distribution
+- [`qnbinom2()`](https://ai4ci.github.io/pit-wasserstein/reference/qnbinom2.md)
+  : The Negative Binomial Distribution
+- [`qnorm4()`](https://ai4ci.github.io/pit-wasserstein/reference/qnorm4.md)
+  : The Normal Distribution
+- [`qnull()`](https://ai4ci.github.io/pit-wasserstein/reference/qnull.md)
+  : Null distributions always returns NA
+- [`qwedge()`](https://ai4ci.github.io/pit-wasserstein/reference/qwedge.md)
+  : Wedge distribution
+- [`rbern()`](https://ai4ci.github.io/pit-wasserstein/reference/rbern.md)
+  : A random Bernoulli sample as a logical value
+- [`rbeta2()`](https://ai4ci.github.io/pit-wasserstein/reference/rbeta2.md)
+  : The Beta Distribution
+- [`rcategorical()`](https://ai4ci.github.io/pit-wasserstein/reference/rcategorical.md)
+  : Sampling from the multinomial equivalent of the Bernoulli
+  distribution
+- [`rcgamma()`](https://ai4ci.github.io/pit-wasserstein/reference/rcgamma.md)
+  : Sampling: gamma distribution constrained to have median \> sd
+- [`rdist()`](https://ai4ci.github.io/pit-wasserstein/reference/rdist.md)
+  : Random sample from a named distribution
+- [`rexpgrowth()`](https://ai4ci.github.io/pit-wasserstein/reference/rexpgrowth.md)
+  : Randomly sample incident times in an exponentially growing process
+- [`rexpgrowthI0()`](https://ai4ci.github.io/pit-wasserstein/reference/rexpgrowthI0.md)
+  : Randomly sample incident times in an exponentially growing process
+  with initial case load
+- [`rgamma2()`](https://ai4ci.github.io/pit-wasserstein/reference/rgamma2.md)
+  : The Gamma Distribution
+- [`rgamma4()`](https://ai4ci.github.io/pit-wasserstein/reference/rgamma4.md)
+  : The Gamma Distribution
+- [`rlnorm2()`](https://ai4ci.github.io/pit-wasserstein/reference/rlnorm2.md)
+  : The Log-Normal Distribution
+- [`rlnorm4()`](https://ai4ci.github.io/pit-wasserstein/reference/rlnorm4.md)
+  : The Log-Normal Distribution
+- [`rlogitnorm()`](https://ai4ci.github.io/pit-wasserstein/reference/rlogitnorm.md)
+  : Logit-normal distribution
+- [`rlogitnorm2()`](https://ai4ci.github.io/pit-wasserstein/reference/rlogitnorm2.md)
+  : Logit-normal distribution
+- [`rnbinom2()`](https://ai4ci.github.io/pit-wasserstein/reference/rnbinom2.md)
+  : The Negative Binomial Distribution
+- [`rnorm4()`](https://ai4ci.github.io/pit-wasserstein/reference/rnorm4.md)
+  : The Normal Distribution
+- [`rnull()`](https://ai4ci.github.io/pit-wasserstein/reference/rnull.md)
+  : Null distributions always returns NA
+- [`rwedge()`](https://ai4ci.github.io/pit-wasserstein/reference/rwedge.md)
+  : Wedge distribution
+- [`wedge`](https://ai4ci.github.io/pit-wasserstein/reference/wedge.md)
+  : Wedge distribution
+
+## Others
+
+- [`b_pit_significance()`](https://ai4ci.github.io/pit-wasserstein/reference/b_pit_significance.md)
+  : Significance test for the baseline PIT-Wasserstein metric
+- [`calibrated_locations()`](https://ai4ci.github.io/pit-wasserstein/reference/calibrated_locations.md)
+  : Uniform predictions for testing
+- [`calibrated_locations_general()`](https://ai4ci.github.io/pit-wasserstein/reference/calibrated_locations_general.md)
+  : Uniform predictions for testing (general)
+- [`configuration_plot()`](https://ai4ci.github.io/pit-wasserstein/reference/configuration_plot.md)
+  : Produce a summary plot of a experimental configuration.
+- [`crps_fn_generator()`](https://ai4ci.github.io/pit-wasserstein/reference/crps_fn_generator.md)
+  : Generate a CRPS calculating function based on a parametrised
+  distribution name
+- [`d_pit_significance()`](https://ai4ci.github.io/pit-wasserstein/reference/d_pit_significance.md)
+  : Significance test for the directed PIT-Wasserstein metric
+- [`generate_simulation()`](https://ai4ci.github.io/pit-wasserstein/reference/generate_simulation.md)
+  : Generate an set of scenarios for testing scoring
+- [`p_l1_bridge()`](https://ai4ci.github.io/pit-wasserstein/reference/p_l1_bridge.md)
+  [`q_l1_bridge()`](https://ai4ci.github.io/pit-wasserstein/reference/p_l1_bridge.md)
+  : Distribution of the L1 norm of the Brownian bridge
+- [`pit_w()`](https://ai4ci.github.io/pit-wasserstein/reference/pit_w.md)
+  : Calculate a pit-wasserstein value for a single estimator
+- [`prediction_scores()`](https://ai4ci.github.io/pit-wasserstein/reference/prediction_scores.md)
+  : Score a parametrised probability distribution
+- [`reparam_fn()`](https://ai4ci.github.io/pit-wasserstein/reference/reparam_fn.md)
+  : Get a converter that maps an unusual parametrisation to a canonical
+  one.
+- [`std_size`](https://ai4ci.github.io/pit-wasserstein/reference/std_size.md)
+  : Standard image and paper sizes
+- [`u_pit_significance()`](https://ai4ci.github.io/pit-wasserstein/reference/u_pit_significance.md)
+  : Significance test for the bias-adjusted undirected PIT-Wasserstein
+  metric
+
+# Articles
+
+### All vignettes
+
+- [Introduction to calibration and probability integral
+  transforms](https://ai4ci.github.io/pit-wasserstein/articles/introduction-to-pit.md):
+- [Model misspecification: what the metrics do when the predictive
+  family is
+  wrong](https://ai4ci.github.io/pit-wasserstein/articles/model-misspecification.md):
+- [PIT-Wasserstein metrics for miscalibration
+  diagnosis](https://ai4ci.github.io/pit-wasserstein/articles/pit-w-metrics.md):
+- [Getting started with
+  pitw](https://ai4ci.github.io/pit-wasserstein/articles/pitw.md):
+- [Testing for bias, dispersion miscalibration and skill spread
+  decoupling](https://ai4ci.github.io/pit-wasserstein/articles/sample-sizes-and-power.md):
+- [Significance testing for the PIT-Wasserstein
+  metrics](https://ai4ci.github.io/pit-wasserstein/articles/significance-testing.md):
+- [A PIT-Wasserstein study using SIR dynamics and
+  EpiEstim](https://ai4ci.github.io/pit-wasserstein/articles/sir-epiestim-example.md):

@@ -5,7 +5,11 @@ articles:
   introduction-to-pit: introduction-to-pit.html
   model-misspecification: model-misspecification.html
   pit-w-metrics: pit-w-metrics.html
+  pitw: pitw.html
   sample-sizes-and-power: sample-sizes-and-power.html
   significance-testing: significance-testing.html
   sir-epiestim-example: sir-epiestim-example.html
-last_built: 2026-11-19T21:41Z
+last_built: 2026-11-25T22:22Z
+urls:
+  reference: https://ai4ci.github.io/pit-wasserstein/reference
+  article: https://ai4ci.github.io/pit-wasserstein/articles

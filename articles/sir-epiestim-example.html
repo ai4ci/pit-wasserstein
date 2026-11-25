@@ -3,91 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>A PIT-Wasserstein study using SIR dynamics and EpiEstim • pitw</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="A PIT-Wasserstein study using SIR dynamics and EpiEstim">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="A PIT-Wasserstein study using SIR dynamics and EpiEstim">
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">pitw</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9001</span>
-      </span>
-    </div>
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    <a class="navbar-brand me-2" href="../index.html">pitw</a>
 
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/introduction-to-pit.html">Introduction to calibration and probability integral transforms</a>
-    </li>
-    <li>
-      <a href="../articles/model-misspecification.html">Model misspecification: what the metrics do when the predictive family is wrong</a>
-    </li>
-    <li>
-      <a href="../articles/pit-w-metrics.html">PIT-Wasserstein metrics for miscalibration diagnosis</a>
-    </li>
-    <li>
-      <a href="../articles/sample-sizes-and-power.html">Testing for bias, dispersion miscalibration and skill spread decoupling</a>
-    </li>
-    <li>
-      <a href="../articles/significance-testing.html">Significance testing for the PIT-Wasserstein metrics</a>
-    </li>
-    <li>
-      <a href="../articles/sir-epiestim-example.html">A PIT-Wasserstein study using SIR dynamics and EpiEstim</a>
-    </li>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
+
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/pitw.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/introduction-to-pit.html">Introduction to calibration and probability integral transforms</a></li>
+    <li><a class="dropdown-item" href="../articles/model-misspecification.html">Model misspecification: what the metrics do when the predictive family is wrong</a></li>
+    <li><a class="dropdown-item" href="../articles/pit-w-metrics.html">PIT-Wasserstein metrics for miscalibration diagnosis</a></li>
+    <li><a class="dropdown-item" href="../articles/sample-sizes-and-power.html">Testing for bias, dispersion miscalibration and skill spread decoupling</a></li>
+    <li><a class="dropdown-item" href="../articles/significance-testing.html">Significance testing for the PIT-Wasserstein metrics</a></li>
+    <li><a class="dropdown-item" href="../articles/sir-epiestim-example.html">A PIT-Wasserstein study using SIR dynamics and EpiEstim</a></li>
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+      </ul>
 </div>
-<!--/.nav-collapse -->
+
+
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
+</nav><div class="container template-article">
 
 
 
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>A PIT-Wasserstein study using SIR dynamics and
-EpiEstim</h1>
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+
+      <h1>A PIT-Wasserstein study using SIR dynamics and EpiEstim</h1>
             
       
 
-      <div class="hidden name"><code>sir-epiestim-example.Rmd</code></div>
-
+      <div class="d-none name"><code>sir-epiestim-example.Rmd</code></div>
     </div>
 
     
@@ -115,53 +97,23 @@ EpiEstim</h1>
 <div class="section level2">
 <h2 id="purpose">Purpose<a class="anchor" aria-label="anchor" href="#purpose"></a>
 </h2>
-<p>Every other result in this package is generated by our own simulation
-framework, in which the miscalibration is injected deliberately and so
-is known by construction. That is the right way to validate the metrics,
-but it cannot show that they say anything useful about an estimator
-somebody else wrote. This vignette therefore scores a genuinely
-external, widely used estimator — <code>EpiEstim</code>’s
-renewal-equation estimate of the instantaneous reproduction number —
-against a ground truth it never sees.</p>
-<p>The design deliberately avoids real surveillance data. For
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
-there is no observable ground truth in a real outbreak, so a real
-dataset would let us measure disagreement but not calibration. A
-deterministic SIR model gives an exact
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
-trajectory, and the only stochasticity is in the observation process,
-which is where a forecast evaluation metric should be looking.</p>
-<p>The experiment sweeps <strong>epidemic size</strong>. The same
-epidemic curve is realised in populations spanning two and a half orders
-of magnitude, so the signal-to-noise ratio available to the estimator
-varies continuously while the shape of the thing being estimated does
-not. The question is whether the PIT-Wasserstein metrics track the
-estimator’s dispersion calibration across that range, and whether they
-say anything a proper score does not.</p>
+<p>We asked whether EpiEstim’s intervals for the instantaneous
+reproduction number were too wide or too narrow, and whether this
+depended on the number of observed cases and the estimation window. A
+simulated epidemic gives us a reference <span class="math inline">\(R_t\)</span> for each day. At a given population
+size and window setting, each independent series of case counts
+contributes one estimate to the comparison.</p>
 </div>
 <div class="section level2">
 <h2 id="simulation-setup">1. Simulation setup<a class="anchor" aria-label="anchor" href="#simulation-setup"></a>
 </h2>
-<p>We use a simple SIR model with known reproductive number dynamics.
-The true
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
-at each time point is analytically known:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>=</mo><msub><mi>R</mi><mn>0</mn></msub><mo>⋅</mo><mfrac><msub><mi>S</mi><mi>t</mi></msub><mi>N</mi></mfrac></mrow><annotation encoding="application/x-tex">R_t = R_0 \cdot \frac{S_t}{N}</annotation></semantics></math></p>
-<p>The model is solved as a deterministic ODE on the proportion scale
-with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mn>0</mn></msub><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">R_0 = 2</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>1</mn><mi>/</mi><mn>5</mn></mrow><annotation encoding="application/x-tex">\gamma = 1/5</annotation></semantics></math>
-(a five-day infectious period) and a seed of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup><annotation encoding="application/x-tex">10^{-4}</annotation></semantics></math>,
-over 100 days. Because
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mi>t</mi></msub><annotation encoding="application/x-tex">S_t</annotation></semantics></math>
-is deterministic,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>=</mo><msub><mi>R</mi><mn>0</mn></msub><msub><mi>S</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">R_t = R_0 S_t</annotation></semantics></math>
-is exact at every time point: this is the ground truth against which
-<code>EpiEstim</code> is scored. The incidence curve
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><msub><mi>S</mi><mi>t</mi></msub><msub><mi>I</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">\beta S_t I_t</annotation></semantics></math>
-is the expected number of new infections per capita per day, and is what
-the observation process below is built on.</p>
+<p>We solved a deterministic SIR model on the proportion scale for days
+0 to 100, with <span class="math inline">\(R_0=2\)</span>, a mean
+infectious period of five days and an initial infectious proportion of
+<span class="math inline">\(10^{-4}\)</span>. If <span class="math inline">\(S_t\)</span> is the susceptible proportion, the
+reference reproduction number is <span class="math inline">\(R_t=R_0
+S_t\)</span>. Multiplying the daily incidence rate <span class="math inline">\(\beta S_t I_t\)</span> by population size gives
+the expected count used below.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">sir_model</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span>, <span class="va">R0</span>, <span class="va">g</span><span class="op">)</span> <span class="op">{</span></span>
@@ -203,35 +155,18 @@ the observation process below is built on.</p>
 <span>  <span class="op">)</span></span></code></pre></div>
 <p><img src="sir-epiestim-example_files/figure-html/unnamed-chunk-2-2.png" class="r-plt" alt="" width="576"></p>
 <div class="section level3">
-<h3 id="scenarios-the-same-epidemic-at-100-different-sizes">Scenarios: the same epidemic at 100 different sizes<a class="anchor" aria-label="anchor" href="#scenarios-the-same-epidemic-at-100-different-sizes"></a>
+<h3 id="population-sizes-and-observed-counts">Population sizes and observed counts<a class="anchor" aria-label="anchor" href="#population-sizes-and-observed-counts"></a>
 </h3>
-<p>The population size <code>N</code> is swept over 100 log-spaced
-values from
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>2.5</mn></msup><annotation encoding="application/x-tex">10^{2.5}</annotation></semantics></math>
-(about 320 people) to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>5</mn></msup><annotation encoding="application/x-tex">10^{5}</annotation></semantics></math>,
-with ten independent replicate runs at each, giving 1000 scenarios.
-Expected daily cases are <code>incid * N</code>, and the observed counts
-are a binomial thinning of those at a fixed ascertainment probability
-<code>pObs = 0.5</code>.</p>
-<p>This is the key structural choice. Because the epidemic curve is
-identical in shape across all 100 populations, the only thing that
-changes along the sweep is the absolute number of cases, and hence the
-amount of information available to the estimator in each sliding window.
-Peak observed case count is therefore a clean one-dimensional measure of
-signal strength, and it is the x-axis of every panel in the figure
-below. The ascertainment probability is held fixed so that it does not
-confound that axis; the commented-out <code>pObs</code> arm is a
-sensitivity check, not part of the main result.</p>
-<p>The grouping established here — <code>run</code>, <code>N</code>,
-<code>pObs</code> — is carried through the rest of the vignette. One
-group is one epidemic, one <code>EpiEstim</code> fit, and one row of
-scores.</p>
+<p>We used 100 rounded, log-spaced population sizes from 316 to 100,000.
+At each size we kept the epidemic curve fixed and generated 100
+independent series of observed daily counts. On each day the number
+observed was a binomial draw from the rounded model count with
+ascertainment probability 0.5. There was no observation delay.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">scenarios</span> <span class="op">=</span> <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/expand.html" class="external-link">crossing</a></span><span class="op">(</span></span>
 <span>  N <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">^</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">5</span>,length.out<span class="op">=</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  pObs <span class="op">=</span> <span class="fl">0.5</span>, <span class="co">#c(0.2, 0.8),</span></span>
-<span>  run <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span></span>
+<span>  run <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span></span>
 <span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/cross_join.html" class="external-link">cross_join</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
@@ -240,9 +175,9 @@ scores.</p>
 <span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">run</span>,<span class="va">N</span>,<span class="va">pObs</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 101,000</span></span>
+<span><span class="co">#&gt; Rows: 1,010,000</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
-<span><span class="co">#&gt; Groups: run, N, pObs [1,000]</span></span>
+<span><span class="co">#&gt; Groups: run, N, pObs [10,000]</span></span>
 <span><span class="co">#&gt; $ N     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 316<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>316<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ pObs  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>0.5<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ run   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1…</span></span>
@@ -262,54 +197,49 @@ scores.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="estimating-r_t-with-epiestim">2. Estimating
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
-with EpiEstim<a class="anchor" aria-label="anchor" href="#estimating-r_t-with-epiestim"></a>
+<h2 id="estimating-r_t-with-epiestim">2. Estimating <span class="math inline">\(R_t\)</span> with
+EpiEstim<a class="anchor" aria-label="anchor" href="#estimating-r_t-with-epiestim"></a>
 </h2>
-<p><code>EpiEstim</code> is run once per scenario on the observed counts
-alone. It is given a parametric serial interval (mean 5 days, sd 5
-days), seven-day sliding windows, and the package’s own
-Gamma<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(2,2)</annotation></semantics></math>
-prior on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>.
-It is told nothing about the SIR model, the population size, or the
-ascertainment probability.</p>
-<p>The output used here is the posterior mean and standard deviation of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
-in each window, which is exactly how a user of the package would report
-an estimate with its uncertainty. We treat that pair as a parametrised
-probabilistic prediction of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
-— a Gamma distribution parametrised by mean and standard deviation, on a
-log link — and score it against the true
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
-at the window end. Windows with no observed cases are dropped, which is
-why the number of scored predictions per scenario is itself a function
-of epidemic size (a median of about 76 of the 87 windows, falling to
-around 46 in the smallest epidemics).</p>
+<p>For each series we chose one endpoint uniformly from incidence-vector
+indices 40 to 75. At that endpoint we fitted EpiEstim using five
+windows, with <code>t_end - t_start</code> equal to 2, 4, 7, 10 or 14.
+These are the labels used in the figures. EpiEstim includes both
+endpoints, so the corresponding windows contain 3, 5, 8, 11 or 15 daily
+counts. We used a parametric serial interval with mean and standard
+deviation both five days, and a prior for <span class="math inline">\(R_t\)</span> with mean 2 and standard deviation
+5.</p>
+<p>The first entry of the incidence vector is simulation day 0. A window
+ending at index 40 therefore includes counts through day 39. The join
+below compares it with the reference <span class="math inline">\(R_t\)</span> on day 40. This one-day difference
+matters when interpreting bias because <span class="math inline">\(R_t\)</span> falls over the course of this
+epidemic.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">starts</span> <span class="op">=</span> <span class="fl">7</span><span class="op">:</span><span class="op">(</span><span class="fl">100</span><span class="op">-</span><span class="fl">7</span><span class="op">)</span></span>
-<span><span class="va">ends</span> <span class="op">=</span> <span class="op">(</span><span class="fl">7</span><span class="op">+</span><span class="fl">7</span><span class="op">)</span><span class="op">:</span><span class="fl">100</span></span>
-<span><span class="va">config</span> <span class="op">=</span> <span class="fu">EpiEstim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/EpiEstim/man/make_config.html" class="external-link">make_config</a></span><span class="op">(</span></span>
-<span>  method <span class="op">=</span> <span class="st">"parametric_si"</span>,</span>
-<span>  mean_si <span class="op">=</span> <span class="fl">5</span>, std_si <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  t_start <span class="op">=</span> <span class="va">starts</span>, t_end <span class="op">=</span> <span class="va">ends</span>,</span>
-<span>  mean_prior <span class="op">=</span> <span class="fl">2</span>, std_prior <span class="op">=</span> <span class="fl">2</span></span>
-<span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">results</span> <span class="op">=</span> <span class="va">scenarios</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_map.html" class="external-link">group_modify</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">d</span>,<span class="va">g</span>,<span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  </span>
+<span>  <span class="co"># Fit all five windows at one endpoint in this replicate.</span></span>
+<span></span>
+<span>  <span class="va">endpoint</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">50</span><span class="op">-</span><span class="fl">14</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fl">14</span> <span class="op">+</span><span class="fl">25</span></span>
+<span>  <span class="va">starts</span> <span class="op">=</span> <span class="va">endpoint</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">7</span>,<span class="fl">10</span>,<span class="fl">14</span><span class="op">)</span></span>
+<span>  <span class="va">ends</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">endpoint</span>,<span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">starts</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="va">ee</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu">EpiEstim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/EpiEstim/man/estimate_R.html" class="external-link">estimate_R</a></span><span class="op">(</span></span>
 <span>    incid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>I <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">obs</span><span class="op">)</span>,</span>
 <span>    method <span class="op">=</span> <span class="st">"parametric_si"</span>,</span>
-<span>    config <span class="op">=</span> <span class="va">config</span>,</span>
+<span>    config <span class="op">=</span> <span class="fu">EpiEstim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/EpiEstim/man/make_config.html" class="external-link">make_config</a></span><span class="op">(</span></span>
+<span>      method <span class="op">=</span> <span class="st">"parametric_si"</span>,</span>
+<span>      mean_si <span class="op">=</span> <span class="fl">5</span>, std_si <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>      t_start <span class="op">=</span> <span class="va">starts</span>, t_end <span class="op">=</span> <span class="va">ends</span>,</span>
+<span>      mean_prior <span class="op">=</span> <span class="fl">2</span>, std_prior <span class="op">=</span> <span class="fl">5</span></span>
+<span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="va">tmp</span> <span class="op">=</span> <span class="va">d</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">obs</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>    <span class="co"># filter(obs&gt;0) %&gt;% </span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span></span>
-<span>      <span class="va">ee</span><span class="op">$</span><span class="va">R</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span>time <span class="op">=</span> <span class="va">t_end</span>, mean<span class="op">=</span><span class="va">`Mean(R)`</span>, sd <span class="op">=</span> <span class="va">`Std(R)`</span><span class="op">)</span>, </span>
+<span>      <span class="va">ee</span><span class="op">$</span><span class="va">R</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>        <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>window <span class="op">=</span> <span class="va">t_end</span><span class="op">-</span><span class="va">t_start</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>        <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span>time <span class="op">=</span> <span class="va">t_end</span>, window<span class="op">=</span><span class="va">window</span>, mean<span class="op">=</span><span class="va">`Mean(R)`</span>, sd <span class="op">=</span> <span class="va">`Std(R)`</span><span class="op">)</span>, </span>
 <span>      by <span class="op">=</span> <span class="st">"time"</span></span>
 <span>    <span class="op">)</span></span>
 <span>  </span>
@@ -320,31 +250,52 @@ around 46 in the smallest epidemics).</p>
 <div class="section level2">
 <h2 id="scoring">3. Scoring<a class="anchor" aria-label="anchor" href="#scoring"></a>
 </h2>
-<p><code><a href="../reference/prediction_scores.html">prediction_scores()</a></code> is applied per scenario.
-<code>max_obs</code>, the peak observed case count, is computed inside
-the scenario grouping before the regroup, so it indexes the scenario
-rather than being recomputed over a pooled set. The threshold of 1 is
-the epidemiologically meaningful one: it asks how often the prediction
-is on the wrong side of “the epidemic is growing”.</p>
-<p><code>calibration</code> is <code>NA</code> here because, unlike in
-the synthetic experiments, there is no injected calibration ratio to
-compare against — the whole point is that the estimator’s true
-dispersion calibration is unknown in advance and is what the metrics are
-being asked to recover.</p>
+<p>We used each posterior mean and standard deviation to specify a gamma
+distribution for <span class="math inline">\(R_t\)</span>. For each
+population size and window setting we scored the 100 estimates together,
+fitting one median location shift on the log scale. Each point therefore
+summarises 100 independent series. Comparisons across windows are paired
+because the five fits use the same series and endpoint.</p>
+<p>The horizontal axis is the largest daily count observed across all
+100 series at that population size. All five window settings share that
+value. We left <code>calibration</code> unspecified because the
+spread-to-error ratio is unknown. The threshold <span class="math inline">\(R_t=1\)</span> is used by the package for its
+separate classification summary.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">scores</span> <span class="op">=</span> <span class="va">results</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/transmute.html" class="external-link">transmute</a></span><span class="op">(</span></span>
-<span>  max_obs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">obs</span><span class="op">)</span>,</span>
-<span>  true_value<span class="op">=</span> <span class="va">R_t</span>, location <span class="op">=</span> <span class="va">mean</span>, scale <span class="op">=</span> <span class="va">sd</span>, link<span class="op">=</span><span class="st">"log"</span>, dist<span class="op">=</span><span class="st">"gamma2"</span>,</span>
-<span>  calibration<span class="op">=</span><span class="cn">NA_real_</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">max_obs</span>, <span class="va">N</span>, <span class="va">pObs</span>, <span class="va">dist</span>, <span class="va">link</span>, <span class="va">calibration</span>, <span class="va">run</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/prediction_scores.html">prediction_scores</a></span><span class="op">(</span>threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> </span>
+<code class="sourceCode R"><span></span>
+<span><span class="va">tmp</span> <span class="op">=</span> <span class="va">scenarios</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">N</span>,<span class="va">pObs</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>max_obs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">obs</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; `summarise()` has regrouped the output.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Summaries were computed grouped by <span style="color: #0000BB;">N</span> and <span style="color: #0000BB;">pObs</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Output is grouped by <span style="color: #0000BB;">N</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `summarise(.groups = "drop_last")` to silence this message.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `summarise(.by = c(N, pObs))` for per-operation grouping</span></span>
+<span><span class="co">#&gt;   (`?dplyr::dplyr_by`) instead.</span></span>
+<span></span>
+<span><span class="va">scores</span> <span class="op">=</span> <span class="va">results</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/transmute.html" class="external-link">transmute</a></span><span class="op">(</span></span>
+<span>    <span class="va">window</span>,</span>
+<span>    true_value<span class="op">=</span> <span class="va">R_t</span>, location <span class="op">=</span> <span class="va">mean</span>, scale <span class="op">=</span> <span class="va">sd</span>, link<span class="op">=</span><span class="st">"log"</span>, dist<span class="op">=</span><span class="st">"gamma2"</span>,</span>
+<span>    calibration<span class="op">=</span><span class="cn">NA_real_</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">pObs</span>, <span class="va">dist</span>, <span class="va">link</span>, <span class="va">calibration</span>, <span class="va">window</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/prediction_scores.html">prediction_scores</a></span><span class="op">(</span>threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span><span class="va">tmp</span>, by<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N"</span>,<span class="st">"pObs"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="va">plotdata</span> <span class="op">=</span> <span class="va">scores</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>  H0_B_pit <span class="op">=</span> <span class="fu"><a href="../reference/b_pit_significance.html">b_pit_significance</a></span><span class="op">(</span>B_pit <span class="op">=</span> <span class="va">B_pit</span>, n_predictions <span class="op">=</span> <span class="va">n_predictions</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">p_value</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0.05</span>,</span>
 <span>  H0_U_pit <span class="op">=</span> <span class="fu"><a href="../reference/u_pit_significance.html">u_pit_significance</a></span><span class="op">(</span>U_pit <span class="op">=</span> <span class="va">U_pit</span>, n_predictions <span class="op">=</span> <span class="va">n_predictions</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">p_value</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0.05</span>,</span>
 <span>  H0_D_pit <span class="op">=</span> <span class="fu"><a href="../reference/d_pit_significance.html">d_pit_significance</a></span><span class="op">(</span>D_pit <span class="op">=</span> <span class="va">D_pit</span>, n_predictions <span class="op">=</span> <span class="va">n_predictions</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">p_value</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0.05</span>,</span>
-<span>  `P(obs)`<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">pObs</span><span class="op">)</span></span>
+<span>  `P(obs)`<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">pObs</span><span class="op">)</span>,</span>
+<span>  window <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">window</span><span class="op">)</span></span>
+<span>  <span class="co"># timing = cut(time, c(-Inf,30,60,Inf), labels=c("growth","peak","resolution"))</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">signif</span> <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  n_predictions <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  B_crit <span class="op">=</span> <span class="fu"><a href="../reference/b_pit_significance.html">b_pit_significance</a></span><span class="op">(</span>B_pit <span class="op">=</span> <span class="cn">NA</span>, n_predictions <span class="op">=</span> <span class="va">n_predictions</span><span class="op">)</span>,</span>
+<span>  U_crit <span class="op">=</span> <span class="fu"><a href="../reference/u_pit_significance.html">u_pit_significance</a></span><span class="op">(</span>U_pit <span class="op">=</span> <span class="cn">NA</span>, n_predictions <span class="op">=</span> <span class="va">n_predictions</span><span class="op">)</span>,</span>
+<span>  D_crit <span class="op">=</span> <span class="fu"><a href="../reference/d_pit_significance.html">d_pit_significance</a></span><span class="op">(</span>D_pit <span class="op">=</span> <span class="cn">NA</span>, n_predictions <span class="op">=</span> <span class="va">n_predictions</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -352,45 +303,46 @@ being asked to recover.</p>
 </h2>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">p5a</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plotdata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">max_obs</span>,y<span class="op">=</span><span class="va">bias</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span><span class="va">p5a</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plotdata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">max_obs</span>,y<span class="op">=</span><span class="va">bias</span>, colour<span class="op">=</span><span class="va">window</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se<span class="op">=</span><span class="cn">FALSE</span>,method<span class="op">=</span><span class="st">"loess"</span>, span<span class="op">=</span><span class="fl">0.8</span>, colour<span class="op">=</span><span class="st">"black"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"peak observed case count"</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"bias"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"bias"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, linetype<span class="op">=</span><span class="st">"solid"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">p5b</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plotdata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">max_obs</span>, colour <span class="op">=</span> <span class="va">H0_B_pit</span>,y<span class="op">=</span><span class="va">B_pit</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span><span class="va">p5b</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plotdata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">max_obs</span>, colour <span class="op">=</span> <span class="va">window</span>, y<span class="op">=</span><span class="va">B_pit</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se<span class="op">=</span><span class="cn">FALSE</span>,method<span class="op">=</span><span class="st">"loess"</span>, span<span class="op">=</span><span class="fl">0.8</span>, colour<span class="op">=</span><span class="st">"black"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"peak observed case count"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"baseline pit-w"</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span>values<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"TRUE"</span><span class="op">=</span><span class="st">"blue"</span>,<span class="st">"FALSE"</span><span class="op">=</span><span class="st">"red"</span><span class="op">)</span>, guide<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, linetype<span class="op">=</span><span class="st">"solid"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="va">signif</span><span class="op">$</span><span class="va">B_crit</span><span class="op">$</span><span class="va">critical_0.05</span>, linetype<span class="op">=</span><span class="st">"dashed"</span><span class="op">)</span></span>
+<span>  <span class="co">#+</span></span>
+<span>  <span class="co">#scale_color_manual(values=list("TRUE"="blue","FALSE"="red"), guide=NULL)</span></span>
 <span></span>
-<span><span class="va">p5c</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plotdata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">max_obs</span>, colour <span class="op">=</span> <span class="va">H0_D_pit</span>, y<span class="op">=</span><span class="va">D_pit</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span><span class="va">p5c</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plotdata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">max_obs</span>, colour <span class="op">=</span> <span class="va">window</span>, y<span class="op">=</span><span class="va">D_pit</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se<span class="op">=</span><span class="cn">FALSE</span>,method<span class="op">=</span><span class="st">"loess"</span>, span<span class="op">=</span><span class="fl">0.8</span>, colour<span class="op">=</span><span class="st">"black"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"peak observed case count"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"directed pit-w"</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span>values<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"TRUE"</span><span class="op">=</span><span class="st">"blue"</span>,<span class="st">"FALSE"</span><span class="op">=</span><span class="st">"red"</span><span class="op">)</span>, guide<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, linetype<span class="op">=</span><span class="st">"solid"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="va">signif</span><span class="op">$</span><span class="va">D_crit</span><span class="op">$</span><span class="va">critical_0.05</span>, linetype<span class="op">=</span><span class="st">"dashed"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="op">-</span><span class="va">signif</span><span class="op">$</span><span class="va">D_crit</span><span class="op">$</span><span class="va">critical_0.05</span>, linetype<span class="op">=</span><span class="st">"dashed"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">p5d</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plotdata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">max_obs</span>, colour <span class="op">=</span> <span class="va">H0_U_pit</span>,y<span class="op">=</span><span class="va">U_pit</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="co">#+</span></span>
+<span>  <span class="co">#scale_color_manual(values=list("TRUE"="blue","FALSE"="red"), guide=NULL)</span></span>
+<span><span class="co"># </span></span>
+<span><span class="va">p5d</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plotdata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">max_obs</span>, colour <span class="op">=</span> <span class="va">window</span>,y<span class="op">=</span><span class="va">U_pit</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se<span class="op">=</span><span class="cn">FALSE</span>,method<span class="op">=</span><span class="st">"loess"</span>, span<span class="op">=</span><span class="fl">0.8</span>, colour<span class="op">=</span><span class="st">"black"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"peak observed case count"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"undirected pit-w"</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span>values<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"TRUE"</span><span class="op">=</span><span class="st">"blue"</span>,<span class="st">"FALSE"</span><span class="op">=</span><span class="st">"red"</span><span class="op">)</span>, guide<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># p5c = ggplot(plotdata, aes(x=max_obs, colour = `P(obs)`,y=mean_crps))+</span></span>
-<span><span class="co">#   geom_point()+</span></span>
-<span><span class="co">#   geom_smooth(se=FALSE,method="loess", span=0.8)+</span></span>
-<span><span class="co">#   scale_x_log10()+</span></span>
-<span><span class="co">#   xlab("peak observed case count")+</span></span>
-<span><span class="co">#   ylab("mean CRPS")</span></span>
-<span></span>
-<span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, linetype<span class="op">=</span><span class="st">"solid"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="va">signif</span><span class="op">$</span><span class="va">U_crit</span><span class="op">$</span><span class="va">critical_0.05</span>, linetype<span class="op">=</span><span class="st">"dashed"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p5</span> <span class="op">=</span> <span class="va">p5a</span><span class="op">+</span><span class="va">p5b</span><span class="op">+</span><span class="va">p5c</span><span class="op">+</span><span class="va">p5d</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>guides<span class="op">=</span><span class="st">"collect"</span>,axes<span class="op">=</span><span class="st">"collect"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html" class="external-link">plot_annotation</a></span><span class="op">(</span>tag_level<span class="op">=</span><span class="st">"A"</span><span class="op">)</span></span>
@@ -401,176 +353,118 @@ being asked to recover.</p>
 <span>  size <span class="op">=</span> <span class="va">std_size</span><span class="op">$</span><span class="va">two_third</span>,</span>
 <span>  formats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pdf"</span>, <span class="st">"eps"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using formula = 'y ~ x'</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using formula = 'y ~ x'</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using formula = 'y ~ x'</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using formula = 'y ~ x'</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using formula = 'y ~ x'</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using formula = 'y ~ x'</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using formula = 'y ~ x'</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using formula = 'y ~ x'</span></span></code></pre></div>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span></code></pre></div>
 <p><img src="sir-epiestim-example_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="576"></p>
 <div class="section level3">
 <h3 id="interpretation">Interpretation<a class="anchor" aria-label="anchor" href="#interpretation"></a>
 </h3>
-<p><strong>Bias is present throughout and does not contaminate the
-dispersion verdict.</strong> Panel A shows a systematic negative bias at
-every epidemic size
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>0.185</mn></mrow><annotation encoding="application/x-tex">-0.185</annotation></semantics></math>
-falling to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>0.088</mn></mrow><annotation encoding="application/x-tex">-0.088</annotation></semantics></math>):
-<code>EpiEstim</code>’s
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
-sits above the truth, plausibly a combination of the
-Gamma<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(2,2)</annotation></semantics></math>
-prior pulling towards 2 and the seven-day window lagging a falling
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>.</p>
-<p>In panel B baseline PITS value metric <code>B_pit</code> sits between
-0.24 and 0.30 and is nearly flat. Almost all of the baseline PIT
-deviation is location error; the adjustment (panels C&amp;D) removes it
-and leaves the dispersion signal, which is the invariance property
-claimed for the metrics.</p>
-<p><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>D</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow><mo>*</mo></msubsup><annotation encoding="application/x-tex">D^*_{pit}</annotation></semantics></math>
-changes sign, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>U</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow><mo>*</mo></msubsup><annotation encoding="application/x-tex">U^*_{pit}</annotation></semantics></math>
-is U-shaped.</strong> Panel C shows the directed metric rising
-monotonically with epidemic size and crossing zero at a peak of roughly
-56 observed cases: mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>D</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow><mo>*</mo></msubsup><mo>≈</mo><mi>−</mi><mn>0.079</mn></mrow><annotation encoding="application/x-tex">D^*_{pit} \approx -0.079</annotation></semantics></math>
-in the smallest epidemics,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mn>0.089</mn></mrow><annotation encoding="application/x-tex">+0.089</annotation></semantics></math>
-in the largest. Negative values are under-confidence and positive values
-over-confidence, so <code>EpiEstim</code>’s stated uncertainty is too
-wide when counts are small and too narrow when they are large. Panel D
-shows the undirected metric bottoming out at a peak of around 47 cases
-and rising in both directions, independently locating the same sweet
-spot. The two metrics are computed from different functionals of the
-same PIT values, and they agree; this is the two-part diagnostic doing
-what it is meant to do on data where nobody told it the answer.</p>
-<!-- **CRPS runs the other way.** Panel C falls monotonically from 0.183 to 0.087 -->
-<!-- (correlation $-0.89$ with $\log_{10}$ peak cases). Read without care it says -->
-<!-- that the bigger the epidemic, the better the forecast. What it is actually -->
-<!-- measuring is sharpness: in a large epidemic the posterior is narrow, so the -->
-<!-- score is small even as calibration deteriorates. $D^*_{pit}$ is monotone in -->
-<!-- the opposite direction (correlation $+0.91$) and is the only metric in the -->
-<!-- panel that identifies the large-epidemic forecasts as the mis-calibrated ones. -->
-<!-- This is the central argument of the paper, made on a real estimator rather -->
-<!-- than a constructed example: a proper score and a dispersion diagnostic can -->
-<!-- rank the same forecaster in opposite directions, and they are answering -->
-<!-- different questions. -->
-<!-- Coverage corroborates the PIT-Wasserstein reading and not the CRPS one. -->
-<!-- Nominal 95% intervals cover 91% of true values in the smallest epidemics and -->
-<!-- only 51% in the largest; nominal 50% intervals fall from 0.44 to 0.29. The -->
-<!-- estimator is getting worse by the only criterion that asks whether its stated -->
-<!-- uncertainty is honest. -->
-<p><strong>The effect sizes are large against the analytical
-null.</strong> With
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
-scored predictions per scenario, the null distributions derived in
-<code>vignettes/significance-testing.Rmd</code> are
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>D</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow><mo>*</mo></msubsup><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mi>/</mi><mn>48</mn><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">D^*_{pit} \sim N(0, 1/48n)</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝔼</mi><mo stretchy="false" form="prefix">[</mo><msubsup><mi>U</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow><mo>*</mo></msubsup><mo stretchy="false" form="postfix">]</mo><mo>=</mo><msqrt><mrow><mn>2</mn><mi>π</mi></mrow></msqrt><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>8</mn><msqrt><mi>n</mi></msqrt><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbb{E}[U^*_{pit}] = \sqrt{2\pi}/(8\sqrt{n})</annotation></semantics></math>.
-At the median
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>76</mn></mrow><annotation encoding="application/x-tex">n = 76</annotation></semantics></math>
-that is a null standard deviation of 0.0166 for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>D</mi><mo>*</mo></msup><annotation encoding="application/x-tex">D^*</annotation></semantics></math>
-and a null mean of 0.0359 for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>U</mi><mo>*</mo></msup><annotation encoding="application/x-tex">U^*</annotation></semantics></math>.
-Converting the binned means to those scales:</p>
-<table class="table">
-<thead><tr class="header">
-<th>peak observed cases</th>
-<th>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>D</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow><mo>*</mo></msubsup><annotation encoding="application/x-tex">D^*_{pit}</annotation></semantics></math>
-z-score</th>
-<th>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>U</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow><mo>*</mo></msubsup><annotation encoding="application/x-tex">U^*_{pit}</annotation></semantics></math>
-/ null mean</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>10</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>3.7</mn></mrow><annotation encoding="application/x-tex">-3.7</annotation></semantics></math></td>
-<td>1.8</td>
-</tr>
-<tr class="even">
-<td>18</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2.5</mn></mrow><annotation encoding="application/x-tex">-2.5</annotation></semantics></math></td>
-<td>1.4</td>
-</tr>
-<tr class="odd">
-<td>36</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1.0</mn></mrow><annotation encoding="application/x-tex">-1.0</annotation></semantics></math></td>
-<td>1.3</td>
-</tr>
-<tr class="even">
-<td>73</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mn>0.7</mn></mrow><annotation encoding="application/x-tex">+0.7</annotation></semantics></math></td>
-<td>1.5</td>
-</tr>
-<tr class="odd">
-<td>148</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mn>1.8</mn></mrow><annotation encoding="application/x-tex">+1.8</annotation></semantics></math></td>
-<td>1.9</td>
-</tr>
-<tr class="even">
-<td>304</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mn>3.1</mn></mrow><annotation encoding="application/x-tex">+3.1</annotation></semantics></math></td>
-<td>2.2</td>
-</tr>
-<tr class="odd">
-<td>617</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mn>4.4</mn></mrow><annotation encoding="application/x-tex">+4.4</annotation></semantics></math></td>
-<td>2.6</td>
-</tr>
-<tr class="even">
-<td>1261</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mn>5.7</mn></mrow><annotation encoding="application/x-tex">+5.7</annotation></semantics></math></td>
-<td>3.0</td>
-</tr>
-</tbody>
-</table>
-<p>Only the band around 36–73 peak cases is statistically
-indistinguishable from calibrated. Note that these are analytical
-critical values, not a simulated reference table: the real-data example
-exercises the theory rather than merely illustrating the metric.</p>
+<p>Panel A shows mean bias on the <span class="math inline">\(R_t\)</span> scale, calculated as the predictive
+median minus the reference and averaged over the 100 series. EpiEstim
+tended to overestimate <span class="math inline">\(R_t\)</span>,
+particularly for the longer windows. A longer window includes earlier
+days when <span class="math inline">\(R_t\)</span> was higher. The day
+used for the reference also contributes to this comparison.</p>
+<p>The baseline distance in panel B measures the departure from
+uniformity before any adjustment. After adjusting for location, the
+directed score in panel C tends to be negative at low counts and
+positive at high counts. The change from conservative to overconfident
+estimates occurred at different case counts for different windows. Panel
+D shows the magnitude of the remaining departure. Its minimum also
+varies with the window setting.</p>
+<p>The dashed lines use <span class="math inline">\(n=100\)</span>. For
+the baseline distance the reference is the large-sample distribution for
+independent uniform PIT values. For the two adjusted scores the
+reference assumes a common-scale Gaussian model on the link scale. The
+fitted gamma distributions have varying scales, so those two lines
+provide benchmarks for reading the figure.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span></span>
+<span><span class="va">p6a</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plotdata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">max_obs</span>, colour <span class="op">=</span> <span class="va">window</span>,y<span class="op">=</span><span class="va">mean_crps</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"peak observed case count"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"mean CRPS"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p6b</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plotdata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">max_obs</span>, colour <span class="op">=</span> <span class="va">window</span>,y<span class="op">=</span><span class="va">mean_coverage.0.5</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"peak observed case count"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"unadj IQR coverage"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0.5</span>, linetype<span class="op">=</span><span class="st">"solid"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p6c</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plotdata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">max_obs</span>, colour <span class="op">=</span> <span class="va">window</span>,y<span class="op">=</span><span class="va">mean_coverage.0.5_adj</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"peak observed case count"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"adj IQR coverage"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0.5</span>, linetype<span class="op">=</span><span class="st">"solid"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># p6d = ggplot(plotdata, aes(x=max_obs, colour = window,y=P_misclass))+</span></span>
+<span><span class="co">#   geom_point()+</span></span>
+<span><span class="co">#   geom_smooth(se=TRUE)+</span></span>
+<span><span class="co">#   scale_x_log10()+</span></span>
+<span><span class="co">#   xlab("peak observed case count")+</span></span>
+<span><span class="co">#   ylab("P(misclassification)")</span></span>
+<span></span>
+<span></span>
+<span><span class="va">p6</span> <span class="op">=</span> <span class="va">p6a</span><span class="op">+</span><span class="va">p6b</span><span class="op">+</span><span class="va">p6c</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>guides<span class="op">=</span><span class="st">"collect"</span>,axes<span class="op">=</span><span class="st">"collect"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html" class="external-link">plot_annotation</a></span><span class="op">(</span>tag_level<span class="op">=</span><span class="st">"A"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p6</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span></code></pre></div>
+<p><img src="sir-epiestim-example_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="576"></p>
+<p>Panel A gives mean CRPS in units of <span class="math inline">\(R_t\)</span>. It measures overall predictive
+performance, so it can improve as the estimates become more precise even
+when their intervals cover too few reference values. Panels B and C show
+the fraction of reference values inside the posterior interquartile
+range before and after fitting the common location shift. The horizontal
+line marks the nominal 50% coverage.</p>
+<p>For example, at the largest population the shortest window covered
+the reference on 12% of occasions. After the common location adjustment,
+coverage was 46%. For the longest window the corresponding figures were
+0% and 2%. The location shift accounts for more of the coverage deficit
+in the shorter window.</p>
 </div>
 <div class="section level3">
-<h3 id="caveats">Caveats<a class="anchor" aria-label="anchor" href="#caveats"></a>
+<h3 id="scope-of-the-comparison">Scope of the comparison<a class="anchor" aria-label="anchor" href="#scope-of-the-comparison"></a>
 </h3>
-<p>This experiment identifies <em>that</em> the dispersion calibration
-changes sign with epidemic size; it does not separate the contributions
-of the Gamma prior, the window width, and any genuine over-confidence in
-the renewal-equation likelihood. Disentangling those would need a prior
-and window-width sensitivity sweep and is out of scope here.
-<code>pObs</code> is fixed at 0.5, so the <code>P(obs)</code> colour
-aesthetic currently has a single level.</p>
+<p>The prior, ascertainment probability and epidemic trajectory were
+held fixed. These simulations show how the scores vary with the
+available counts and window setting along that trajectory. They do not
+establish which window to use in a new outbreak or isolate how much of
+the discrepancy comes from the prior, the window lag or the renewal
+model.</p>
 </div>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-      </div>
-
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
-  <p></p>
-<p>Developed by Rob Challen.</p>
+    <footer><div class="pkgdown-footer-left">
+  <p>Developed by Rob Challen.</p>
 </div>
 
-<div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+<div class="pkgdown-footer-right">
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
-
 
 
 

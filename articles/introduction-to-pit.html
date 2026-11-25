@@ -3,92 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Introduction to calibration and probability integral transforms • pitw</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to calibration and probability integral transforms">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to calibration and probability integral transforms">
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">pitw</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9001</span>
-      </span>
-    </div>
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    <a class="navbar-brand me-2" href="../index.html">pitw</a>
 
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/introduction-to-pit.html">Introduction to calibration and probability integral transforms</a>
-    </li>
-    <li>
-      <a href="../articles/model-misspecification.html">Model misspecification: what the metrics do when the predictive family is wrong</a>
-    </li>
-    <li>
-      <a href="../articles/pit-w-metrics.html">PIT-Wasserstein metrics for miscalibration diagnosis</a>
-    </li>
-    <li>
-      <a href="../articles/sample-sizes-and-power.html">Testing for bias, dispersion miscalibration and skill spread decoupling</a>
-    </li>
-    <li>
-      <a href="../articles/significance-testing.html">Significance testing for the PIT-Wasserstein metrics</a>
-    </li>
-    <li>
-      <a href="../articles/sir-epiestim-example.html">A PIT-Wasserstein study using SIR dynamics and EpiEstim</a>
-    </li>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
+
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/pitw.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/introduction-to-pit.html">Introduction to calibration and probability integral transforms</a></li>
+    <li><a class="dropdown-item" href="../articles/model-misspecification.html">Model misspecification: what the metrics do when the predictive family is wrong</a></li>
+    <li><a class="dropdown-item" href="../articles/pit-w-metrics.html">PIT-Wasserstein metrics for miscalibration diagnosis</a></li>
+    <li><a class="dropdown-item" href="../articles/sample-sizes-and-power.html">Testing for bias, dispersion miscalibration and skill spread decoupling</a></li>
+    <li><a class="dropdown-item" href="../articles/significance-testing.html">Significance testing for the PIT-Wasserstein metrics</a></li>
+    <li><a class="dropdown-item" href="../articles/sir-epiestim-example.html">A PIT-Wasserstein study using SIR dynamics and EpiEstim</a></li>
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+      </ul>
 </div>
-<!--/.nav-collapse -->
+
+
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
+</nav><div class="container template-article">
 
 
 
-      </header><link href="introduction-to-pit_files/huxtable-6.0.2/huxtable.css" rel="stylesheet">
+<link href="introduction-to-pit_files/huxtable-6.0.2/huxtable.css" rel="stylesheet">
 <div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Introduction to calibration and probability
-integral transforms</h1>
+  <main id="main" class="col-md-9"><div class="page-header">
+
+      <h1>Introduction to calibration and probability integral transforms</h1>
             
       
 
-      <div class="hidden name"><code>introduction-to-pit.Rmd</code></div>
-
+      <div class="d-none name"><code>introduction-to-pit.Rmd</code></div>
     </div>
 
     
@@ -114,27 +95,19 @@ integral transforms</h1>
 <span><span class="co">#&gt; Warning: The requested font(s): [Roboto], are not present on the system. Alternatives will be used.</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
 <span><span class="va">fig_dir</span> <span class="op">=</span> <span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"vignettes"</span>, <span class="st">"main"</span>, <span class="st">"fig"</span><span class="op">)</span></span></code></pre></div>
-<p>This vignette is an informal introduction to the ideas the
-PIT-Wasserstein metrics are built on: what it means for a probabilistic
-forecaster to be <em>calibrated</em>, why calibration has more than one
-way of going wrong, and how the probability integral transform turns all
-of those failures into one picture. It assumes no background beyond a
-histogram and a normal distribution.</p>
-<p>It is a companion to the paper rather than part of it. Readers who
-already know what a PIT histogram is can skip straight to
-<code><a href="../articles/pit-w-metrics.html">vignette("pit-w-metrics")</a></code> for the metrics themselves, or
-<code><a href="../articles/significance-testing.html">vignette("significance-testing")</a></code> for their null
+<p>We compare 100 predictive distributions with the same reference
+value. Their medians show how far the forecasts are centred from that
+value, and their intervals show how much uncertainty the forecaster
+reports. We then use probability integral transform (PIT) histograms to
+examine how location bias and predictive spread affect the full
 distributions.</p>
 <div class="section level2">
 <h2 id="an-estimator-and-its-predictions">An estimator and its predictions<a class="anchor" aria-label="anchor" href="#an-estimator-and-its-predictions"></a>
 </h2>
-<p>A <em>probabilistic</em> forecaster does not output a number, it
-outputs a distribution: a central estimate plus a statement of how
-uncertain it is. To judge it we need many predictions, because a single
-interval that misses tells us nothing — intervals are supposed to miss
-sometimes.</p>
-<p>Here are 100 predictions of the same underlying truth, from an
-estimator that is slightly biased and somewhat over-cautious.</p>
+<p>The simulated estimator is slightly biased and reports intervals that
+are too wide. We assess these tendencies across all 100 predictions
+because even a well-calibrated interval can miss the reference value on
+an individual occasion.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">true_value</span> <span class="op">=</span> <span class="fl">0</span></span>
@@ -188,27 +161,14 @@ estimator that is slightly biased and somewhat over-cautious.</p>
 <span></span>
 <span><span class="va">fig1</span></span></code></pre></div>
 <p><img src="introduction-to-pit_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="576"></p>
-<p>Panel <strong>A</strong> is the raw material: one prediction per row,
-with its median (dot), interquartile range (thick bar) and 95% interval
-(thin line). The blue line is the truth. Two things vary from prediction
-to prediction, and they vary <em>independently</em>:</p>
-<ul>
-<li>
-<strong>where the prediction sits</strong> — panel
-<strong>B</strong> shows the medians scattered around the truth (blue)
-with their own average displaced from it (red). That displacement is
-<strong>bias</strong>.</li>
-<li>
-<strong>how wide the prediction is</strong> — panel
-<strong>C</strong> shows the interquartile widths. The red line is how
-wide they <em>should</em> be, given the spread of the errors in panel B;
-the orange line is how wide they actually are. This estimator’s
-intervals are systematically too wide.</li>
-</ul>
-<p>That second comparison is the one this package is about. It is not
-asking whether the predictions are accurate; it is asking whether the
-estimator’s stated uncertainty matches its realised error. We call that
-<strong>dispersion calibration</strong>.</p>
+<p>Panel A shows the median, interquartile range and 95% interval of
+each prediction. The blue line marks the reference value. In panel B the
+average of the predictive medians (red) is displaced from that value.
+This displacement is location bias.</p>
+<p>Panel C compares the reported interquartile widths (orange) with the
+width expected from the spread of errors in panel B (red). The reported
+intervals are systematically wider. Dispersion calibration describes how
+well the reported uncertainty corresponds to the errors.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># .gg_save_as(</span></span>
 <span><span class="co">#   fig1,</span></span>
@@ -218,19 +178,12 @@ estimator’s stated uncertainty matches its realised error. We call that
 <span><span class="co"># )</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="bias-and-dispersion-calibration-are-different-failures">Bias and dispersion calibration are different failures<a class="anchor" aria-label="anchor" href="#bias-and-dispersion-calibration-are-different-failures"></a>
+<h2 id="location-bias-and-predictive-spread">Location bias and predictive spread<a class="anchor" aria-label="anchor" href="#location-bias-and-predictive-spread"></a>
 </h2>
-<p>It helps to separate the two explicitly. Think of each prediction as
-drawn from two distributions:</p>
-<ul>
-<li>an <strong>error distribution</strong> (red below) — how far this
-estimator’s centre tends to land from the truth;</li>
-<li>a <strong>spread distribution</strong> (orange) — what width it
-tends to claim.</li>
-</ul>
-<p>A single prediction (grey) is then one draw from each. The estimator
-is calibrated when the width it claims matches the width of its own
-errors.</p>
+<p>In these simulations, we draw a location error and a predictive
+spread independently for each prediction. The red distribution in the
+figure shows the location errors, and the orange distribution shows the
+reported spread. The grey curve is one predictive distribution.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># config = tibble(</span></span>
 <span><span class="co">#   panel = forcats::as_factor(c("unbiased\ncalibrated","unbiased\nconservative","biased\noverconfident")),</span></span>
@@ -258,22 +211,14 @@ errors.</p>
 <span><span class="co">#&gt; Warning: Removed 1128 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_ribbon()`).</span></span></code></pre></div>
 <p><img src="introduction-to-pit_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="576"></p>
-<p>Left: unbiased but <strong>conservative</strong> — the red error
-distribution is centred on the truth, but the grey prediction is much
-wider than it needs to be. The forecaster is honest about where, and
-needlessly vague about how sure.</p>
-<p>Right: <strong>biased and over-confident</strong> — the red
-distribution is shifted off the truth <em>and</em> the grey prediction
-is narrow, so it is both wrong and confident about it. The worst
-combination, and the one a single accuracy score is least likely to
-flag.</p>
-<p>These are independent axes. An estimator can be unbiased and
-over-confident, biased and well-dispersed, or any other combination, and
-they need different fixes: bias is a modelling error, dispersion
-miscalibration is an uncertainty error.</p>
+<p>On the left, the distribution of location errors is centred at the
+reference value and the predictive distribution is too wide. On the
+right, the error distribution is displaced and the predictive
+distribution is too narrow. The two examples show why we assess the
+location and spread of the forecasts separately.</p>
 </div>
 <div class="section level2">
-<h2 id="a-subtler-failure-spreaderror-decoupling">A subtler failure: spread–error decoupling<a class="anchor" aria-label="anchor" href="#a-subtler-failure-spreaderror-decoupling"></a>
+<h2 id="variation-in-predictive-spread">Variation in predictive spread<a class="anchor" aria-label="anchor" href="#variation-in-predictive-spread"></a>
 </h2>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">config</span> <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
@@ -289,41 +234,25 @@ miscalibration is an uncertainty error.</p>
 <span><span class="co">#&gt; Warning: Removed 1540 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_ribbon()`).</span></span></code></pre></div>
 <p><img src="introduction-to-pit_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="576"></p>
-<p>All three predictions come from the same estimator, which is unbiased
-and whose <em>average</em> width is right. But look at which is which:
-the narrow, confident prediction (left) is badly wrong, and the wide,
-hedged one (right) happens to be nearly spot on. The confidence and the
-accuracy are the wrong way round.</p>
-<p>Averaged over many predictions this estimator looks fine on both axes
-above — no bias, correct typical width. It is nonetheless miscalibrated,
-because its stated uncertainty carries no information about its error.
-We call this <strong>spread–error decoupling</strong>, and it is the
-failure mode that most obviously needs a diagnostic rather than a score.
-Note the contrast with genuine heteroscedasticity: a good model whose
-uncertainty varies <em>in step with</em> its error is perfectly
-calibrated, and that is the thing we do not want to penalise.</p>
+<p>The three predictions come from an unbiased estimator with the
+correct typical width. The narrow prediction on the left has a large
+error and the wide prediction on the right lies close to the reference
+value.</p>
+<p>In this simulation, reported uncertainty varies independently of the
+error. We call this <strong>spread–error decoupling</strong>. A model
+can also have varying predictive spread because the expected size of its
+errors differs between predictions.</p>
 </div>
 <div class="section level2">
 <h2 id="the-probability-integral-transform">The probability integral transform<a class="anchor" aria-label="anchor" href="#the-probability-integral-transform"></a>
 </h2>
-<p>All three failures above can be seen at once, with a trick.</p>
-<p>For each prediction, ask: <strong>what proportion of my predictive
-distribution lies below the value that actually happened?</strong> That
-single number between 0 and 1 is the probability integral transform, or
-PIT value,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>u</mi><mi>i</mi></msub><mo>=</mo><msub><mi>F</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">u_i = F_i(x_i)</annotation></semantics></math>.</p>
-<p>If the forecaster is perfectly calibrated, the truth is an ordinary
-draw from its own predictive distribution, so it is equally likely to
-land anywhere in it: the PIT values are <strong>uniform on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0,1]</annotation></semantics></math></strong>.
-That is the whole idea. It holds whatever the predictive distributions
-were — normal, gamma, different for every prediction — so the PIT
-transform reduces “is this forecaster calibrated?” to the single
-universal question “is this sample of numbers uniform?”</p>
-<p>And when it is <em>not</em> uniform, the shape of the departure says
-which failure you have. Below is a 3×3 grid: bias varies across the
-columns, dispersion calibration down the rows. First the configurations
-themselves,</p>
+<p>For each observation, evaluate the predictive cumulative distribution
+at the observed value. The result is the PIT, <span class="math inline">\(u_i = F_i(x_i)\)</span>, which gives the
+proportion of the predictive distribution below that value.</p>
+<p>For calibrated continuous forecasts, the PIT values follow a uniform
+distribution on <span class="math inline">\([0,1]\)</span>. The
+simulation below varies bias across columns and predictive spread across
+rows to illustrate how each affects the histogram.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">config</span> <span class="op">=</span> <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/expand.html" class="external-link">crossing</a></span><span class="op">(</span></span>
@@ -412,7 +341,7 @@ themselves,</p>
 <span><span class="co">#&gt; $ univ_resid              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.83670357<span style="color: #949494;">, </span>-0.80318950<span style="color: #949494;">, </span>0.60816048<span style="color: #949494;">, </span>0.7532300…</span></span>
 <span><span class="co">#&gt; $ u_i                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 7.375540e-01<span style="color: #949494;">, </span>2.023402e-02<span style="color: #949494;">, </span>5.390492e-01<span style="color: #949494;">, </span>6.55…</span></span>
 <span><span class="co">#&gt; $ adj_true_value          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.5054983<span style="color: #949494;">, </span>-0.5054983<span style="color: #949494;">, </span>-0.5054983<span style="color: #949494;">, </span>-0.5054983…</span></span>
-<span><span class="co">#&gt; $ bias                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.92938009<span style="color: #949494;">, </span>-0.86046133<span style="color: #949494;">, </span>0.57085743<span style="color: #949494;">, </span>0.7721536…</span></span>
+<span><span class="co">#&gt; $ bias                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.92938009<span style="color: #949494;">, </span>0.86046133<span style="color: #949494;">, </span>-0.57085743<span style="color: #949494;">, </span>-0.77215…</span></span>
 <span><span class="co">#&gt; $ rank_order              <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 66432<span style="color: #949494;">, </span>8603<span style="color: #949494;">, </span>52627<span style="color: #949494;">, </span>60604<span style="color: #949494;">, </span>99257<span style="color: #949494;">, </span>47231<span style="color: #949494;">, </span>86426…</span></span>
 <span><span class="co">#&gt; $ unif                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.664315<span style="color: #949494;">, </span>0.086025<span style="color: #949494;">, </span>0.526265<span style="color: #949494;">, </span>0.606035<span style="color: #949494;">, </span>0.9925…</span></span>
 <span><span class="co">#&gt; $ rank_order_unadj        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 66432<span style="color: #949494;">, </span>8603<span style="color: #949494;">, </span>52627<span style="color: #949494;">, </span>60604<span style="color: #949494;">, </span>99257<span style="color: #949494;">, </span>47231<span style="color: #949494;">, </span>86426…</span></span>
@@ -455,7 +384,7 @@ themselves,</p>
 <span><span class="co">#&gt; $ calibration                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6666667<span style="color: #949494;">, </span>1.0000000<span style="color: #949494;">, </span>1.5000000<span style="color: #949494;">, </span>0.666666…</span></span>
 <span><span class="co">#&gt; $ adjust                       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "link"<span style="color: #949494;">, </span>"link"<span style="color: #949494;">, </span>"link"<span style="color: #949494;">, </span>"link"<span style="color: #949494;">, </span>"link"<span style="color: #949494;">, </span>"…</span></span>
 <span><span class="co">#&gt; $ n_predictions                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 100000<span style="color: #949494;">, </span>100000<span style="color: #949494;">, </span>100000<span style="color: #949494;">, </span>100000<span style="color: #949494;">, </span>100000<span style="color: #949494;">, </span>1…</span></span>
-<span><span class="co">#&gt; $ bias                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5032425520<span style="color: #949494;">, </span>0.5000058077<span style="color: #949494;">, </span>0.4997587262<span style="color: #949494;">,</span>…</span></span>
+<span><span class="co">#&gt; $ bias                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.5032425520<span style="color: #949494;">, </span>-0.5000058077<span style="color: #949494;">, </span>-0.49975872…</span></span>
 <span><span class="co">#&gt; $ universal_bias               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 3.243582e-01<span style="color: #949494;">, </span>2.759956e-01<span style="color: #949494;">, </span>2.183710e-01<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ mean_crps                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6646575<span style="color: #949494;">, </span>0.6354256<span style="color: #949494;">, </span>0.6471711<span style="color: #949494;">, </span>0.583258…</span></span>
 <span><span class="co">#&gt; $ mean_pred_interval_width.0.5 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.8993197<span style="color: #949494;">, </span>1.3489795<span style="color: #949494;">, </span>2.0234693<span style="color: #949494;">, </span>0.899319…</span></span>
@@ -483,7 +412,7 @@ themselves,</p>
 <span>    inherit.aes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    vjust <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    hjust <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>    size <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>    size <span class="op">=</span> <span class="fl">8</span>,</span>
 <span>    size.unit <span class="op">=</span> <span class="st">"pt"</span>,</span>
 <span>    alpha <span class="op">=</span> <span class="fl">0.75</span>,</span>
 <span>    label.r <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0</span>, <span class="st">"pt"</span><span class="op">)</span></span>
@@ -492,8 +421,10 @@ themselves,</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"PIT value"</span><span class="op">)</span></span>
 <span><span class="va">fig2_pit</span></span></code></pre></div>
 <p><img src="introduction-to-pit_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="576"></p>
-<p>The centre panel is the calibrated case: flat. The others each have a
-signature:</p>
+<p>The centre panel shows the histogram for the calibrated simulation.
+The remaining panels illustrate the patterns below. Several kinds of
+error can produce the same pooled histogram, particularly when forecasts
+come from different groups.</p>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -501,7 +432,7 @@ signature:</p>
 </colgroup>
 <thead><tr class="header">
 <th>PIT histogram</th>
-<th>Diagnosis</th>
+<th>Scenario illustrated</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -511,17 +442,17 @@ signature:</p>
 <tr class="even">
 <td>
 <strong>U-shaped</strong> (mass at both ends)</td>
-<td>over-confident — the truth keeps falling outside the intervals</td>
+<td>Overconfident forecasts with intervals that are too narrow</td>
 </tr>
 <tr class="odd">
 <td>
 <strong>dome-shaped</strong> (mass in the middle)</td>
-<td>conservative — the truth sits comfortably inside, too often</td>
+<td>Conservative forecasts with intervals that are too wide</td>
 </tr>
 <tr class="even">
 <td>
 <strong>sloped</strong> (mass at one end)</td>
-<td>biased — the truth is persistently to one side</td>
+<td>Biased forecasts with observations tending to lie on one side</td>
 </tr>
 <tr class="odd">
 <td>sloped <em>and</em> U- or dome-shaped</td>
@@ -529,16 +460,13 @@ signature:</p>
 </tr>
 </tbody>
 </table>
-<p>The labels in each panel give the three PIT-Wasserstein metrics and
-the mean CRPS. The metrics are ways of turning the <em>shape</em> of
-these histograms into a number:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>B</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">B_{pit}</annotation></semantics></math>
-measures total departure from flat,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">D_{pit}</annotation></semantics></math>
-measures the U-versus-dome tilt while ignoring slope, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>U</mi><mrow><mi>p</mi><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">U_{pit}</annotation></semantics></math>
-measures what is left after the slope has been removed. The CRPS, by
-contrast, is an accuracy score and does not read the shape at all.</p>
+<p>The labels show the three PIT-Wasserstein scores and the mean
+continuous ranked probability score (CRPS). <span class="math inline">\(B_{pit}\)</span> summarises the departure from
+uniformity in the original PIT values. After a common location
+adjustment, <span class="math inline">\(U_{pit}\)</span> summarises the
+remaining departure and <span class="math inline">\(D_{pit}\)</span>
+describes its direction. CRPS gives an overall measure of probabilistic
+forecast quality.</p>
 <p>The parameters behind the grid, for reference:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># .gg_save_as(</span></span>
@@ -653,14 +581,14 @@ contrast, is an accuracy score and does not read the shape at all.</p>
 defined and how they separate bias from dispersion.</li>
 <li>
 <code><a href="../articles/significance-testing.html">vignette("significance-testing")</a></code> — their null
-distributions, so that a value can be reported with a
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>-value.</li>
+distributions, so that a value can be reported with a <span class="math inline">\(p\)</span>-value.</li>
 <li>
 <code><a href="../articles/sample-sizes-and-power.html">vignette("sample-sizes-and-power")</a></code> — how many
 predictions you need.</li>
 <li>
-<code><a href="../articles/sir-epiestim-example.html">vignette("sir-epiestim-example")</a></code> — the whole thing
-applied to a real estimator.</li>
+<code><a href="../articles/sir-epiestim-example.html">vignette("sir-epiestim-example")</a></code> — how case counts and
+window choice affect intervals for <span class="math inline">\(R_t\)</span>, using one estimate per independent
+simulated series at each setting.</li>
 </ul>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># tab1 %&gt;%</span></span>
@@ -669,29 +597,22 @@ applied to a real estimator.</li>
 <span><span class="co">#     size = std_size$half</span></span>
 <span><span class="co">#   )</span></span></code></pre></div>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-      </div>
-
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
-  <p></p>
-<p>Developed by Rob Challen.</p>
+    <footer><div class="pkgdown-footer-left">
+  <p>Developed by Rob Challen.</p>
 </div>
 
-<div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+<div class="pkgdown-footer-right">
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
-
 
 
 

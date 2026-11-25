@@ -1,0 +1,31 @@
+# A scales breaks generator for log1p scales
+
+A scales breaks generator for log1p scales
+
+## Usage
+
+``` r
+.gg_breaks_log1p(n = 5, base = 10)
+```
+
+## Arguments
+
+- n:
+
+  the number of breaks (default `` `5` `` \[numeric\])
+
+- base:
+
+  the base for the breaks (default `` `10` `` \[numeric\])
+
+## Value
+
+a function for ggplot scale breaks
+
+## Unit tests
+
+
+
+    ggplot2::ggplot(ggplot2::diamonds, ggplot2::aes(x=price))+
+      ggplot2::geom_density()+
+      ggplot2::scale_x_continuous(trans="log1p", breaks=.gg_breaks_log1p())
