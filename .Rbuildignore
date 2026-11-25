@@ -9,3 +9,8 @@
 ^\.mcp.json$
 ^\.agents$
 ^\.sandbox$
+^\.lake$
+^lake-manifest\.json$
+^lakefile\.toml$
+^lean-toolchain$
+^proof$

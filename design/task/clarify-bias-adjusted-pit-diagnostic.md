@@ -8,7 +8,6 @@ priority: high
 touches:
 - paper:main.tex
 - src:scoring.R#pit_w
-- paper:rewrite/main.tex
 blocks:
 - task:reframe-introduction-as-mathematical-methods-paper.md
 - task:characterise-d-pit-sampling-distribution-by-simulation.md
@@ -103,4 +102,4 @@ with $\kappa>0$ and correct median dispersion is **not** dispersion
 calibrated, so the definitions must not imply that getting the average width
 right is sufficient.
 
-Completed in the standalone [rewrite](../../vignettes/main/rewrite/main.tex). Equations 1–3 distinguish the raw and adjusted ranks, the median shift on the chosen link scale, and the signed and unsigned summaries. The text distinguishes pooled uniformity from conditional calibration.
+Completed in the standalone [rewrite](../../vignettes/main/main.tex). Equations 1–3 distinguish the raw and adjusted ranks, the median shift on the chosen link scale, and the signed and unsigned summaries. The text distinguishes pooled uniformity from conditional calibration.

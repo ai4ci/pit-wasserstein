@@ -1,4 +1,4 @@
-\begin{thebibliography}{15}
+\begin{thebibliography}{17}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -27,11 +27,13 @@ A.~E. Brockwell.
 
 \bibitem[Cori et~al.(2013)Cori, Ferguson, Fraser, and Cauchemez]{cori2013}
 Anne Cori, Neil~M. Ferguson, Christophe Fraser, and Simon Cauchemez.
-\newblock A new framework and software to estimate time-varying reproduction
-  numbers during epidemics.
+\newblock A {New} {Framework} and {Software} to {Estimate} {Time}-{Varying}
+  {Reproduction} {Numbers} {During} {Epidemics}.
 \newblock \emph{American Journal of Epidemiology}, 178\penalty0 (9):\penalty0
-  1505--1512, 2013.
+  1505--1512, November 2013.
+\newblock ISSN 0002-9262.
 \newblock \doi{10.1093/aje/kwt133}.
+\newblock URL \url{https://doi.org/10.1093/aje/kwt133}.
 
 \bibitem[Dawid(1984)]{dawid1984}
 A.~P. Dawid.
@@ -121,6 +123,19 @@ Volodymyr Kuleshov, Nathan Fenner, and Stefano Ermon.
 \newblock \doi{10.48550/arXiv.1807.00263}.
 \newblock URL \url{https://proceedings.mlr.press/v80/kuleshov18a.html}.
 
+\bibitem[{Nikos I. Bosse} et~al.(2023){Nikos I. Bosse}, {Sam Abbott}, {Anne
+  Cori}, {Edwin van Leeuwen}, {Johannes Bracher}, and {Sebastian
+  Funk}]{bosse2023}
+{Nikos I. Bosse}, {Sam Abbott}, {Anne Cori}, {Edwin van Leeuwen}, {Johannes
+  Bracher}, and {Sebastian Funk}.
+\newblock Scoring epidemiological forecasts on transformed scales.
+\newblock \emph{PLOS Computational Biology}, 19\penalty0 (8):\penalty0
+  e1011393, August 2023.
+\newblock ISSN 1553-7358.
+\newblock \doi{10.1371/journal.pcbi.1011393}.
+\newblock URL
+  \url{https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1011393}.
+
 \bibitem[Panaretos and Zemel(2019)]{panaretos2019}
 Victor~M. Panaretos and Yoav Zemel.
 \newblock Statistical {Aspects} of {Wasserstein} {Distances}.
@@ -130,6 +145,20 @@ Victor~M. Panaretos and Yoav Zemel.
 \newblock \doi{10.1146/annurev-statistics-030718-104938}.
 \newblock URL
   \url{https://www.annualreviews.org/content/journals/10.1146/annurev-statistics-030718-104938}.
+
+\bibitem[Thompson et~al.(2019)Thompson, Stockwin, van Gaalen, Polonsky, Kamvar,
+  Demarsh, Dahlqwist, Li, Miguel, Jombart, Lessler, Cauchemez, and
+  Cori]{thompson2019}
+R.~N. Thompson, J.~E. Stockwin, R.~D. van Gaalen, J.~A. Polonsky, Z.~N. Kamvar,
+  P.~A. Demarsh, E.~Dahlqwist, S.~Li, E.~Miguel, T.~Jombart, J.~Lessler,
+  S.~Cauchemez, and A.~Cori.
+\newblock Improved inference of time-varying reproduction numbers during
+  infectious disease outbreaks.
+\newblock \emph{Epidemics}, 29:\penalty0 100356, December 2019.
+\newblock ISSN 1755-4365.
+\newblock \doi{10.1016/j.epidem.2019.100356}.
+\newblock URL
+  \url{https://www.sciencedirect.com/science/article/pii/S1755436519300350}.
 
 \bibitem[Wessel et~al.(2025)Wessel, Schillinger, Kwasniok, and
   Allen]{wessel2025}

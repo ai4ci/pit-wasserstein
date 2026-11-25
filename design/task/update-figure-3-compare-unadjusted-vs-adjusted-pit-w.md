@@ -10,7 +10,7 @@ touches:
 - paper:main.tex
 - src:scoring.R#pit_w
 produces:
-- resource:fig3-metric-compare.pdf
+- resource:fig1-metric-compare.pdf
 ---
 Rework Fig. 3 to make the paper's central claim (bias-invariance) a picture,
 not only a paragraph, and to show the literature's competing metrics failing

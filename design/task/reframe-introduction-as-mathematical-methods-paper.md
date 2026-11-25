@@ -7,7 +7,6 @@ kind: paperFix
 priority: high
 touches:
 - paper:main.tex
-- paper:rewrite/main.tex
 ---
 The current introduction (`main.tex:63-76`) is descriptive and informal —
 "a probabilistic estimator has three aspects which determine its utility",
@@ -41,4 +40,4 @@ the introduction — one grounding citation per claim is enough; the longer
 positioning argument already lives in `design/doc/literature-review.md` and
 should stay there, not be duplicated into the paper prose.
 
-Completed in the standalone [rewrite](../../vignettes/main/rewrite/main.tex). The introduction motivates the common-location and interval-width questions and situates the original Wasserstein statistic in the forecast-evaluation literature.
+Completed in the standalone [rewrite](../../vignettes/main/main.tex). The introduction motivates the common-location and interval-width questions and situates the original Wasserstein statistic in the forecast-evaluation literature.

@@ -369,7 +369,7 @@ calibration ratio $c \in [0.25, 4]$, sharpness CV $\kappa_{\mathcal{S}} \in [0, 
   pre-existing bug.
 - **Q12:** What is the real-world example?
   **Status: DONE.** Built as `vignette:seir-example.Rmd`, producing
-  `resource:fig5-epiestim-by-epi-size`. It is now its own Section 7 below. The
+  `resource:fig4-epiestim-by-epi-size.pdf`. It is now its own Section 7 below. The
   SEIR framing was simplified to a deterministic SIR ODE, and the low-vs-high
   prevalence contrast was replaced by a continuous sweep over epidemic size,
   which is strictly stronger: it shows a sign change rather than two points.
@@ -438,7 +438,7 @@ Show that the metrics say something useful and non-obvious about an estimator
 and that a proper score does not say it. This is the section that stops the paper
 being a demonstration of our own simulator working on itself.
 
-Source: `vignette:seir-example.Rmd`. Figure: `resource:fig5-epiestim-by-epi-size`
+Source: `vignette:seir-example.Rmd`. Figure: `resource:fig4-epiestim-by-epi-size.pdf`
 (panels A–D).
 
 ### Design

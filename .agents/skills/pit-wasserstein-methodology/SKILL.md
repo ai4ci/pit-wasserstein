@@ -25,6 +25,7 @@ bibliography.
 | `release:<slug>.md` | `design/release/` | What changed between software or paper versions |
 | `doc:<name>.md` | `design/doc/` | Prose, including the generated `doc:INDEX.md` |
 | `src:<file>.R[#symbol]` | `R/` | Package code; R files expose function anchors |
+| `proof:PITW.lean`, `proof:PITW/<module>.lean` | `proof/` | Lean proof modules, linked at file level |
 | `vignette:<file>.Rmd` | `vignettes/` | Figure-generating vignettes (file level only) |
 | `paper:main.tex`, `paper:refs.bib` | `vignettes/main/` | Paper source (file level only) |
 | `resource:<file>.pdf` | `vignettes/main/fig/` | Generated figures and tables |
@@ -50,6 +51,7 @@ loom link plan:paper-rewrite.md spawns task:fix-figure-2-axis.md
 
 # point a task at what it touches (any src subclass satisfies `touches`)
 loom link task:fix-figure-2-axis.md touches src:scoring.R#pit_w
+loom link task:construct-gaussian-bridge-path-law.md touches proof:PITW/BrownianBridge.lean
 loom link task:fix-figure-2-axis.md touches vignette:figure-2.Rmd
 loom link task:fix-figure-2-axis.md touches paper:main.tex
 loom link task:fix-figure-2-axis.md produces resource:fig2-pit-histograms.pdf
@@ -103,6 +105,14 @@ loom render --check  # CI-safe: non-zero if any marker would change
   `main.tex`, `refs.bib` and every `.Rmd` address at **file level only**
   (`.Rmd` reports `source/unsupported-language`). Only `.R` files give symbol
   anchors. Per-paper granularity lives in `reference.citeKey`, not in a link.
+- **Lean proof modules.** Use `loom find proof:` to list the files and
+  `loom refs proof:PITW/Baseline.lean` to find the tasks that cite one. Loom 0.17.1
+  recognises Lean but exposes no declaration anchors in these modules. A
+  successful `loom resolve` checks the file path even when a fragment is
+  misspelled. Use `loom ls proof:PITW/Baseline.lean` to discover anchors and
+  `loom apply --dry-run` to check a proposed link. The abstract source subtype
+  makes the directory browsable. The project root includes the import module
+  `proof:PITW.lean`. Source validation honours the `/.lake` rule in `proof/.gitignore`.
 - **`src` is rooted at `R/`, not the repo root.** Rooting it at `repo:/` makes
   every anchor canonicalise to the reserved `repo:` scheme and links fail with
   `graph/non-canonical-uri`. Each subclass has its own `%% @prefix`, and no two

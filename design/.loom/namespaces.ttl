@@ -9,5 +9,6 @@
 @prefix task: <repo:design/task/> .
 @prefix reference: <repo:design/reference/> .
 @prefix release: <repo:design/release/> .
+@prefix proof: <repo:proof/> .
 @prefix vignette: <repo:vignettes/> .
 @prefix paper: <repo:vignettes/main/> .

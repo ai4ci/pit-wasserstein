@@ -64,7 +64,7 @@ prediction_scores = function(df = i_comparison, summarise = TRUE, threshold = NA
             univ_resid = 2 * u_i_unadj - 1,
             u_i = u_i,
             adj_true_value = adj_true_value,
-            bias = true_value - medians,
+            bias = medians - true_value,
             rank_order = rank(u_i, ties.method = "first"),
             unif = (rank_order * 2 - 1) / (2 * dplyr::n()),
             rank_order_unadj = rank(u_i_unadj, ties.method = "first"),

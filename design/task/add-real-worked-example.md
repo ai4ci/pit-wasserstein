@@ -9,7 +9,7 @@ touches:
 - paper:main.tex
 - vignette:sir-epiestim-example.Rmd
 produces:
-- resource:fig5-epiestim-by-epi-size.pdf
+- resource:fig4-epiestim-by-epi-size.pdf
 ---
 Concrete scope agreed with the user 2026-11-13, replacing the earlier
 "depends on data availability" framing — this doesn't need real surveillance
@@ -62,7 +62,7 @@ though a short communication may not have room for it — see
 ## Outcome (2026-11-17)
 
 Done. Implemented as `vignette:seir-example.Rmd`, producing
-`resource:fig5-epiestim-by-epi-size` (panels A–D).
+`resource:fig4-epiestim-by-epi-size.pdf` (panels A–D).
 
 Two deviations from the scope above, both deliberate and both strengthening
 the result:

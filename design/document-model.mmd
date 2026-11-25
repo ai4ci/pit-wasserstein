@@ -18,6 +18,7 @@ classDiagram
 %% files under vignettes/main/fig/. One class per path: two classes resolving
 %% to the same directory is path/collision.
 %% @prefix src: <repo:R/> .
+%% @prefix proof: <repo:proof/> .
 %% @prefix vignette: <repo:vignettes/> .
 %% @prefix paper: <repo:vignettes/main/> .
 %% @prefix resource: <repo:vignettes/main/fig/> .
@@ -100,9 +101,13 @@ class release {
 %% unsupported (source/unsupported-language) and addresses whole-file. R files
 %% do yield function anchors, e.g. `src:scoring.R#pit_w`.
 class src
+class proof {
+    <<abstract>>
+}
 class vignette
 class paper
 class resource
+src <|-- proof
 src <|-- vignette
 src <|-- paper
 %% Relations. camelCase throughout: loom normalises frontmatter keys to the

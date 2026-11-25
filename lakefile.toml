@@ -1,0 +1,24 @@
+name = "pit-wasserstein"
+srcDir = "proof"
+description = "Lean proofs of the PIT-Wasserstein calibration tests"
+license = "MIT"
+licenseFiles = ["LICENSE.md"]
+readmeFile = "proof/README.md"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["PITW"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+weak.linter.style.header.license = "Released under the MIT license as described in the file LICENSE.md."
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.37.0-rc1"
+
+[[lean_lib]]
+name = "PITW"

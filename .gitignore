@@ -9,3 +9,6 @@ snowflake.log
 design/VALIDATION.md
 Rplots.pdf
 inst/doc
+
+docs
+/.lake/

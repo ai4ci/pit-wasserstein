@@ -5,6 +5,8 @@ sharpness. Originally published as Supplementary Appendix 2 of
 **Challen & Danon (2025), "Instantaneous Reproduction Number Estimation From
 Modelled Incidence"**; this repository is the extension into a standalone paper.
 
+The [Lean proof library](proof/README.md) gives the asymptotic null laws for all three tests and instructions for importing them into another Lean project.
+
 ---
 
 ## Core concepts

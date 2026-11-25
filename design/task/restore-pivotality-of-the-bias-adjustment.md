@@ -13,7 +13,7 @@ touches:
 blocks:
 - task:implement-bootstrap-test-for-dispersion-calibration.md
 produces:
-- resource:fig3-metric-compare.pdf
+- resource:fig1-metric-compare.pdf
 ---
 The analytical results in
 `task:derive-analytical-null-distribution-for-pit-w-metrics.md` hold for
@@ -216,7 +216,7 @@ centring before the definition is settled.
 
 ## Resolution 2026-11-13: drop the PIT-space adjustment; keep the x-space one
 
-The user observed a small loss of symmetry in `resource:fig3-metric-compare.pdf`
+The user observed a small loss of symmetry in `resource:fig1-metric-compare.pdf`
 under the probit adjustment. Investigated and explained; the conclusion
 **reverses the recommendation above**.
 

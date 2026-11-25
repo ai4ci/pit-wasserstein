@@ -49,4 +49,4 @@ blocked on the terminology fix here, because the null hypothesis the test
 targets needs "dispersion calibration" nailed down as a distinct, well
 defined quantity first.
 
-The new [manuscript](../../vignettes/main/rewrite/main.tex) follows the [outline](../doc/paper-rewrite-skeleton.md), uses the four supplied figures and links the six supplementary studies. It includes reproducible median-adjusted rejection rates and explicitly restricts the sampling references. The remaining JMLR task covers the full typesetting check.
+The new [manuscript](../../vignettes/main/main.tex) follows the [outline](../doc/paper-rewrite-skeleton.md), uses the four supplied figures and links the six supplementary studies. It includes reproducible median-adjusted rejection rates and explicitly restricts the sampling references. The remaining JMLR task covers the full typesetting check.

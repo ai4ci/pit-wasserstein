@@ -26,8 +26,13 @@ set.seed(1001)
 
 ## Purpose
 
+`EpiEstim` has been noted to have very narrow confidence intervals in certain 
+situations. It was particularly noticed at periods of the COVID-19 pandemic 
+when case rates were very high, so we wanted to investigate is there is a 
+correlation between epidemic size and `EpiEstim` dispersion mis-calibration.
+
 We used `EpiEstim` to estimate the instantaneous reproduction number from
-simulated case counts. The deterministic SIR model gives us a reference value
+simulated case counts, using different window sizes. The deterministic SIR model gives us a reference value
 of $R_t$ for each day, which allows us to assess the uncertainty reported by
 the estimator.
 
@@ -93,8 +98,8 @@ ggplot(tmp, aes(x=time))+
 ### Population sizes and observed counts
 
 The population size `N` is swept over 100 log-spaced values from $10^{2.5}$
-(about 320 people) to $10^{5}$, with ten independent replicate runs at each,
-giving 1000 scenarios. Expected daily cases are `incid * N`, and the observed
+(about 320 people) to $10^{5}$, with 100 independent replicate runs at each,
+giving 10000 scenarios. Expected daily cases are `incid * N`, and the observed
 counts are a binomial thinning of those at a fixed ascertainment
 probability `pObs = 0.5`.
 
@@ -106,7 +111,7 @@ combination of `run`, `N` and `pObs` defines one simulated epidemic, one
 scenarios = tidyr::crossing(
   N = round(10 ^ seq(2.5,5,length.out=100)),
   pObs = 0.5, #c(0.2, 0.8),
-  run = 1:10
+  run = 1:100
 ) %>% 
   dplyr::cross_join(tmp) %>%
   dplyr::mutate(
@@ -124,39 +129,46 @@ scenarios = tidyr::crossing(
 
 ## 2. Estimating $R_t$ with EpiEstim
 
-We fitted `EpiEstim` to the observed counts in each scenario using
-seven-day sliding windows, a parametric serial interval with mean and
-standard deviation both 5 days, and the package's Gamma$(2,2)$ prior on $R$.
+We fitted `EpiEstim` to the observed counts over a random window between the 25th
+and 75th simulation day in each scenario using 2, 4, 7, 10, and 14 day windows, 
+a parametric serial interval with mean of 5 and
+standard deviation both 5 days (matching that o the simulation), and a prior on
+$R_t$ with mean of 2 (matching the simulation R0) and a standard deviation of 5.
 
 For each window we used the posterior mean and standard deviation to
 parametrise a Gamma distribution, scored against the reference $R_t$ at
-the window end. We used a log link for the location adjustment. We excluded
-windows without observed cases, leaving a median of about 76 of the 87 windows
-per scenario and around 46 in the smallest epidemics.
+the window end. We used a log link for the bias adjustment. For each population
+size 100 time-series of daily observed new cases were randomly sampled from the model 
+assuming ascertainment of 0.5 using a binomial. There was no observation delay.
 
 ```{r}
 
-starts = 7:(100-7)
-ends = (7+7):100
-config = EpiEstim::make_config(
-  method = "parametric_si",
-  mean_si = 5, std_si = 5,
-  t_start = starts, t_end = ends,
-  mean_prior = 2, std_prior = 2
-)
-
 results = scenarios %>% dplyr::group_modify(function(d,g,...) {
+  
+  # Every group (i.e. 10000 groups, 100 runs of the same simulation in different population sizes)
+  # has three EpiEstim estimates at the same random time during days 25-75 the simulation. 
+  # with different window widths.
+  endpoint = sample(50-14,1) + 14 +25
+  starts = endpoint-c(2,4,7,10,14)
+  ends = rep(endpoint,length(starts))
   
   ee = suppressWarnings(EpiEstim::estimate_R(
     incid = data.frame(I = d$obs),
     method = "parametric_si",
-    config = config,
+    config = EpiEstim::make_config(
+      method = "parametric_si",
+      mean_si = 5, std_si = 5,
+      t_start = starts, t_end = ends,
+      mean_prior = 2, std_prior = 5
+    )
   ))
   
   tmp = d %>% 
-    filter(obs>0) %>% 
+    # filter(obs>0) %>% 
     inner_join(
-      ee$R %>% select(time = t_end, mean=`Mean(R)`, sd = `Std(R)`), 
+      ee$R %>% 
+        mutate(window = t_end-t_start) %>%
+        select(time = t_end, window=window, mean=`Mean(R)`, sd = `Std(R)`), 
       by = "time"
     )
   
@@ -178,19 +190,34 @@ We set `calibration` to `NA` because the spread-to-error ratio of the
 `EpiEstim` estimates is unknown.
 
 ```{r}
-scores = results %>% dplyr::transmute(
-  max_obs = max(obs),
-  true_value= R_t, location = mean, scale = sd, link="log", dist="gamma2",
-  calibration=NA_real_) %>%
-  group_by(max_obs, N, pObs, dist, link, calibration, run) %>%
-  prediction_scores(threshold = 1) 
+
+tmp = scenarios %>% dplyr::group_by(N,pObs) %>% dplyr::summarise(max_obs = max(obs))
+
+scores = results %>%
+  dplyr::transmute(
+    window,
+    true_value= R_t, location = mean, scale = sd, link="log", dist="gamma2",
+    calibration=NA_real_
+  ) %>%
+  dplyr::group_by(N, pObs, dist, link, calibration, window) %>%
+  prediction_scores(threshold = 1) %>% 
+  dplyr::inner_join(tmp, by=c("N","pObs"))
 
 
 plotdata = scores %>% ungroup() %>% mutate(
   H0_B_pit = b_pit_significance(B_pit = B_pit, n_predictions = n_predictions) %>% pull(p_value) > 0.05,
   H0_U_pit = u_pit_significance(U_pit = U_pit, n_predictions = n_predictions) %>% pull(p_value) > 0.05,
   H0_D_pit = d_pit_significance(D_pit = D_pit, n_predictions = n_predictions) %>% pull(p_value) > 0.05,
-  `P(obs)`=as.factor(pObs)
+  `P(obs)`=as.factor(pObs),
+  window = as.factor(window)
+  # timing = cut(time, c(-Inf,30,60,Inf), labels=c("growth","peak","resolution"))
+)
+
+signif = tibble(
+  n_predictions = 100,
+  B_crit = b_pit_significance(B_pit = NA, n_predictions = n_predictions),
+  U_crit = u_pit_significance(U_pit = NA, n_predictions = n_predictions),
+  D_crit = d_pit_significance(D_pit = NA, n_predictions = n_predictions)
 )
 ```
 
@@ -198,45 +225,46 @@ plotdata = scores %>% ungroup() %>% mutate(
 
 ```{r}
 
-p5a = ggplot(plotdata, aes(x=max_obs,y=bias))+
+p5a = ggplot(plotdata, aes(x=max_obs,y=bias, colour=window))+
   geom_point()+
-  geom_smooth(se=FALSE,method="loess", span=0.8, colour="black")+
+  geom_smooth(se=TRUE)+
   scale_x_log10()+
   xlab("peak observed case count")+
-  ylab("bias")
+  ylab("bias")+
+  geom_hline(yintercept = 0, linetype="solid")
 
-p5b = ggplot(plotdata, aes(x=max_obs, colour = H0_B_pit,y=B_pit))+
+p5b = ggplot(plotdata, aes(x=max_obs, colour = window, y=B_pit))+
   geom_point()+
-  geom_smooth(se=FALSE,method="loess", span=0.8, colour="black")+
+  geom_smooth(se=TRUE)+
   scale_x_log10()+
   xlab("peak observed case count")+
   ylab("baseline pit-w")+
-  scale_color_manual(values=list("TRUE"="blue","FALSE"="red"), guide=NULL)
+  geom_hline(yintercept = 0, linetype="solid")+
+  geom_hline(yintercept = signif$B_crit$critical_0.05, linetype="dashed")
+  #+
+  #scale_color_manual(values=list("TRUE"="blue","FALSE"="red"), guide=NULL)
 
-p5c = ggplot(plotdata, aes(x=max_obs, colour = H0_D_pit, y=D_pit))+
+p5c = ggplot(plotdata, aes(x=max_obs, colour = window, y=D_pit))+
   geom_point()+
-  geom_smooth(se=FALSE,method="loess", span=0.8, colour="black")+
+  geom_smooth(se=TRUE)+
   scale_x_log10()+
   xlab("peak observed case count")+
   ylab("directed pit-w")+
-  scale_color_manual(values=list("TRUE"="blue","FALSE"="red"), guide=NULL)
+  geom_hline(yintercept = 0, linetype="solid")+
+  geom_hline(yintercept = signif$D_crit$critical_0.05, linetype="dashed")+
+  geom_hline(yintercept = -signif$D_crit$critical_0.05, linetype="dashed")
 
-p5d = ggplot(plotdata, aes(x=max_obs, colour = H0_U_pit,y=U_pit))+
+  #+
+  #scale_color_manual(values=list("TRUE"="blue","FALSE"="red"), guide=NULL)
+# 
+p5d = ggplot(plotdata, aes(x=max_obs, colour = window,y=U_pit))+
   geom_point()+
-  geom_smooth(se=FALSE,method="loess", span=0.8, colour="black")+
+  geom_smooth(se=TRUE)+
   scale_x_log10()+
   xlab("peak observed case count")+
   ylab("undirected pit-w")+
-  scale_color_manual(values=list("TRUE"="blue","FALSE"="red"), guide=NULL)
-
-# p5c = ggplot(plotdata, aes(x=max_obs, colour = `P(obs)`,y=mean_crps))+
-#   geom_point()+
-#   geom_smooth(se=FALSE,method="loess", span=0.8)+
-#   scale_x_log10()+
-#   xlab("peak observed case count")+
-#   ylab("mean CRPS")
-
-
+  geom_hline(yintercept = 0, linetype="solid")+
+  geom_hline(yintercept = signif$U_crit$critical_0.05, linetype="dashed")
 
 p5 = p5a+p5b+p5c+p5d+patchwork::plot_layout(guides="collect",axes="collect")+
   patchwork::plot_annotation(tag_level="A")
@@ -253,72 +281,104 @@ p5 = p5a+p5b+p5c+p5d+patchwork::plot_layout(guides="collect",axes="collect")+
 ### Interpretation
 
 `EpiEstim` tended to overestimate $R_t$ across the epidemic sizes studied
-(panel A). The mean difference between the reference value and the
-predictive median ranged from $-0.185$ to $-0.088$. Two possible
-explanations are the Gamma$(2,2)$ prior and the lag from estimating a
-falling $R_t$ with a seven-day window.
+regardless of epidemic size (panel A) but with more effect with larger windows.
+Three possible contributing factors are the prior with mean of 2 and standard
+deviation of 5, the lag from estimating a falling $R_t$ at the end of the
+window, and the impact of a day zero truncation of the generation time
+distribution enforced by `EpiEstim`. `EpiEstim` assumes a constant $R_t$ during
+the window which would intuitively make it more likely to overestimate due to
+lag, in our scenario of a monotonically falling $R_t$, and for that to 
+be related to window size.
 
-The baseline score `B_pit` ranged from 0.24 to 0.30 and changed little
-with epidemic size (panel B). The adjusted scores showed a clearer pattern.
+The baseline score $B_pit$ (lower is better) suggests `EpiEstim` with smaller 
+windows is overall better and suggests its performance worsens in large epidemics
+(panel B). This is largely mirroring the bias. The vast majority of the estimators 
+are statistically unlikely to be well calibrated (dashed line is critical 0.95 
+threshold for 100 estimates).
 
-The mean directed score ranged from approximately $-0.079$ in the smallest
-simulated epidemics to $0.089$ in the largest, crossing zero at a peak of
-about 56 observed cases (panel C). The negative scores indicate intervals
-that were too wide at low counts, and the positive scores indicate
-intervals that were too narrow at high counts. The undirected score
-reached its minimum at a peak of about 47 cases (panel D).
+The mean directed score $D_pit$ adjusts for bias, (panel C). The negative scores indicate intervals
+that were too wide at low counts (excessively conservative), and the positive scores indicate
+intervals that were too narrow at high counts (overconfident). `EpiEstim` with a
+2 day window is conservative unless used in epidemics with a case count of over 1000. This
+is most likely reflecting reversion to the under-confident prior, and longer
+windows show this reversion is resolved in epidemics with smaller case counts. 
+Large amounts of over-confidence are exhibited by `EpiEstim` at all windows in
+larger epidemics and this is clearly correlated with window size. 
 
-<!-- **CRPS runs the other way.** Panel C falls monotonically from 0.183 to 0.087 -->
-<!-- (correlation $-0.89$ with $\log_{10}$ peak cases). Read without care it says -->
-<!-- that the bigger the epidemic, the better the forecast. What it is actually -->
-<!-- measuring is sharpness: in a large epidemic the posterior is narrow, so the -->
-<!-- score is small even as calibration deteriorates. $D^*_{pit}$ is monotone in -->
-<!-- the opposite direction (correlation $+0.91$) and is the only metric in the -->
-<!-- panel that identifies the large-epidemic forecasts as the mis-calibrated ones. -->
-<!-- This is the central argument of the paper, made on a real estimator rather -->
-<!-- than a constructed example: a proper score and a dispersion diagnostic can -->
-<!-- rank the same forecaster in opposite directions, and they are answering -->
-<!-- different questions. -->
+The undirected score reached its minimum at different epidemic sizes depending on
+window size (panel D) and epidemic size. It is likely that adjusting the window 
+size depending on the size of the epidemic could result in well calibrated 
+estimates from `EpiEstim`.
 
-<!-- Coverage corroborates the PIT-Wasserstein reading and not the CRPS one. -->
-<!-- Nominal 95% intervals cover 91% of true values in the smallest epidemics and -->
-<!-- only 51% in the largest; nominal 50% intervals fall from 0.44 to 0.29. The -->
-<!-- estimator is getting worse by the only criterion that asks whether its stated -->
-<!-- uncertainty is honest. -->
-
-The following table compares the binned scores with nominal reference
-values. Consecutive seven-day estimates share observations, so the
-independence assumption in the [significance vignette](significance-testing.html)
-does not hold here. Read these comparisons descriptively.
-
-With $n$ scored predictions per scenario, the reference expressions used in
+With $n = 100$ scored predictions per scenario, the reference expressions used in
 this comparison are $D^*_{pit} \sim N(0, 1/48n)$ and
-$\mathbb{E}[U^*_{pit}] = \sqrt{2\pi}/(8\sqrt{n})$. At the median $n = 76$ that
-is a null standard deviation of 0.0166 for $D^*$ and a null mean of 0.0359 for
-$U^*$. Converting the binned means to those scales:
+$\mathbb{E}[U^*_{pit}] = \sqrt{2\pi}/(8\sqrt{n})$. 
 
-| peak observed cases | $D^*_{pit}$ z-score | $U^*_{pit}$ / null mean |
-|---|---|---|
-| 10 | $-3.7$ | 1.8 |
-| 18 | $-2.5$ | 1.4 |
-| 36 | $-1.0$ | 1.3 |
-| 73 | $+0.7$ | 1.5 |
-| 148 | $+1.8$ | 1.9 |
-| 304 | $+3.1$ | 2.2 |
-| 617 | $+4.4$ | 2.6 |
-| 1261 | $+5.7$ | 3.0 |
+```{r}
 
-The directed scores closest to zero occurred in the bins with peaks of 36
-and 73 observed cases.
 
+p6a = ggplot(plotdata, aes(x=max_obs, colour = window,y=mean_crps))+
+  geom_point()+
+  geom_smooth(se=TRUE)+
+  scale_x_log10()+
+  xlab("peak observed case count")+
+  ylab("mean CRPS")
+
+p6b = ggplot(plotdata, aes(x=max_obs, colour = window,y=mean_coverage.0.5))+
+  geom_point()+
+  geom_smooth(se=TRUE)+
+  scale_x_log10()+
+  xlab("peak observed case count")+
+  ylab("unadj IQR coverage")+
+  geom_hline(yintercept = 0.5, linetype="solid")
+
+p6c = ggplot(plotdata, aes(x=max_obs, colour = window,y=mean_coverage.0.5_adj))+
+  geom_point()+
+  geom_smooth(se=TRUE)+
+  scale_x_log10()+
+  xlab("peak observed case count")+
+  ylab("adj IQR coverage")+
+  geom_hline(yintercept = 0.5, linetype="solid")
+
+# p6d = ggplot(plotdata, aes(x=max_obs, colour = window,y=P_misclass))+
+#   geom_point()+
+#   geom_smooth(se=TRUE)+
+#   scale_x_log10()+
+#   xlab("peak observed case count")+
+#   ylab("P(misclassification)")
+
+
+p6 = p6a+p6b+p6c+patchwork::plot_layout(guides="collect",axes="collect")+
+  patchwork::plot_annotation(tag_level="A")
+
+p6
+
+```
+
+REWRITE: **CRPS runs the other way.** Panel A falls monotonically from 0.183 to 0.087
+(correlation $-0.89$ with $\log_{10}$ peak cases). Read without care it says
+that the bigger the epidemic, the better the forecast. What it is actually
+measuring is sharpness: in a large epidemic the posterior is narrow, so the
+score is small even as calibration deteriorates. $D^*_{pit}$ is monotone in
+the opposite direction (correlation $+0.91$) and is the only metric in the
+panel that identifies the large-epidemic forecasts as the mis-calibrated ones.
+This is the central argument of the paper, made on a real estimator rather
+than a constructed example: a proper score and a dispersion diagnostic can
+rank the same forecaster in opposite directions, and they are answering
+different questions.
+
+REWRITE: Coverage corroborates the PIT-Wasserstein reading and not the CRPS one.
+Nominal 95% intervals cover 91% of true values in the smallest epidemics and
+only 51% in the largest; nominal 50% intervals fall from 0.44 to 0.29. The
+estimator is getting worse by the only criterion that asks whether its stated
+uncertainty is honest.
 
 
 ### Caveats
 
 This experiment identifies *that* the dispersion calibration changes sign with
-epidemic size; it does not separate the contributions of the Gamma prior, the
-window width, and any genuine over-confidence in the renewal-equation
-likelihood. Disentangling those would need a prior and window-width
-sensitivity sweep and is out of scope here. `pObs` is fixed at 0.5, so the
-`P(obs)` colour aesthetic currently has a single level.
+epidemic size; it does not separate the contributions of the Gamma prior, and 
+any genuine over-confidence in the renewal-equation
+likelihood. Disentangling those would need a prior 
+sensitivity sweep and is out of scope here.
 
