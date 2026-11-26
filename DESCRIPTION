@@ -55,7 +55,9 @@ Suggests:
     here,
     patchwork,
     tidyverse
-Remotes: ai4ci/interfacer
+URL: https://ai4ci.github.io/pit-wasserstein,
+    https://github.com/ai4ci/pit-wasserstein,
+    https://doi.org/10.5281/zenodo.24555797
 Config/Needs/build: terminological/pkgtools
 VignetteBuilder: knitr
 Config/testthat/edition: 3
