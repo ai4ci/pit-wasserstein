@@ -1,5 +1,12 @@
 # Adjusted PIT-Wasserstein: A Calibration Metric for Probabilistic Estimators
 
+[![R-CMD-check](https://github.com/ai4ci/pit-wasserstein/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ai4ci/ggoutbreak/actions/workflows/R-CMD-check.yaml)
+[![R-universe
+version](https://ai4ci.r-universe.dev/pitw/badges/version)](https://ai4ci.r-universe.dev/pitw)
+[![DOI](https://zenodo.org/badge/github/1361599864.svg)](https://doi.org/10.5281/zenodo.24555797)
+[![EPSRC
+badge](https://img.shields.io/badge/EPSRC%20grant-EP%2FY028392%2F1-05acb5)](https://gtr.ukri.org/projects?ref=EP%2FY028392%2F1)
+
 A dispersion calibration metric for probabilistic estimators,
 disentangled from bias and sharpness. Originally published as
 Supplementary Appendix 2 of **Challen & Danon (2025), “Instantaneous
