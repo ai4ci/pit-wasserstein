@@ -85,6 +85,9 @@ maybe the HTML or a link to the pdf output for example.
 
 
 
+
+    testthat::skip_on_cran()
+
     hux = iris %>% huxtable::as_hux() %>%
       huxtable::theme_mondrian(font="Roboto")
     out = .hux_save_as(hux, tempfile())
