@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/ai4ci/pit-wasserstein/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/ai4ci/pit-wasserstein/blob/0.0.1/DESCRIPTION)
 
 Challen R (2026). *pitw: PIT-Wasserstein Metrics for Diagnosing
 Dispersion Miscalibration*. R package version 0.0.1,
