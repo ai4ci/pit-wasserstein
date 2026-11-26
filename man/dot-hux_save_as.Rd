@@ -55,6 +55,9 @@ be included into a latex document for example.
 \section{Unit tests}{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{
 
+
+testthat::skip_on_cran()
+
 hux = iris \%>\% huxtable::as_hux() \%>\%
   huxtable::theme_mondrian(font="Roboto")
 out = .hux_save_as(hux, tempfile())

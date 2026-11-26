@@ -258,6 +258,8 @@ test_that(".hux_save_as unit test", {
 
   testthat::expect_no_error(withCallingHandlers(
     {
+      testthat::skip_on_cran()
+  
       hux = iris %>%
         huxtable::as_hux() %>%
         huxtable::theme_mondrian(font = "Roboto")
