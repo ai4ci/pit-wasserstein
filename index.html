@@ -33,7 +33,7 @@
 
     <a class="navbar-brand me-2" href="index.html">pitw</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,13 +70,30 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.svg" class="logo" alt=""><h1 id="adjusted-pit-wasserstein-a-calibration-metric-for-probabilistic-estimators-">Adjusted PIT-Wasserstein: A Calibration Metric for Probabilistic Estimators <a class="anchor" aria-label="anchor" href="#adjusted-pit-wasserstein-a-calibration-metric-for-probabilistic-estimators-"></a>
+<img src="logo.svg" class="logo" alt=""><h1 id="pit-wasserstein-a-calibration-metric-for-probabilistic-estimators-">PIT-Wasserstein: A Calibration Metric for Probabilistic Estimators <a class="anchor" aria-label="anchor" href="#pit-wasserstein-a-calibration-metric-for-probabilistic-estimators-"></a>
 </h1>
 </div>
 <p><!-- badges: start --> <a href="https://github.com/ai4ci/ggoutbreak/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/ai4ci/pit-wasserstein/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <a href="https://ai4ci.r-universe.dev/pitw" class="external-link"><img src="https://ai4ci.r-universe.dev/pitw/badges/version" alt="R-universe version"></a> <a href="https://doi.org/10.5281/zenodo.24555797" class="external-link"><img src="https://zenodo.org/badge/github/1361599864.svg" alt="DOI"></a> <a href="https://gtr.ukri.org/projects?ref=EP%2FY028392%2F1" class="external-link"><img src="https://img.shields.io/badge/EPSRC%20grant-EP%2FY028392%2F1-05acb5" alt="EPSRC badge"></a> <!-- badges: end --></p>
-<p>A dispersion calibration metric for probabilistic estimators, disentangled from bias and sharpness. Originally published as Supplementary Appendix 2 of <strong>Challen &amp; Danon (2025), “Instantaneous Reproduction Number Estimation From Modelled Incidence”</strong>; this repository is the extension into a standalone paper.</p>
-<p>The <a href="proof/README.html">Lean proof library</a> gives the asymptotic null laws for all three tests and instructions for importing them into another Lean project.</p>
+<p>A dispersion calibration metric for probabilistic estimators, disentangled from bias and sharpness. Originally published as Supplementary Appendix 2 of <strong>Challen &amp; Danon (2025), “Instantaneous Reproduction Number Estimation From Modelled Incidence”</strong>; this repository is the extension into a standalone paper titled “Diagnosing miscalibration with PIT-Wasserstein metrics”.</p>
+<p>The <a href="https://ai4ci.github.io/pit-wasserstein/">R package documentation</a> has resources on how to use the package and instructions to reproduce the figures from the upcoming paper.</p>
+<p>The <a href="proof/README.html">Lean proof library</a> gives the asymptotic null laws for all three significance tests and instructions for importing them into another Lean project.</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p><code>pitw</code> is hosted on the <a href="https://ai4ci.r-universe.dev/" class="external-link">AI4CI r-universe</a>. Installation of releases from there is as follows:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"ai4ci"</span> <span class="op">=</span> <span class="st">'https://ai4ci.r-universe.dev/'</span>,</span>
+<span>  CRAN <span class="op">=</span> <span class="st">'https://cloud.r-project.org'</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Download and install pitw in R</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pitw"</span><span class="op">)</span></span></code></pre></div>
+<p>You can install the development version of <code>pitw</code> from <a href="https://github.com/ai4ci/pit-wasserstein" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ai4ci/pit-wasserstein"</span><span class="op">)</span></span></code></pre></div>
 <hr>
+</div>
 <div class="section level2">
 <h2 id="core-concepts">Core concepts<a class="anchor" aria-label="anchor" href="#core-concepts"></a>
 </h2>
@@ -122,94 +139,6 @@
 <p>All three metrics have significance tests based on large-sample reference distributions for independent PIT values. The adjusted tests use reference laws derived for the Gaussian location model.</p>
 <hr>
 </div>
-</div>
-<div class="section level2">
-<h2 id="literature-context">Literature context<a class="anchor" aria-label="anchor" href="#literature-context"></a>
-</h2>
-<p>Closest existing work; all of it is in the <code>pit-wasserstein</code> Zotero collection, and <code>references/literature-review.md</code> has the detail.</p>
-<table class="table">
-<colgroup>
-<col width="16%">
-<col width="18%">
-<col width="65%">
-</colgroup>
-<thead><tr>
-<th>Paper</th>
-<th>Metric</th>
-<th>Difference from <span class="math inline">\(U^*_{pit}\)</span>
-</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>
-<strong>Wessel et al. (2025)</strong> arXiv:2506.13687</td>
-<td>
-<strong>MCB</strong> = mean |sorted PIT - uniform|</td>
-<td>No bias adjustment. Used as regularisation during training, not evaluation.</td>
-</tr>
-<tr>
-<td>
-<strong>Wilks (2018)</strong> QJRMS 144:76–88</td>
-<td>Miscalibration penalty (deviations of PIT from uniform)</td>
-<td>First PIT-uniformity penalty. Qualitative/binned, not Wasserstein.</td>
-</tr>
-<tr>
-<td>
-<strong>Kuleshov, Fenner &amp; Ermon (2018)</strong> ICML</td>
-<td>PCE = sup-norm |PIT CDF - uniform CDF|</td>
-<td>Sup-norm (KS-style), not L1/Wasserstein. No bias adjustment.</td>
-</tr>
-<tr>
-<td>
-<strong>Dheur &amp; Ben Taieb (2023)</strong> ICML</td>
-<td>PCE (same definition)</td>
-<td>Large-scale empirical study of PCE.</td>
-</tr>
-<tr>
-<td>
-<strong>Gneiting, Balabdaoui &amp; Raftery (2007)</strong> JRSS-B</td>
-<td>—</td>
-<td>Canonical PIT/calibration/sharpness framework.</td>
-</tr>
-<tr>
-<td>
-<strong>Hamill (2001)</strong> MWR 129:550–560</td>
-<td>—</td>
-<td>Rank histograms for ensemble verification.</td>
-</tr>
-<tr>
-<td>
-<strong>Brockwell (2007)</strong> Stat. Prob. Lett.</td>
-<td>—</td>
-<td>Universal residuals / PIT residuals.</td>
-</tr>
-<tr>
-<td>
-<strong>Podsztavek et al. (2024)</strong> ESANN</td>
-<td>—</td>
-<td>ML classification of PIT histogram shapes.</td>
-</tr>
-<tr>
-<td>
-<strong>Arrieta-Ibarra et al. (2022)</strong> JMLR 23</td>
-<td>—</td>
-<td>Survey of calibration metrics; reliability diagrams.</td>
-</tr>
-<tr>
-<td>
-<strong>Panaretos &amp; Zemel (2019)</strong> Annu. Rev. Stat. Appl.</td>
-<td>—</td>
-<td>Wasserstein distances in statistics.</td>
-</tr>
-<tr>
-<td>
-<strong>Bosse et al. (2024)</strong> arXiv:2205.07090</td>
-<td>—</td>
-<td>
-<code>scoringutils</code> has the AD test for PIT uniformity, no Wasserstein calibration metric.</td>
-</tr>
-</tbody>
-</table>
 <div class="section level3">
 <h3 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h3>
@@ -224,8 +153,14 @@
 <li>
 <strong>Validation</strong> showing it is independent of bias and sharpness</li>
 </ol>
-<p>The closest existing metrics (Wessel et al.’s MCB, Kuleshov et al.’s PCE) measure raw PIT uniformity without de-biasing, so represent calibration as both bias and dispersion calibration and are not informative on dispersion miscalibration in the presence of bias.</p>
+<hr>
 </div>
+</div>
+<div class="section level2">
+<h2 id="funding">Funding<a class="anchor" aria-label="anchor" href="#funding"></a>
+</h2>
+<p>The authors gratefully acknowledge the support of the UK Research and Innovation AI programme of the Engineering and Physical Sciences Research Council <a href="https://gtr.ukri.org/projects?ref=EP%2FY028392%2F1" class="external-link">EPSRC grant EP/Y028392/1</a>.</p>
+<hr>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
