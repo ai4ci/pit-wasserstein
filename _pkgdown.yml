@@ -6,6 +6,9 @@ reference:
 - title: PIT-W scoring
 - contents:
   - has_concept("scores")
+- title: Significance tests
+- contents:
+  - has_concept("significance")
 - title: Simulations
 - contents:
   - has_concept("simulations")
@@ -14,5 +17,5 @@ reference:
   - has_concept("distributions")
 - title: Others
 - contents:
-  - lacks_concepts(c("scores","simulations","distributions"))
+  - lacks_concepts(c("scores","significance","simulations","distributions"))
 

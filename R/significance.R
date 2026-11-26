@@ -102,7 +102,7 @@
 #' @returns `p_l1_bridge()` returns the c.d.f. evaluated at `q`;
 #'   `q_l1_bridge()` returns the quantile function evaluated at `p`
 #' @export
-#' @concept scores
+#' @concept significance
 #'
 #' @unit
 #' # the mean of the L1 norm of the bridge is known exactly to be sqrt(2 pi)/8
@@ -143,7 +143,7 @@ p_l1_bridge = function(q, terms = 30L) {
 
 #' @param p a vector of probabilities
 #' @rdname p_l1_bridge
-#' @concept scores
+#' @concept significance
 #' @export
 q_l1_bridge = function(p, terms = 30L) {
   vapply(
@@ -198,7 +198,7 @@ q_l1_bridge = function(p, terms = 30L) {
 #' * `p_value` — the probability of a `B_pit` at least this large under full
 #'   probabilistic calibration
 #' @export
-#' @concept scores
+#' @concept significance
 #'
 #' @unit
 #' # a calibrated forecaster sits near the null mean and is not significant
@@ -343,7 +343,7 @@ b_pit_significance = function(B_pit, n_predictions) {
 #' * `p_value` — the probability of a `U_pit` at least this large under the
 #'   location-free null
 #' @export
-#' @concept scores
+#' @concept significance
 #'
 #' @unit
 #' # the adjusted null is strictly tighter than the baseline one
@@ -413,7 +413,7 @@ u_pit_significance = function(U_pit, n_predictions) {
 #' * `direction` — `"overconfident"`, `"underconfident"` or `"calibrated"`
 #' * `p_value` — computed against `alternative`
 #' @export
-#' @concept scores
+#' @concept significance
 #'
 #' @unit
 #' # a z score of 1.96 is a two sided p of 0.05

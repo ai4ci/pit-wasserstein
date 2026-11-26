@@ -38,6 +38,7 @@ a one row data frame with:
 An estimator produces multiple parametrised probability distributions, from
 which we can calculate scores such as CPRS and PIT-W
 }
+\concept{scores}
 
 \section{Unit tests}{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{

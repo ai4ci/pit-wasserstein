@@ -41,3 +41,4 @@ the associated distribution function (which will be parameterised with
 config = dplyr::tibble(samples = 100)
 config \%>\% generate_simulation()
 }
+\concept{simulations}

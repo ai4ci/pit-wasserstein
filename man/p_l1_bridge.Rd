@@ -37,6 +37,7 @@ The default is ample over the whole range where the upper tail is
 numerically distinguishable from zero; beyond \code{q = 10} the c.d.f. is
 returned as exactly 1.
 }
+\concept{significance}
 
 \section{Unit tests}{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{

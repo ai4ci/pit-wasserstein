@@ -26,7 +26,7 @@ a dataframe with one row per input value and columns:
 \itemize{
 \item \code{D_pit}, \code{n_predictions} — as supplied
 \item \code{statistic} — the z score, \eqn{D^*_{pit}\sqrt{48n}}
-\item \code{se} — the asymptotic standard error, \eqn{1/\sqrt{48n}}
+\item \code{se} — the null standard error, \eqn{1/\sqrt{48n}}
 \item \code{critical_0.05} — the magnitude of \code{D_pit} rejected at 5\%
 \item \code{direction} — \code{"overconfident"}, \code{"underconfident"} or \code{"calibrated"}
 \item \code{p_value} — computed against \code{alternative}
@@ -39,16 +39,17 @@ positive values indicate \strong{overconfidence} (predictive distributions too
 narrow) and negative values \strong{underconfidence} (too wide).
 }
 \details{
-The test uses a Gaussian reference with mean zero and variance
-\eqn{1/(48n)} at sample size \eqn{n}. This follows from the limiting Brownian
-bridge for independent uniform PIT values when the estimated location shift
-cancels to first order, as in the common-scale Gaussian location model with
-median adjustment. The p-values and critical values are large-sample
-approximations.
+\code{D_pit} is a linear functional of the empirical quantile process, so its
+null is exactly Gaussian with a known variance,
+\eqn{D^*_{pit} \sim \mathcal{N}(0, 1/(48n))}. No simulation, bootstrap or
+nuisance parameter is required.
 
-In the vignette simulations, the nominal 5\% test rejects about 8\% of the
-time at \code{n = 10}, 6\% at \code{n = 25}, and 5.5\% at \code{n = 50}.
+The normal approximation to a sum of order statistics converges from above,
+so for \code{n_predictions} below about 50 the test is mildly anti-conservative
+(empirical size around 8\% at \code{n = 10}, 6\% at \code{n = 25}, 5.5\% at \code{n = 50});
+treat small-sample p values as approximate.
 }
+\concept{significance}
 
 \section{Unit tests}{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{

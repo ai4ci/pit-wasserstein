@@ -69,10 +69,9 @@ and `references/literature-review.md` has the detail.
 | **Panaretos & Zemel (2019)** Annu. Rev. Stat. Appl. | — | Wasserstein distances in statistics. |
 | **Bosse et al. (2024)** arXiv:2205.07090 | — | `scoringutils` has the AD test for PIT uniformity, no Wasserstein calibration metric. |
 
-### Summary of novelty
+### Summary
 
-The **adjusted PIT-Wasserstein ($U^*_{pit}$)** appears to be genuinely novel as
-a **standalone evaluative calibration metric** because it uniquely combines:
+The **adjusted PIT-Wasserstein ($U^*_{pit}$)** combines:
 
 1. **Bias adjustment** before PIT uniformity assessment (no other metric does this)
 2. **Wasserstein/L1 distance** rather than sup-norm (PCE) or binning (reliability diagrams)

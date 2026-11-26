@@ -35,7 +35,7 @@ test_that(".test_dist unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/import-standalone-distributions.R"), c(478, 1, 478+1, 1))
+    srcref = srcref(srcfile("../../R/import-standalone-distributions.R"), c(479, 1, 479+1, 1))
   )
 })
 

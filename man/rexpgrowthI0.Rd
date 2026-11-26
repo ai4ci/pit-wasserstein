@@ -9,7 +9,7 @@ rexpgrowthI0(I0, r, t_end, t_start = 0)
 \arguments{
 \item{I0}{the expected number of cases observed in the first day}
 
-\item{r}{and exponential growth rate (per unit time)}
+\item{r}{an exponential growth rate (per unit time)}
 
 \item{t_end}{the end of the observation period}
 

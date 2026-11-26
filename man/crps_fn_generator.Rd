@@ -19,6 +19,7 @@ re-parametrisations. This detects if a re-parametrisation is available for a
 distribution name and remaps the input to a more common distribution that
 \code{scoringRules} has support for.
 }
+\concept{scores}
 
 \section{Unit tests}{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{

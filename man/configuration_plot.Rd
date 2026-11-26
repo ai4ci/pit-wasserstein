@@ -36,3 +36,4 @@ a ggplot
 \description{
 Produce a summary plot of a experimental configuration.
 }
+\concept{simulations}

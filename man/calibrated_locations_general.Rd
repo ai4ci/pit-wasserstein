@@ -30,3 +30,4 @@ to uniform PIT values.
 \description{
 For a general (non-scale) family, solve it numerically instead:
 }
+\concept{simulations}

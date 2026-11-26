@@ -48,3 +48,4 @@ df \%>\%
   prediction_scores() \%>\%
   dplyr::glimpse()
 }
+\concept{scores}

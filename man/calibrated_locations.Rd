@@ -27,3 +27,4 @@ Predictions whose PIT values are exactly uniform, for a scale family
 loc = calibrated_locations(qfn = qgamma4, median = 1, kappa = 0.5)
 pit_w(1, loc, 0.5, dist = "gamma4", link = "log")$B_pit # ~1e-17
 }
+\concept{simulations}
