@@ -7,7 +7,6 @@
 [![EPSRC badge](https://img.shields.io/badge/EPSRC%20grant-EP%2FY028392%2F1-05acb5)](https://gtr.ukri.org/projects?ref=EP%2FY028392%2F1)
 <!-- badges: end -->
 
-
 A dispersion calibration metric for probabilistic estimators, disentangled from 
 bias and sharpness. Originally published as Supplementary Appendix 2 of
 **Challen & Danon (2025), "Instantaneous Reproduction Number Estimation From
@@ -21,7 +20,6 @@ from the upcoming paper.
 The [Lean proof library](proof/README.md) gives the asymptotic null laws for 
 all three significance tests and instructions for importing them into another 
 Lean project.
-
 
 ## Installation
 
