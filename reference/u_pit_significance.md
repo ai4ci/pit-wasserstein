@@ -35,28 +35,26 @@ a dataframe with one row per input value and columns:
 
 - `U_pit`, `n_predictions` — as supplied
 
-- `statistic` — the scaled metric, \\\sqrt{n}\\U\_{pit}\\
+- `statistic` — \\\sqrt{n}\\U\_{pit}\\, the quantity with a fixed null
 
-- `expected` — the reference mean of `U_pit`
+- `expected` — the null mean of `U_pit`
 
-- `critical_0.05` — the one-sided 5% reference critical value
+- `critical_0.05` — the one-sided 5% critical value of `U_pit`
 
-- `p_value` — the approximate upper-tail probability under the scaled
-  reference distribution
+- `p_value` — the probability of a `U_pit` at least this large under the
+  location-free null
 
 ## Details
 
-The reference distribution is the integrated absolute Brownian bridge
-with the effect of estimating the median location shift removed. The
-derivation uses independent Gaussian forecasts with a common scale on
-the link scale. In that model, median link-scale and median probit
-adjustments coincide. The reference may differ for other predictive
-families or varying forecast scales under link-scale adjustment.
-
-The test simulates and caches the limiting reference and extrapolates
-the upper tail beyond its estimated 99th percentile. The resulting
-p-values and critical values are large-sample approximations at finite
-\\n\\.
+Because the adjustment estimates a parameter from the same data, the
+null is **not** the baseline \\\int_0^1\|B^\circ\|\\ of
+[`b_pit_significance()`](https://ai4ci.github.io/pit-wasserstein/reference/b_pit_significance.md):
+it is the bridge with the estimated direction projected out (see
+`.u_pit_null`), giving a 5% critical value about `0.66` times the
+baseline one at every `n`. Using the baseline null here would be badly
+conservative. The adjusted null is still distribution-free — it depends
+on `n` and nothing else — but has no published c.d.f., so it is
+simulated once per session and cached.
 
 `U_pit` says nothing about the *direction* of a dispersion error; pair
 it with

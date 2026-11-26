@@ -17,7 +17,7 @@ rexpgrowthI0(I0, r, t_end, t_start = 0)
 
 - r:
 
-  and exponential growth rate (per unit time)
+  an exponential growth rate (per unit time)
 
 - t_end:
 

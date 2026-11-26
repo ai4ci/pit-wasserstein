@@ -47,7 +47,7 @@ a dataframe with one row per input value and columns:
 
 - `statistic` — the z score, \\D^\*\_{pit}\sqrt{48n}\\
 
-- `se` — the asymptotic standard error, \\1/\sqrt{48n}\\
+- `se` — the null standard error, \\1/\sqrt{48n}\\
 
 - `critical_0.05` — the magnitude of `D_pit` rejected at 5%
 
@@ -57,15 +57,15 @@ a dataframe with one row per input value and columns:
 
 ## Details
 
-The test uses a Gaussian reference with mean zero and variance
-\\1/(48n)\\ at sample size \\n\\. This follows from the limiting
-Brownian bridge for independent uniform PIT values when the estimated
-location shift cancels to first order, as in the common-scale Gaussian
-location model with median adjustment. The p-values and critical values
-are large-sample approximations.
+`D_pit` is a linear functional of the empirical quantile process, so its
+null is exactly Gaussian with a known variance, \\D^\*\_{pit} \sim
+\mathcal{N}(0, 1/(48n))\\. No simulation, bootstrap or nuisance
+parameter is required.
 
-In the vignette simulations, the nominal 5% test rejects about 8% of the
-time at `n = 10`, 6% at `n = 25`, and 5.5% at `n = 50`.
+The normal approximation to a sum of order statistics converges from
+above, so for `n_predictions` below about 50 the test is mildly
+anti-conservative (empirical size around 8% at `n = 10`, 6% at `n = 25`,
+5.5% at `n = 50`); treat small-sample p values as approximate.
 
 ## Unit tests
 

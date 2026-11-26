@@ -2,7 +2,37 @@
 
 ## PIT-W scoring
 
+- [`crps_fn_generator()`](https://ai4ci.github.io/pit-wasserstein/reference/crps_fn_generator.md)
+  : Generate a CRPS calculating function based on a parametrised
+  distribution name
+- [`pit_w()`](https://ai4ci.github.io/pit-wasserstein/reference/pit_w.md)
+  : Calculate a pit-wasserstein value for a single estimator
+- [`prediction_scores()`](https://ai4ci.github.io/pit-wasserstein/reference/prediction_scores.md)
+  : Score a parametrised probability distribution
+
+## Significance tests
+
+- [`b_pit_significance()`](https://ai4ci.github.io/pit-wasserstein/reference/b_pit_significance.md)
+  : Significance test for the baseline PIT-Wasserstein metric
+- [`d_pit_significance()`](https://ai4ci.github.io/pit-wasserstein/reference/d_pit_significance.md)
+  : Significance test for the directed PIT-Wasserstein metric
+- [`p_l1_bridge()`](https://ai4ci.github.io/pit-wasserstein/reference/p_l1_bridge.md)
+  [`q_l1_bridge()`](https://ai4ci.github.io/pit-wasserstein/reference/p_l1_bridge.md)
+  : Distribution of the L1 norm of the Brownian bridge
+- [`u_pit_significance()`](https://ai4ci.github.io/pit-wasserstein/reference/u_pit_significance.md)
+  : Significance test for the bias-adjusted undirected PIT-Wasserstein
+  metric
+
 ## Simulations
+
+- [`calibrated_locations()`](https://ai4ci.github.io/pit-wasserstein/reference/calibrated_locations.md)
+  : Uniform predictions for testing
+- [`calibrated_locations_general()`](https://ai4ci.github.io/pit-wasserstein/reference/calibrated_locations_general.md)
+  : Uniform predictions for testing (general)
+- [`configuration_plot()`](https://ai4ci.github.io/pit-wasserstein/reference/configuration_plot.md)
+  : Produce a summary plot of a experimental configuration.
+- [`generate_simulation()`](https://ai4ci.github.io/pit-wasserstein/reference/generate_simulation.md)
+  : Generate an set of scenarios for testing scoring
 
 ## Reparameterised and non-standard distributions
 
@@ -96,6 +126,9 @@
   : Sampling: gamma distribution constrained to have median \> sd
 - [`rdist()`](https://ai4ci.github.io/pit-wasserstein/reference/rdist.md)
   : Random sample from a named distribution
+- [`reparam_fn()`](https://ai4ci.github.io/pit-wasserstein/reference/reparam_fn.md)
+  : Get a converter that maps an unusual parametrisation to a canonical
+  one.
 - [`rexpgrowth()`](https://ai4ci.github.io/pit-wasserstein/reference/rexpgrowth.md)
   : Randomly sample incident times in an exponentially growing process
 - [`rexpgrowthI0()`](https://ai4ci.github.io/pit-wasserstein/reference/rexpgrowthI0.md)
@@ -126,33 +159,5 @@
 
 ## Others
 
-- [`b_pit_significance()`](https://ai4ci.github.io/pit-wasserstein/reference/b_pit_significance.md)
-  : Significance test for the baseline PIT-Wasserstein metric
-- [`calibrated_locations()`](https://ai4ci.github.io/pit-wasserstein/reference/calibrated_locations.md)
-  : Uniform predictions for testing
-- [`calibrated_locations_general()`](https://ai4ci.github.io/pit-wasserstein/reference/calibrated_locations_general.md)
-  : Uniform predictions for testing (general)
-- [`configuration_plot()`](https://ai4ci.github.io/pit-wasserstein/reference/configuration_plot.md)
-  : Produce a summary plot of a experimental configuration.
-- [`crps_fn_generator()`](https://ai4ci.github.io/pit-wasserstein/reference/crps_fn_generator.md)
-  : Generate a CRPS calculating function based on a parametrised
-  distribution name
-- [`d_pit_significance()`](https://ai4ci.github.io/pit-wasserstein/reference/d_pit_significance.md)
-  : Significance test for the directed PIT-Wasserstein metric
-- [`generate_simulation()`](https://ai4ci.github.io/pit-wasserstein/reference/generate_simulation.md)
-  : Generate an set of scenarios for testing scoring
-- [`p_l1_bridge()`](https://ai4ci.github.io/pit-wasserstein/reference/p_l1_bridge.md)
-  [`q_l1_bridge()`](https://ai4ci.github.io/pit-wasserstein/reference/p_l1_bridge.md)
-  : Distribution of the L1 norm of the Brownian bridge
-- [`pit_w()`](https://ai4ci.github.io/pit-wasserstein/reference/pit_w.md)
-  : Calculate a pit-wasserstein value for a single estimator
-- [`prediction_scores()`](https://ai4ci.github.io/pit-wasserstein/reference/prediction_scores.md)
-  : Score a parametrised probability distribution
-- [`reparam_fn()`](https://ai4ci.github.io/pit-wasserstein/reference/reparam_fn.md)
-  : Get a converter that maps an unusual parametrisation to a canonical
-  one.
 - [`std_size`](https://ai4ci.github.io/pit-wasserstein/reference/std_size.md)
   : Standard image and paper sizes
-- [`u_pit_significance()`](https://ai4ci.github.io/pit-wasserstein/reference/u_pit_significance.md)
-  : Significance test for the bias-adjusted undirected PIT-Wasserstein
-  metric

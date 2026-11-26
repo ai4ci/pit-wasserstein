@@ -88,22 +88,21 @@ from, as returned by <code><a href="prediction_scores.html">prediction_scores()<
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>a dataframe with one row per input value and columns:</p><ul><li><p><code>U_pit</code>, <code>n_predictions</code> — as supplied</p></li>
-<li><p><code>statistic</code> — the scaled metric, \(\sqrt{n}\,U_{pit}\)</p></li>
-<li><p><code>expected</code> — the reference mean of <code>U_pit</code></p></li>
-<li><p><code>critical_0.05</code> — the one-sided 5% reference critical value</p></li>
-<li><p><code>p_value</code> — the approximate upper-tail probability under the scaled reference distribution</p></li>
+<li><p><code>statistic</code> — \(\sqrt{n}\,U_{pit}\), the quantity with a fixed null</p></li>
+<li><p><code>expected</code> — the null mean of <code>U_pit</code></p></li>
+<li><p><code>critical_0.05</code> — the one-sided 5% critical value of <code>U_pit</code></p></li>
+<li><p><code>p_value</code> — the probability of a <code>U_pit</code> at least this large under the
+location-free null</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The reference distribution is the integrated absolute Brownian bridge with
-the effect of estimating the median location shift removed. The derivation
-uses independent Gaussian forecasts with a common scale on the link scale.
-In that model, median link-scale and median probit adjustments coincide.
-The reference may differ for other predictive families or varying forecast
-scales under link-scale adjustment.</p>
-<p>The test simulates and caches the limiting reference and extrapolates the
-upper tail beyond its estimated 99th percentile. The resulting p-values and
-critical values are large-sample approximations at finite \(n\).</p>
+    <p>Because the adjustment estimates a parameter from the same data, the null is
+<strong>not</strong> the baseline \(\int_0^1|B^\circ|\) of <code><a href="b_pit_significance.html">b_pit_significance()</a></code>: it is
+the bridge with the estimated direction projected out (see <code>.u_pit_null</code>),
+giving a 5% critical value about <code>0.66</code> times the baseline one at every <code>n</code>.
+Using the baseline null here would be badly conservative. The adjusted null
+is still distribution-free — it depends on <code>n</code> and nothing else — but has no
+published c.d.f., so it is simulated once per session and cached.</p>
 <p><code>U_pit</code> says nothing about the <em>direction</em> of a dispersion error; pair it
 with <code><a href="d_pit_significance.html">d_pit_significance()</a></code>, which does.</p>
     </div>

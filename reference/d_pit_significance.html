@@ -93,21 +93,21 @@ from, as returned by <code><a href="prediction_scores.html">prediction_scores()<
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>a dataframe with one row per input value and columns:</p><ul><li><p><code>D_pit</code>, <code>n_predictions</code> — as supplied</p></li>
 <li><p><code>statistic</code> — the z score, \(D^*_{pit}\sqrt{48n}\)</p></li>
-<li><p><code>se</code> — the asymptotic standard error, \(1/\sqrt{48n}\)</p></li>
+<li><p><code>se</code> — the null standard error, \(1/\sqrt{48n}\)</p></li>
 <li><p><code>critical_0.05</code> — the magnitude of <code>D_pit</code> rejected at 5%</p></li>
 <li><p><code>direction</code> — <code>"overconfident"</code>, <code>"underconfident"</code> or <code>"calibrated"</code></p></li>
 <li><p><code>p_value</code> — computed against <code>alternative</code></p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The test uses a Gaussian reference with mean zero and variance
-\(1/(48n)\) at sample size \(n\). This follows from the limiting Brownian
-bridge for independent uniform PIT values when the estimated location shift
-cancels to first order, as in the common-scale Gaussian location model with
-median adjustment. The p-values and critical values are large-sample
-approximations.</p>
-<p>In the vignette simulations, the nominal 5% test rejects about 8% of the
-time at <code>n = 10</code>, 6% at <code>n = 25</code>, and 5.5% at <code>n = 50</code>.</p>
+    <p><code>D_pit</code> is a linear functional of the empirical quantile process, so its
+null is exactly Gaussian with a known variance,
+\(D^*_{pit} \sim \mathcal{N}(0, 1/(48n))\). No simulation, bootstrap or
+nuisance parameter is required.</p>
+<p>The normal approximation to a sum of order statistics converges from above,
+so for <code>n_predictions</code> below about 50 the test is mildly anti-conservative
+(empirical size around 8% at <code>n = 10</code>, 6% at <code>n = 25</code>, 5.5% at <code>n = 50</code>);
+treat small-sample p values as approximate.</p>
     </div>
     <div class="section level2">
     <h2 id="unit-tests">Unit tests<a class="anchor" aria-label="anchor" href="#unit-tests"></a></h2>

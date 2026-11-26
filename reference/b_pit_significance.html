@@ -85,17 +85,18 @@ from, as returned by <code><a href="prediction_scores.html">prediction_scores()<
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>a dataframe with one row per input value and columns:</p><ul><li><p><code>B_pit</code>, <code>n_predictions</code> — as supplied</p></li>
-<li><p><code>statistic</code> — the scaled metric, \(\sqrt{n}\,B_{pit}\)</p></li>
-<li><p><code>expected</code> — the reference mean, \(\sqrt{2\pi}/(8\sqrt{n})\)</p></li>
-<li><p><code>critical_0.05</code> — the one-sided 5% reference critical value</p></li>
-<li><p><code>p_value</code> — the upper-tail probability under the scaled reference distribution</p></li>
+<li><p><code>statistic</code> — \(\sqrt{n}\,B_{pit}\), the quantity with a fixed null</p></li>
+<li><p><code>expected</code> — the null mean of <code>B_pit</code>, \(\sqrt{2\pi}/(8\sqrt{n})\)</p></li>
+<li><p><code>critical_0.05</code> — the one-sided 5% critical value of <code>B_pit</code></p></li>
+<li><p><code>p_value</code> — the probability of a <code>B_pit</code> at least this large under full
+probabilistic calibration</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Under that null \(\sqrt{n}\,B_{pit}\) converges to \(\int_0^1|B^\circ|\),
 the integrated absolute Brownian bridge, whose c.d.f. is <code><a href="p_l1_bridge.html">p_l1_bridge()</a></code>.
-The test evaluates the limit's analytical CDF numerically. The resulting
-p-values and critical values are large-sample approximations at finite \(n\).</p>
+Nothing is estimated from the data, so the null is exact and fully
+analytical.</p>
 <p><code>B_pit</code> rejects when <em>anything</em> is wrong and says nothing about what. Use it
 as the omnibus first stage, then <code><a href="d_pit_significance.html">d_pit_significance()</a></code> to test dispersion
 free of any location error, and <code><a href="u_pit_significance.html">u_pit_significance()</a></code> for the residual

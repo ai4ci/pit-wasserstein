@@ -35,14 +35,14 @@ a dataframe with one row per input value and columns:
 
 - `B_pit`, `n_predictions` — as supplied
 
-- `statistic` — the scaled metric, \\\sqrt{n}\\B\_{pit}\\
+- `statistic` — \\\sqrt{n}\\B\_{pit}\\, the quantity with a fixed null
 
-- `expected` — the reference mean, \\\sqrt{2\pi}/(8\sqrt{n})\\
+- `expected` — the null mean of `B_pit`, \\\sqrt{2\pi}/(8\sqrt{n})\\
 
-- `critical_0.05` — the one-sided 5% reference critical value
+- `critical_0.05` — the one-sided 5% critical value of `B_pit`
 
-- `p_value` — the upper-tail probability under the scaled reference
-  distribution
+- `p_value` — the probability of a `B_pit` at least this large under
+  full probabilistic calibration
 
 ## Details
 
@@ -50,9 +50,8 @@ Under that null \\\sqrt{n}\\B\_{pit}\\ converges to
 \\\int_0^1\|B^\circ\|\\, the integrated absolute Brownian bridge, whose
 c.d.f. is
 [`p_l1_bridge()`](https://ai4ci.github.io/pit-wasserstein/reference/p_l1_bridge.md).
-The test evaluates the limit's analytical CDF numerically. The resulting
-p-values and critical values are large-sample approximations at finite
-\\n\\.
+Nothing is estimated from the data, so the null is exact and fully
+analytical.
 
 `B_pit` rejects when *anything* is wrong and says nothing about what.
 Use it as the omnibus first stage, then
