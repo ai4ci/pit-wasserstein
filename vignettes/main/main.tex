@@ -2,12 +2,24 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,booktabs}
 \usepackage[preprint]{jmlr2e}
+\usepackage[hyphens]{url} % Ensures long URLs wrap cleanly at slashes/hyphens
+\usepackage{hyperref}
+
 \ShortHeadings{Diagnosing miscalibration with PIT-Wasserstein metrics}{Challen, Palmer and Danon}
 \firstpageno{1}
 \newcommand{\Bpit}{B_{\mathrm{pit}}}
 \newcommand{\Dpit}{D_{\mathrm{pit}}}
 \newcommand{\Upit}{U_{\mathrm{pit}}}
-\newcommand{\vignette}[2]{\href{https://ai4ci.github.io/pit-wasserstein/articles/#1.html}{#2}}
+
+% Base URL for your pkgdown site
+\newcommand{\pkgdownurl}{https://ai4ci.github.io/pit-wasserstein}
+
+% Macro to link directly to a specific vignette (with a footnote showing the URL)
+\newcommand{\vignette}[2]{%
+  \href{\pkgdownurl/articles/#1.html}{#2}%
+  \footnote{\url{\pkgdownurl/articles/#1.html}}%
+}
+
 \DeclareMathOperator{\med}{median}
 \DeclareMathOperator{\sgn}{sgn}
 
@@ -251,18 +263,17 @@ The undirected score $\Upit$ reached its minimum at different epidemic sizes dep
 
 \section{Discussion}
 
-Motivated by real world questions about how to set `EpiEstim` window parameters to best represent uncertainty, we have developed a set of metrics, complementary to proper scoring rules, that allowing specific diagnosis of dispersion miscalibration, and enable significance testing against the null hypothesis that the estimator is well calibrated. The metrics are very simple to calculate and we provide an R package and a reference implementation.
+Motivated by real world questions about how to set `EpiEstim` window parameters to best represent uncertainty, we have developed a set of metrics, complementary to proper scoring rules, that allowing specific diagnosis of dispersion miscalibration, and enable significance testing against the null hypothesis that the estimator is well calibrated. The metrics are very simple to calculate and we provide an R package as a reference implementation, and include Lean proofs of significance tests, available on GitHub and archived on Zenodo \citep{challen2026}.
 
-The baseline distance $\Bpit$ answers a simple ``Is it calibrated? Yes or no.'' question. With sufficent samples a low $\Bpit$ value with non-significance is reassuring that an estimator is calibrated, on the other hand a significant result on testing rejects that the variable is calibrated as the null hypothesis. The $\Dpit$ metric performs the same function on the specific question of whether the estimator is overconfident or too conservative, ignoring any ongoing bias. Decoupling these questions gives us a greater insight into the quality of an estimator. The symmetry of $\Dpit$ to over and under-confidence is appealing and allows us to compare the quality of estimators that differ in the nature of their dispersion calibration. The $\Upit$ metric combines both dispersion miscalibration and structural distributional error, into a metric that can be optimised over. Combined with the baseline $\Bpit$, for example, we have used these metrics within approximate Bayesian computing approaches to align posterior distributions to ``true'' observed data.
+The baseline distance $\Bpit$ answers a simple ``Is it calibrated? Yes or no.'' question. With sufficient samples a low $\Bpit$ value with non-significance is reassuring that an estimator is calibrated, on the other hand a significant result on testing rejects that the variable is calibrated as the null hypothesis. The $\Dpit$ metric performs the same function on the specific question of whether the estimator is overconfident or too conservative, ignoring any ongoing bias. Decoupling these questions gives us a greater insight into the quality of an estimator. The symmetry of $\Dpit$ to over and under-confidence is appealing and allows us to compare the quality of estimators that differ in the nature of their dispersion calibration. The $\Upit$ metric combines both dispersion miscalibration and structural distributional error, into a metric that can be optimised over. Combined with the baseline $\Bpit$, for example, we have used these metrics within approximate Bayesian computing approaches to align posterior distributions to ``true'' observed data.
 
-For independent predictions from the reference model, the three statistics can be accompanied by large-sample $p$-values. In settings such as rolling epidemic estimates, the scores retain a descriptive interpretation even when their nominal thresholds do not apply. The R package \texttt{pitw} provides functions for individual sets of predictions and for grouped comparisons. The \href{https://ai4ci.github.io/pit-wasserstein/articles/}{package articles} give worked examples, and the \vignette{significance-testing}{significance-testing vignette} gives the numerical evaluation of the reference distributions.
+For independent predictions from the reference model, the three statistics can be accompanied by large-sample $p$-values. In settings such as rolling epidemic estimates, the scores retain a descriptive interpretation even when their nominal thresholds do not apply. The R package \texttt{pitw} provides functions for individual sets of predictions and for grouped comparisons. The \vignette{pitw}{package articles} give worked examples, and the \vignette{significance-testing}{significance-testing vignette} gives the numerical evaluation of the reference distributions.
 
 Application of the metrics to the real world problem of EpiEstim gives us clear insights to the nature of the miscalibration and its relationship to epidemic size and window size. This is immediately informative and gives us clear strategies for best implementing EpiEstim in future disease outbreaks, in terms of window selection at different epidemic sizes, and can help us interpret EpiEstim's results.
 
 Three limitations affect their use. First, pooling assumes that a single location shift is a meaningful summary. Opposite biases by forecast horizon, epidemic phase or subgroup could average out in the PIT distribution and require separate subgroup evaluation. Second, the projected-bridge calculation uses a common Gaussian scale on the link scale. A family-specific projection or a simulation that reproduces the forecast scales, the fitted shift and any dependence would be needed to justify comparable tests in other settings. Third, the ordinary PIT assumes continuous univariate predictions. Discrete outcomes require an appropriate randomised transform \citep{brockwell2007}, with that extra variation carried through the analysis.
 
 While the metrics are immediately useful for EpiEstim it required careful design to ensure the estimates were independent, which required large numbers of cheap simulations. Because of the the lack of independence and auto-correlation involved we did not assess the predictions from an EpiEstim time series analysis, and therefore made minimal use of each simulation. In situations where simulation is expensive it would be beneficial to have a significance test that accounted for auto-correlation in estimates. Similarly although framed in univariate predictions the extension of this method to uniform density in a multivariate copula seems possible and both these aspects are subjects of future work.
-
 
 % \appendix
 % \section{Numerical evaluation of the tests}

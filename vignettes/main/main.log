@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.10.13)  25 NOV 2026 22:05
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.10.13)  26 NOV 2026 13:31
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**main
+**main.tex
 (./main.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -299,6 +299,24 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 \c@example=\count312
 \c@theorem=\count313
 )
+
+! LaTeX Error: Option clash for package url.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.6 \usepackage
+               {hyperref}
+The package url has already been loaded with options:
+  []
+There has now been an attempt to load it with options
+  [hyphens]
+Adding the global options:
+  ,hyphens
+to your \documentclass declaration may fix this.
+Try typing  <return>  to proceed.
+
 (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count314
@@ -306,24 +324,24 @@ File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
  (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count315
@@ -346,162 +364,183 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-Package hyperref Info: Link coloring OFF on input line 14.
+Package hyperref Info: Link coloring OFF on input line 26.
 
 (./main.out) (./main.out)
 \@outlinefile=\write3
 \openout3 = `main.out'.
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 32.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 44.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 32.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 44.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
-] [2] [3]
+] [2]
+Underfull \vbox (badness 1975) has occurred while \output is active []
+
+ [3]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 78.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 78.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 78.
+(hyperref)                removing `math shift' on input line 90.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 88.
+(hyperref)                removing `subscript' on input line 90.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 88.
+(hyperref)                removing `math shift' on input line 90.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 88.
+(hyperref)                removing `math shift' on input line 100.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 100.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 100.
 
 [4]
-<fig/fig1-metric-compare.pdf, id=152, 425.59pt x 433.62pt>
+<fig/fig1-metric-compare.pdf, id=163, 425.59pt x 433.62pt>
 File: fig/fig1-metric-compare.pdf Graphic file (type pdf)
 <use fig/fig1-metric-compare.pdf>
-Package pdftex.def Info: fig/fig1-metric-compare.pdf  used on input line 129.
+Package pdftex.def Info: fig/fig1-metric-compare.pdf  used on input line 141.
 (pdftex.def)             Requested size: 385.92152pt x 393.2252pt.
  [5] [6 <./fig/fig1-metric-compare.pdf>]
-<fig/fig2-critical-limits.pdf, id=180, 425.59pt x 433.62pt>
+<fig/fig2-critical-limits.pdf, id=195, 425.59pt x 433.62pt>
 File: fig/fig2-critical-limits.pdf Graphic file (type pdf)
 <use fig/fig2-critical-limits.pdf>
-Package pdftex.def Info: fig/fig2-critical-limits.pdf  used on input line 145.
+Package pdftex.def Info: fig/fig2-critical-limits.pdf  used on input line 157.
 (pdftex.def)             Requested size: 372.91345pt x 379.97235pt.
  [7] [8 <./fig/fig2-critical-limits.pdf>]
-<fig/fig3-three-part-test.pdf, id=203, 425.59pt x 216.81pt>
+<fig/fig3-three-part-test.pdf, id=219, 425.59pt x 216.81pt>
 File: fig/fig3-three-part-test.pdf Graphic file (type pdf)
 <use fig/fig3-three-part-test.pdf>
-Package pdftex.def Info: fig/fig3-three-part-test.pdf  used on input line 164.
+Package pdftex.def Info: fig/fig3-three-part-test.pdf  used on input line 176.
 (pdftex.def)             Requested size: 433.62pt x 220.91168pt.
  [9 <./fig/fig3-three-part-test.pdf>]
-<fig/fig4-epiestim-by-epi-size.pdf, id=226, 425.59pt x 433.62pt>
+<fig/fig4-epiestim-by-epi-size.pdf, id=251, 425.59pt x 433.62pt>
 File: fig/fig4-epiestim-by-epi-size.pdf Graphic file (type pdf)
 <use fig/fig4-epiestim-by-epi-size.pdf>
 Package pdftex.def Info: fig/fig4-epiestim-by-epi-size.pdf  used on input line 
-238.
+250.
 (pdftex.def)             Requested size: 385.92152pt x 393.2252pt.
- [10] [11 <./fig/fig4-epiestim-by-epi-size.pdf>] [12] (./main.bbl
-Underfull \hbox (badness 1152) in paragraph at lines 76--86
+ [10] [11 <./fig/fig4-epiestim-by-epi-size.pdf>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [12]
+(./main.bbl [13]
+Underfull \hbox (badness 1152) in paragraph at lines 83--93
 \T1/cmtt/m/n/10.95 2007 . 00587 . x$[]\T1/cmr/m/n/10.95 .  _eprint: https://rss
 .onlinelibrary.wiley.com/doi/pdf/10.1111/j.1467-
  []
 
-[13]
-Underfull \hbox (badness 4036) in paragraph at lines 88--97
+
+Underfull \hbox (badness 4036) in paragraph at lines 95--104
 []\T1/cmr/m/n/10.95 Thomas M. Hamill.  In-ter-pre-ta-tion of Rank His-tograms f
 or Ver-i-fy-ing En-sem-
  []
 
 
-Underfull \hbox (badness 2261) in paragraph at lines 88--97
+Underfull \hbox (badness 2261) in paragraph at lines 95--104
 \T1/cmr/m/n/10.95 ble Fore-casts.  \T1/cmr/m/it/10.95 Monthly Weather Re-view\T
 1/cmr/m/n/10.95 , 129(3):550--560, March 2001.  ISSN
  []
 
 
-Underfull \hbox (badness 1048) in paragraph at lines 88--97
+Underfull \hbox (badness 1048) in paragraph at lines 95--104
 \T1/cmr/m/n/10.95 1520-0493, 0027-0644.  doi: $10 . 1175 / 1520-[]0493(2001 ) 1
 29<[]0550 : IORHFV >[] 2 . 0 . CO ; 2$.
  []
 
 
-Underfull \hbox (badness 2359) in paragraph at lines 88--97
+Underfull \hbox (badness 2359) in paragraph at lines 95--104
 \T1/cmr/m/n/10.95 URL []$\T1/cmtt/m/n/10.95 https : / / journals . ametsoc . or
 g / view / journals / mwre / 129 / 3 / 1520-[]0493 _ 2001 _
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 129--137
+[14]
+Underfull \hbox (badness 10000) in paragraph at lines 136--144
 []\T1/cmr/m/n/10.95 Victor M. Panare-tos and Yoav Zemel.  Sta-tis-ti-cal As-pec
 ts of Wasser-stein
  []
 
 
-Underfull \hbox (badness 6859) in paragraph at lines 129--137
+Underfull \hbox (badness 6859) in paragraph at lines 136--144
 \T1/cmr/m/n/10.95 Dis-tances.  \T1/cmr/m/it/10.95 An-nual Re-view of Statis-tic
 s and Its Ap-pli-ca-tion\T1/cmr/m/n/10.95 , 6(Volume 6,
  []
 
 
-Underfull \hbox (badness 4859) in paragraph at lines 129--137
+Underfull \hbox (badness 4859) in paragraph at lines 136--144
 \T1/cmr/m/n/10.95 2019):405--431, March 2019.  ISSN 2326-8298, 2326-831X.  doi:
  $10 . 1146 /
  []
 
-) [14] (./main.aux)
+) [15] (./main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
-Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: BB163E80896B8B840E4E8476647E601A;2970.
+
+
+Package rerunfilecheck Warning: File `main.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `main.out':
+(rerunfilecheck)             Before: EBC5C2DCAB9914BBBB60A09E0A9EE216;3097
+(rerunfilecheck)             After:  BB163E80896B8B840E4E8476647E601A;2970.
  ) 
 Here is how much of TeX's memory you used:
- 10565 strings out of 469514
- 157030 string characters out of 5470071
- 571715 words of memory out of 5000000
- 39038 multiletter control sequences out of 15000+600000
- 641246 words of font info for 71 fonts, out of 8000000 for 9000
+ 10604 strings out of 469514
+ 157460 string characters out of 5470071
+ 571768 words of memory out of 5000000
+ 39056 multiletter control sequences out of 15000+600000
+ 645278 words of font info for 83 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 90i,9n,93p,1542b,568s stack positions out of 10000i,1000n,20000p,200000b,200000s
- </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1095.6
-00pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt109
-5.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm
-1095.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/ec/e
-crm1095.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/e
-c/ecbx1000.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappe
-n/ec/ecrm1000.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jkna
-ppen/ec/ecbx1200.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/j
-knappen/ec/ecti1000.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfou
-r/jknappen/ec/ecbx1095.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/lj
-four/jknappen/ec/ecbx1440.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk
-/ljfour/jknappen/ec/eccc1000.600pk></usr/share/texlive/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb
-></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr
-/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on main.pdf (14 pages, 742672 bytes).
+ 90i,9n,93p,1546b,580s stack positions out of 10000i,1000n,20000p,200000b,200000s
+
+pdfTeX warning (dest): name{section.7} has been referenced but does not exist, 
+replaced by a fixed one
+
+ </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1095.600
+pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1095.
+600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm10
+95.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/ec/ect
+t0900.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/ec/
+ecrm0900.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/
+ec/ecrm0800.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jknapp
+en/ec/ecrm1095.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/jkn
+appen/ec/ecbx1000.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfour/
+jknappen/ec/ecrm1000.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/ljfo
+ur/jknappen/ec/ecbx1200.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/pk/l
+jfour/jknappen/ec/ecti1000.600pk> </home/vp22681/.texlive2025/texmf-var/fonts/p
+k/ljfour/jknappen/ec/ecbx1095.600pk> </home/vp22681/.texlive2025/texmf-var/font
+s/pk/ljfour/jknappen/ec/ecbx1440.600pk> </home/vp22681/.texlive2025/texmf-var/f
+onts/pk/ljfour/jknappen/ec/eccc1000.600pk></usr/share/texlive/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pf
+b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on main.pdf (15 pages, 757774 bytes).
 PDF statistics:
- 769 PDF objects out of 1000 (max. 8388607)
- 335 compressed objects within 4 object streams
- 56 named destinations out of 1000 (max. 500000)
- 133 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 865 PDF objects out of 1000 (max. 8388607)
+ 386 compressed objects within 4 object streams
+ 68 named destinations out of 1000 (max. 500000)
+ 141 words of extra memory for PDF output out of 10000 (max. 10000000)
 

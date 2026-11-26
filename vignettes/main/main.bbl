@@ -1,4 +1,4 @@
-\begin{thebibliography}{16}
+\begin{thebibliography}{17}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -24,6 +24,13 @@ A.~E. Brockwell.
 \newblock \doi{10.1016/j.spl.2007.02.008}.
 \newblock URL
   \url{https://www.sciencedirect.com/science/article/pii/S0167715207000715}.
+
+\bibitem[Challen(2026)]{challen2026}
+Rob Challen.
+\newblock pitw: {R} {Package}, {Lean} proof and {Supplementary} {Vignettes}
+  supporting {Diagnosing} miscalibration with {PIT}-{Wasserstein} metrics,
+  November 2026.
+\newblock URL \url{https://github.com/ai4ci/pit-wasserstein}.
 
 \bibitem[Cori et~al.(2013)Cori, Ferguson, Fraser, and Cauchemez]{cori2013}
 Anne Cori, Neil~M. Ferguson, Christophe Fraser, and Simon Cauchemez.
